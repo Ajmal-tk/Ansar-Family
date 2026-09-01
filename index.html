@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ansar Family - Community Empowerment Platform</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-emerald: #0f5132;
+      --primary-teal: #0d9488;
+      --accent-mint: #10b981;
+      --secondary-gold: #d97706;
+      --bg-light: #f8fafc;
+      --surface-white: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --status-pending: #f59e0b;
+      --status-approved: #10b981;
+      --status-rejected: #ef4444;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+      --border-radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Public Landing Header */
+    .landing-header {
+      background: var(--primary-emerald);
+      color: white;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: white;
+      color: var(--primary-emerald);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-nav a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover {
+      color: white;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      background: linear-gradient(135deg, var(--primary-emerald) 0%, #063821 50%, var(--primary-teal) 100%);
+      color: white;
+      padding: 80px 32px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .hero-title {
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+      max-width: 750px;
+      margin: 0 auto 36px auto;
+      line-height: 1.5;
+      font-weight: 300;
+    }
+
+    .hero-cta-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-gold {
+      background: var(--secondary-gold);
+      color: white;
+    }
+
+    .btn-gold:hover {
+      background: #b45309;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline-white {
+      background: transparent;
+      border: 1.5px solid white;
+      color: white;
+    }
+
+    .btn-outline-white:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .btn-emerald {
+      background: var(--primary-emerald);
+      color: white;
+    }
+
+    .btn-emerald:hover {
+      background: #093822;
+    }
+
+    /* Features Grid */
+    .features-section {
+      padding: 70px 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-tag {
+      color: var(--primary-teal);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary-emerald);
+      margin-top: 6px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid #e2e8f0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(15, 81, 50, 0.08);
+      color: var(--primary-emerald);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Auth Block Section */
+    .auth-section {
+      background: #f1f5f9;
+      padding: 60px 32px;
+    }
+
+    .auth-container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 36px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid #e2e8f0;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 24px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+    }
+
+    .auth-tab.active {
+      color: var(--primary-emerald);
+      border-color: var(--primary-emerald);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-emerald);
+      box-shadow: 0 0 0 3px rgba(15, 81, 50, 0.1);
+    }
+
+    /* Role Quick Access Bar */
+    .role-switcher-box {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      text-align: center;
+    }
+
+    .role-switcher-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .role-btn-group {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .role-btn {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: var(--text-dark);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .role-btn:hover, .role-btn.active {
+      background: var(--primary-emerald);
+      color: white;
+      border-color: var(--primary-emerald);
+    }
+
+    /* Dashboard Layout (When Authenticated / Portal Mode) */
+    .portal-layout {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .portal-layout.active {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: linear-gradient(180deg, var(--primary-emerald) 0%, #063821 100%);
+      color: white;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: rgba(255, 255, 255, 0.18);
+      color: white;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-pending { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+    .badge-approved, .badge-paid { background: rgba(16, 185, 129, 0.15); color: var(--primary-emerald); }
+    .badge-role { background: rgba(13, 148, 136, 0.15); color: var(--primary-teal); }
+
+    /* Footer */
+    footer {
+      background: var(--text-dark);
+      color: white;
+      text-align: center;
+      padding: 24px;
+      font-size: 13px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================================================================== -->
+  <!-- PUBLIC LANDING PAGE VIEW (UNAUTHENTICATED) -->
+  <!-- ==================================================================== -->
+  <div id="landing-page-view">
+    <!-- Header -->
+    <header class="landing-header">
+      <div class="brand-logo">
+        <div class="brand-logo-icon"><i class="fa-solid fa-hands-holding-child"></i></div>
+        <div>
+          <div style="font-size: 18px; font-weight: 700;">ANSAR FAMILY</div>
+          <div style="font-size: 10px; opacity: 0.8;">Community Empowerment</div>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="#overview">Overview</a>
+        <a href="#pillars">Community Pillars</a>
+        <a href="#auth-block" class="btn btn-outline-white" style="padding: 8px 16px; font-size: 13px;">Sign In</a>
+        <a href="#auth-block" class="btn btn-gold" style="padding: 8px 16px; font-size: 13px;" onclick="switchAuthTab('register')">Register</a>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="overview">
+      <div class="hero-badge"><i class="fa-solid fa-star"></i> MUTUAL AID & EMPOWERMENT</div>
+      <h1 class="hero-title">Empowering Local Muslim Communities<br>Through Unity & Support</h1>
+      <p class="hero-subtitle">Ansar Family is a dedicated platform for local community empowerment—connecting households, streamlining membership requests, managing family welfare, and providing transparent charity collections.</p>
+      <div class="hero-cta-btns">
+        <a href="#auth-block" class="btn btn-gold" onclick="switchAuthTab('register')"><i class="fa-solid fa-user-plus"></i> Join Community Today</a>
+        <a href="#auth-block" class="btn btn-outline-white" onclick="switchAuthTab('login')"><i class="fa-solid fa-right-to-bracket"></i> Member Sign In</a>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="pillars">
+      <div class="section-header">
+        <div class="section-tag">CORE COMMUNITY PILLARS</div>
+        <h2 class="section-title">Everything Needed for Community Empowerment</h2>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="fa-solid fa-people-roof"></i></div>
+          <h3>Family Dependents Registry</h3>
+          <p>Register household dependents linked to your profile to ensure full family care and targeted welfare assistance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="color: var(--primary-teal); background: rgba(13, 148, 136, 0.08);"><i class="fa-solid fa-hands-holding-heart"></i></div>
+          <h3>Assistance Requests</h3>
+          <p>Public bulletin board for mutual aid, tutoring requests, volunteer drives, and local halaqah announcements.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="color: var(--secondary-gold); background: rgba(217, 119, 6, 0.08);"><i class="fa-solid fa-sack-dollar"></i></div>
+          <h3>Charity & Fee Collections</h3>
+          <p>Transparent membership fee tracking, Sadaqah collections, and zero-cost microfinance fund disbursements.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="color: var(--accent-mint); background: rgba(16, 185, 129, 0.08);"><i class="fa-solid fa-award"></i></div>
+          <h3>Digital Certificates</h3>
+          <p>Download official printable membership certificates with verification seal and executive board signatures.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Auth Block Section -->
+    <section class="auth-section" id="auth-block">
+      <div class="auth-container">
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tab-login-btn" onclick="switchAuthTab('login')">Member Sign In</div>
+          <div class="auth-tab" id="tab-register-btn" onclick="switchAuthTab('register')">Register Account</div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="form-login">
+          <div class="form-group">
+            <label class="form-label">Email Address or Username:</label>
+            <input type="text" class="form-control" id="loginEmail" placeholder="e.g. member@ansarfamily.org or ansar_member">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password:</label>
+            <input type="password" class="form-control" id="loginPass" value="password123">
+          </div>
+          <button class="btn btn-emerald" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="form-register" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Full Name:</label>
+            <input type="text" class="form-control" id="regName" placeholder="e.g. Tariq Al-Mansoor">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username (Unique ID):</label>
+            <input type="text" class="form-control" id="regUsername" placeholder="e.g. tariq_al_mansoor">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address:</label>
+            <input type="email" class="form-control" id="regEmail" placeholder="name@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number:</label>
+            <input type="text" class="form-control" id="regPhone" placeholder="+91 94470 12345">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address (Village/Mahallu):</label>
+            <input type="text" class="form-control" id="regAddress" placeholder="Juma Masjid Road, Malappuram, Kerala">
+          </div>
+          <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleRegister()"><i class="fa-solid fa-user-plus"></i> Submit Membership Application</button>
+        </div>
+
+        <!-- Role Preview Switcher -->
+        <div class="role-switcher-box">
+          <div class="role-switcher-title"><i class="fa-solid fa-flask"></i> DEMO ROLE DASHBOARD PREVIEW:</div>
+          <div class="role-btn-group">
+            <button class="role-btn active" onclick="enterPortalAs('admin')">Admin</button>
+            <button class="role-btn" onclick="enterPortalAs('management')">Manager</button>
+            <button class="role-btn" onclick="enterPortalAs('member')">Member</button>
+            <button class="role-btn" onclick="enterPortalAs('pending')">Pending</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      © 2026 Ansar Family Local Muslim Community Platform. All rights reserved.
+    </footer>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- PORTAL / DASHBOARD VIEW (AUTHENTICATED) -->
+  <!-- ==================================================================== -->
+  <div id="portal-view" class="portal-layout">
+    <aside class="sidebar">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.15);">
+        <div class="brand-logo-icon"><i class="fa-solid fa-hands-holding-child"></i></div>
+        <div>
+          <div style="font-size: 18px; font-weight: 700;">ANSAR FAMILY</div>
+          <div style="font-size: 10px; opacity: 0.8;">Community Platform</div>
+        </div>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--secondary-gold); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;" id="pAvatar">A</div>
+        <div>
+          <div style="font-size: 14px; font-weight: 600;" id="pName">Chief Administrator</div>
+          <span class="badge badge-role" id="pRole">ADMIN</span>
+        </div>
+      </div>
+
+      <div style="font-size: 11px; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px;">Portal Navigation</div>
+      <div class="nav-item active" onclick="showPortalTab('portal-home')"><i class="fa-solid fa-house"></i> Overview</div>
+      <div class="nav-item" onclick="showPortalTab('portal-approvals')" id="navApprovals"><i class="fa-solid fa-user-check"></i> 1-Click Approvals</div>
+      <div class="nav-item" onclick="showPortalTab('portal-fees')"><i class="fa-solid fa-receipt"></i> Receipts & Fees</div>
+      <div class="nav-item" onclick="showPortalTab('portal-admin')" id="navAdmin"><i class="fa-solid fa-sliders"></i> Admin RBAC</div>
+
+      <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15);">
+        <button class="btn btn-outline-white" style="width: 100%; justify-content: center;" onclick="exitPortal()"><i class="fa-solid fa-arrow-left"></i> Public Landing Page</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div id="portal-home">
+        <h2 class="section-title">Welcome to Ansar Family Portal</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">Community dashboard overview and management panel.</p>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Registered Members</h3>
+            <div style="font-size: 32px; font-weight: 700; color: var(--primary-emerald);">4</div>
+          </div>
+          <div class="feature-card">
+            <h3>Pending Applications</h3>
+            <div style="font-size: 32px; font-weight: 700; color: var(--status-pending);" id="pendingCnt">1</div>
+          </div>
+          <div class="feature-card">
+            <h3>Funds Collected</h3>
+            <div style="font-size: 32px; font-weight: 700; color: var(--accent-mint);">$150.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="portal-approvals" style="display: none;">
+        <h2 class="section-title">1-Click Pending Approvals</h2>
+        <div class="feature-card" style="margin-top: 20px;">
+          <table style="width: 100%;">
+            <thead><tr><th>Applicant</th><th>Phone</th><th>Status</th><th>1-Click Action</th></tr></thead>
+            <tbody id="appTable">
+              <tr>
+                <td><strong>Fatima Zohra</strong></td>
+                <td>+1 555 9821</td>
+                <td><span class="badge badge-pending">PENDING</span></td>
+                <td>
+                  <button class="btn btn-emerald" style="padding: 4px 10px; font-size: 12px;" onclick="approveApplicant()">Approve</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function switchAuthTab(tab) {
+      document.getElementById('tab-login-btn').classList.remove('active');
+      document.getElementById('tab-register-btn').classList.remove('active');
+      
+      if (tab === 'login') {
+        document.getElementById('tab-login-btn').classList.add('active');
+        document.getElementById('form-login').style.display = 'block';
+        document.getElementById('form-register').style.display = 'none';
+      } else {
+        document.getElementById('tab-register-btn').classList.add('active');
+        document.getElementById('form-login').style.display = 'none';
+        document.getElementById('form-register').style.display = 'block';
+      }
+    }
+
+    function handleLogin() {
+      const email = document.getElementById('loginEmail').value;
+      if (email) {
+        enterPortalAs(email.includes('admin') ? 'admin' : 'member');
+      }
+    }
+
+    function handleRegister() {
+      const name = document.getElementById('regName').value;
+      if (name) {
+        alert('Membership Application Submitted! Pending management approval.');
+        enterPortalAs('pending');
+      }
+    }
+
+    function enterPortalAs(role) {
+      document.getElementById('landing-page-view').style.display = 'none';
+      document.getElementById('portal-view').classList.add('active');
+      
+      document.getElementById('pName').innerText = role === 'admin' ? 'Chief Administrator' : (role === 'management' ? 'Community Manager' : 'Tariq Al-Mansoor');
+      
+      let profiles = [
+        { id: 'usr-101', name: 'Mahallu President', role: 'admin', status: 'approved', phone: '+91 94470 12345', address: 'Juma Masjid Road, Malappuram, Kerala' },
+        { id: 'usr-102', name: 'Mahallu Secretary', role: 'management', status: 'approved', phone: '+91 98471 23456', address: 'Town Hall Rd, Kozhikode, Kerala' },
+        { id: 'usr-103', name: 'Tariq Al-Mansoor', role: 'member', status: 'approved', phone: '+91 97452 34567', address: 'Near Juma Masjid, Ponnani, Kerala' },
+        { id: 'usr-104', name: 'Fatima Zohra', role: 'member', status: 'pending', phone: '+91 94953 45678', address: 'Green Valley, Ernakulam, Kerala' }
+      ];
+
+      let familyMembers = [
+        { id: 'fam-1', userId: 'usr-103', name: 'Aisha Al-Mansoor', relation: 'Spouse', age: 32, date: '2026-08-01' },
+        { id: 'fam-2', userId: 'usr-103', name: 'Zayd Al-Mansoor', relation: 'Child', age: 6, date: '2026-08-01' },
+        { id: 'fam-3', userId: 'usr-104', name: 'Youssef Zohra', relation: 'Child', age: 4, date: '2026-08-25' }
+      ];
+
+      let posts = [
+        { id: 'post-1', author: 'Mahallu Secretary', role: 'management', content: 'Assalamu Alaikum family! Monthly Mahallu Halaqah & food drive this Saturday at 10 AM.', date: 'Today at 09:30 AM' },
+        { id: 'post-2', author: 'Tariq Al-Mansoor', role: 'member', content: 'Assistance request: Looking for volunteer tutors for high school mathematics.', date: 'Yesterday' }
+      ];
+
+      let fees = [
+        { id: 'fee-1', memberName: 'Tariq Al-Mansoor', period: '2026-Q1', amount: 500.00, status: 'paid', date: '2026-08-15' },
+        { id: 'fee-2', memberName: 'Mahallu President', period: 'Annual 2026', amount: 2000.00, status: 'paid', date: '2026-08-10' }
+      ];
+
+      document.getElementById('pRole').innerText = role.toUpperCase();
+      document.getElementById('pAvatar').innerText = role[0].toUpperCase();
+
+      showPortalTab('portal-home');
+    }
+
+    function exitPortal() {
+      document.getElementById('portal-view').classList.remove('active');
+      document.getElementById('landing-page-view').style.display = 'block';
+    }
+
+    function showPortalTab(tabId) {
+      document.getElementById('portal-home').style.display = tabId === 'portal-home' ? 'block' : 'none';
+      document.getElementById('portal-approvals').style.display = tabId === 'portal-approvals' ? 'block' : 'none';
+    }
+
+    function approveApplicant() {
+      document.getElementById('appTable').innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No pending applicants! All caught up.</td></tr>';
+      document.getElementById('pendingCnt').innerText = '0';
+      alert('Member Approved Successfully!');
+    }
+  </script>
+</body>
+</html>

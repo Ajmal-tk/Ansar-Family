@@ -39,17 +39,17 @@ class StatusBadge extends StatelessWidget {
       switch (cleanStatus) {
         case 'approved':
         case 'paid':
-          bgColor = AppTheme.accentMint.withOpacity(0.12);
+          bgColor = AppTheme.accentMint.withValues(alpha: 0.12);
           textColor = AppTheme.primaryEmerald;
           icon = Icons.check_circle;
           break;
         case 'pending':
-          bgColor = AppTheme.statusPending.withOpacity(0.12);
+          bgColor = AppTheme.statusPending.withValues(alpha: 0.12);
           textColor = const Color(0xFFB45309);
           icon = Icons.hourglass_empty;
           break;
         case 'rejected':
-          bgColor = AppTheme.statusRejected.withOpacity(0.12);
+          bgColor = AppTheme.statusRejected.withValues(alpha: 0.12);
           textColor = AppTheme.statusRejected;
           icon = Icons.cancel;
           break;
@@ -65,7 +65,7 @@ class StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: textColor.withOpacity(0.2)),
+        border: Border.all(color: textColor.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

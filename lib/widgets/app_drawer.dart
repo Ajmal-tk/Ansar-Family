@@ -37,14 +37,17 @@ class AppDrawer extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             accountEmail: Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(profile?.phone ?? profile?.address ?? 'Local Muslim Community Platform'),
+                Text(profile?.phone ??
+                    profile?.address ??
+                    'Local Muslim Community Platform'),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    StatusBadge(status: profile?.role ?? 'member', isRole: true),
+                    StatusBadge(
+                        status: profile?.role ?? 'member', isRole: true),
                     const SizedBox(width: 6),
                     StatusBadge(status: profile?.status ?? 'pending'),
                   ],
@@ -73,7 +76,8 @@ class AppDrawer extends StatelessWidget {
               children: [
                 // Public Portal Section
                 ListTile(
-                  leading: const Icon(Icons.home, color: AppTheme.primaryEmerald),
+                  leading:
+                      const Icon(Icons.home, color: AppTheme.primaryEmerald),
                   title: const Text('Public Portal'),
                   onTap: () {
                     Navigator.pop(context);
@@ -84,13 +88,15 @@ class AppDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.people, color: AppTheme.primaryTeal),
+                  leading:
+                      const Icon(Icons.people, color: AppTheme.primaryTeal),
                   title: const Text('Family Members'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const FamilyMembersScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const FamilyMembersScreen()),
                     );
                   },
                 ),
@@ -101,18 +107,21 @@ class AppDrawer extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const CommunityPostsScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const CommunityPostsScreen()),
                     );
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.payments, color: AppTheme.secondaryGold),
+                  leading:
+                      const Icon(Icons.payments, color: AppTheme.secondaryGold),
                   title: const Text('Membership Fees & Donations'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const FeePaymentScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const FeePaymentScreen()),
                     );
                   },
                 ),
@@ -123,43 +132,51 @@ class AppDrawer extends StatelessWidget {
                 if (auth.isManagement) ...[
                   const Padding(
                     padding: EdgeInsets.only(left: 16, top: 8, bottom: 4),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textMuted,
+                    child: Text(
+                      'MANAGEMENT & ADMIN',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textMuted,
+                      ),
                     ),
-                    child: Text('MANAGEMENT & ADMIN'),
                   ),
                   ListTile(
-                    leading: const Icon(Icons.dashboard, color: AppTheme.primaryEmerald),
+                    leading: const Icon(Icons.dashboard,
+                        color: AppTheme.primaryEmerald),
                     title: const Text('Management Dashboard'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const ManagementDashboard()),
+                        MaterialPageRoute(
+                            builder: (_) => const ManagementDashboard()),
                       );
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.how_to_reg, color: AppTheme.primaryTeal),
+                    leading: const Icon(Icons.how_to_reg,
+                        color: AppTheme.primaryTeal),
                     title: const Text('Pending Approvals Panel'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const MemberApprovalsScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const MemberApprovalsScreen()),
                       );
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.receipt_long, color: AppTheme.secondaryGold),
+                    leading: const Icon(Icons.receipt_long,
+                        color: AppTheme.secondaryGold),
                     title: const Text('Financial Transactions Tracker'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const FeeManagementScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const FeeManagementScreen()),
                       );
                     },
                   ),
@@ -167,7 +184,8 @@ class AppDrawer extends StatelessWidget {
 
                 if (auth.isAdmin) ...[
                   ListTile(
-                    leading: const Icon(Icons.admin_panel_settings, color: Colors.purple),
+                    leading: const Icon(Icons.admin_panel_settings,
+                        color: Colors.purple),
                     title: const Text('Admin System Panel'),
                     onTap: () {
                       Navigator.pop(context);
@@ -183,13 +201,17 @@ class AppDrawer extends StatelessWidget {
 
                 // Demo Mode Role Switcher (For rapid testing)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'DEMO ROLE SWITCHER (FOR TESTING):',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey),
                       ),
                       const SizedBox(height: 6),
                       Wrap(

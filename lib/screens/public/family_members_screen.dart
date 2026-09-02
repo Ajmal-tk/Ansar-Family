@@ -26,7 +26,8 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
 
   Future<void> _loadData() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
-    final uId = auth.currentProfile?.id ?? SupabaseService.instance.currentUserId;
+    final uId =
+        auth.currentProfile?.id ?? SupabaseService.instance.currentUserId;
     final list = await SupabaseService.instance.fetchFamilyMembers(uId);
     setState(() {
       _members = list;
@@ -54,13 +55,14 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: selectedRelation,
+                  initialValue: selectedRelation,
                   decoration: const InputDecoration(labelText: 'Relation'),
                   items: ['Spouse', 'Child', 'Parent', 'Sibling', 'Other']
                       .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                       .toList(),
                   onChanged: (val) {
-                    if (val != null) setDialogState(() => selectedRelation = val);
+                    if (val != null)
+                      setDialogState(() => selectedRelation = val);
                   },
                 ),
                 const SizedBox(height: 12),
@@ -117,11 +119,13 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.family_restroom, size: 64, color: Colors.grey.shade400),
+                      Icon(Icons.family_restroom,
+                          size: 64, color: Colors.grey.shade400),
                       const SizedBox(height: 12),
                       const Text(
                         'No family members registered yet.',
-                        style: TextStyle(color: AppTheme.textMuted, fontSize: 16),
+                        style:
+                            TextStyle(color: AppTheme.textMuted, fontSize: 16),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
@@ -142,13 +146,15 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: AppTheme.primaryTeal.withOpacity(0.1),
-                            child: const Icon(Icons.person, color: AppTheme.primaryTeal),
+                            backgroundColor:
+                                AppTheme.primaryTeal.withValues(alpha: 0.1),
+                            child: const Icon(Icons.person,
+                                color: AppTheme.primaryTeal),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Column(
-                              crossAxisAlignment: CrossAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   item.name,
@@ -159,15 +165,18 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                                 ),
                                 Text(
                                   'Relation: ${item.relation ?? "N/A"}  •  Age: ${item.age ?? "N/A"}',
-                                  style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                                  style: const TextStyle(
+                                      color: AppTheme.textMuted, fontSize: 13),
                                 ),
                               ],
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.red),
+                            icon: const Icon(Icons.delete_outline,
+                                color: Colors.red),
                             onPressed: () async {
-                              await SupabaseService.instance.deleteFamilyMember(item.id);
+                              await SupabaseService.instance
+                                  .deleteFamilyMember(item.id);
                               _loadData();
                             },
                           ),

@@ -40,7 +40,8 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
   void _showAddManualFeeDialog() {
     final amountController = TextEditingController(text: '50.0');
     final periodController = TextEditingController(text: '2026-Q1');
-    ProfileModel? selectedMember = _allProfiles.isNotEmpty ? _allProfiles.first : null;
+    ProfileModel? selectedMember =
+        _allProfiles.isNotEmpty ? _allProfiles.first : null;
 
     showDialog(
       context: context,
@@ -52,7 +53,7 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<ProfileModel>(
-                  value: selectedMember,
+                  initialValue: selectedMember,
                   decoration: const InputDecoration(labelText: 'Select Member'),
                   items: _allProfiles
                       .map((p) => DropdownMenuItem(
@@ -60,7 +61,8 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                             child: Text(p.fullName ?? p.username ?? 'Member'),
                           ))
                       .toList(),
-                  onChanged: (val) => setDialogState(() => selectedMember = val),
+                  onChanged: (val) =>
+                      setDialogState(() => selectedMember = val),
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -71,7 +73,8 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: periodController,
-                  decoration: const InputDecoration(labelText: 'Period / Note (e.g. 2026-Q1)'),
+                  decoration: const InputDecoration(
+                      labelText: 'Period / Note (e.g. 2026-Q1)'),
                 ),
               ],
             ),
@@ -134,7 +137,7 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Total Card
                   CustomCard(
@@ -143,16 +146,19 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Total Community Revenue Collected',
-                              style: TextStyle(color: Colors.white70, fontSize: 13),
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 13),
                             ),
                             SizedBox(height: 4),
                             Text(
                               'Membership Fees & Charity',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -172,7 +178,11 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
 
                   const Text(
                     'ALL FINANCIAL ENTRIES',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, letterSpacing: 1, color: AppTheme.textMuted),
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                        color: AppTheme.textMuted),
                   ),
                   const SizedBox(height: 12),
 
@@ -182,7 +192,8 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: _allFees.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
                           itemBuilder: (ctx, i) {
                             final item = _allFees[i];
                             return CustomCard(
@@ -190,21 +201,29 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                               child: Row(
                                 children: [
                                   CircleAvatar(
-                                    backgroundColor: AppTheme.secondaryGold.withOpacity(0.15),
-                                    child: const Icon(Icons.attach_money, color: AppTheme.secondaryGold),
+                                    backgroundColor: AppTheme.secondaryGold
+                                        .withValues(alpha: 0.15),
+                                    child: const Icon(Icons.attach_money,
+                                        color: AppTheme.secondaryGold),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          item.userName ?? item.userId.substring(0, 8),
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                          item.userName ??
+                                              item.userId.substring(0, 8),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15),
                                         ),
                                         Text(
                                           'Period: ${item.period ?? "N/A"}  •  Date: ${dateFormat.format(item.paymentDate)}',
-                                          style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppTheme.textMuted),
                                         ),
                                       ],
                                     ),

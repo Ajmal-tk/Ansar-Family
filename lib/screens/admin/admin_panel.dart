@@ -57,17 +57,18 @@ class _AdminPanelState extends State<AdminPanel> {
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CustomCard(
                     color: Colors.purple.shade700,
                     child: const Row(
                       children: [
-                        Icon(Icons.admin_panel_settings, color: Colors.white, size: 32),
+                        Icon(Icons.admin_panel_settings,
+                            color: Colors.white, size: 32),
                         SizedBox(width: 14),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Role-Based Access Control (RBAC) & Database Management',
@@ -79,7 +80,8 @@ class _AdminPanelState extends State<AdminPanel> {
                               ),
                               Text(
                                 'Assign system roles (Admin, Management, Member) and update user approval states.',
-                                style: TextStyle(fontSize: 12, color: Colors.white70),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.white70),
                               ),
                             ],
                           ),
@@ -88,7 +90,6 @@ class _AdminPanelState extends State<AdminPanel> {
                     ),
                   ),
                   const SizedBox(height: 24),
-
                   const Text(
                     'SYSTEM PROFILES & ROLES DIRECTORY',
                     style: TextStyle(
@@ -99,7 +100,6 @@ class _AdminPanelState extends State<AdminPanel> {
                     ),
                   ),
                   const SizedBox(height: 12),
-
                   ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -115,7 +115,8 @@ class _AdminPanelState extends State<AdminPanel> {
                                 CircleAvatar(
                                   backgroundColor: Colors.purple.shade50,
                                   child: Text(
-                                    (item.fullName != null && item.fullName!.isNotEmpty)
+                                    (item.fullName != null &&
+                                            item.fullName!.isNotEmpty)
                                         ? item.fullName![0].toUpperCase()
                                         : 'U',
                                     style: TextStyle(
@@ -127,10 +128,13 @@ class _AdminPanelState extends State<AdminPanel> {
                                 const SizedBox(width: 14),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item.fullName ?? item.username ?? 'User',
+                                        item.fullName ??
+                                            item.username ??
+                                            'User',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
@@ -138,7 +142,9 @@ class _AdminPanelState extends State<AdminPanel> {
                                       ),
                                       Text(
                                         'ID: ${item.id.substring(0, 8)}...  •  Phone: ${item.phone ?? "N/A"}',
-                                        style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppTheme.textMuted),
                                       ),
                                     ],
                                   ),
@@ -156,36 +162,56 @@ class _AdminPanelState extends State<AdminPanel> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text('Role: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    const Text('Role: ',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold)),
                                     DropdownButton<String>(
                                       value: item.role,
                                       isDense: true,
                                       underline: const SizedBox(),
                                       items: const [
-                                        DropdownMenuItem(value: 'member', child: Text('Member')),
-                                        DropdownMenuItem(value: 'management', child: Text('Management')),
-                                        DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                                        DropdownMenuItem(
+                                            value: 'member',
+                                            child: Text('Member')),
+                                        DropdownMenuItem(
+                                            value: 'management',
+                                            child: Text('Management')),
+                                        DropdownMenuItem(
+                                            value: 'admin',
+                                            child: Text('Admin')),
                                       ],
                                       onChanged: (val) {
-                                        if (val != null) _changeRole(item.id, val);
+                                        if (val != null)
+                                          _changeRole(item.id, val);
                                       },
                                     ),
                                   ],
                                 ),
                                 Row(
                                   children: [
-                                    const Text('Status: ', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    const Text('Status: ',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold)),
                                     DropdownButton<String>(
                                       value: item.status,
                                       isDense: true,
                                       underline: const SizedBox(),
                                       items: const [
-                                        DropdownMenuItem(value: 'pending', child: Text('Pending')),
-                                        DropdownMenuItem(value: 'approved', child: Text('Approved')),
-                                        DropdownMenuItem(value: 'rejected', child: Text('Rejected')),
+                                        DropdownMenuItem(
+                                            value: 'pending',
+                                            child: Text('Pending')),
+                                        DropdownMenuItem(
+                                            value: 'approved',
+                                            child: Text('Approved')),
+                                        DropdownMenuItem(
+                                            value: 'rejected',
+                                            child: Text('Rejected')),
                                       ],
                                       onChanged: (val) {
-                                        if (val != null) _changeStatus(item.id, val);
+                                        if (val != null)
+                                          _changeStatus(item.id, val);
                                       },
                                     ),
                                   ],

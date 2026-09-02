@@ -56,7 +56,8 @@ class _CommunityPostsScreenState extends State<CommunityPostsScreen> {
           ElevatedButton(
             onPressed: () async {
               if (controller.text.trim().isNotEmpty) {
-                await SupabaseService.instance.createPost(controller.text.trim());
+                await SupabaseService.instance
+                    .createPost(controller.text.trim());
                 Navigator.pop(ctx);
                 _loadPosts();
               }
@@ -99,18 +100,21 @@ class _CommunityPostsScreenState extends State<CommunityPostsScreen> {
                   separatorBuilder: (_, __) => const SizedBox(height: 14),
                   itemBuilder: (ctx, i) {
                     final item = _posts[i];
-                    final canDelete = auth.isManagement || item.userId == auth.currentProfile?.id;
+                    final canDelete = auth.isManagement ||
+                        item.userId == auth.currentProfile?.id;
 
                     return CustomCard(
                       child: Column(
-                        crossAxisAlignment: CrossAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor: AppTheme.primaryEmerald.withOpacity(0.1),
+                                backgroundColor: AppTheme.primaryEmerald
+                                    .withValues(alpha: 0.1),
                                 child: Text(
-                                  (item.authorName != null && item.authorName!.isNotEmpty)
+                                  (item.authorName != null &&
+                                          item.authorName!.isNotEmpty)
                                       ? item.authorName![0].toUpperCase()
                                       : 'U',
                                   style: const TextStyle(
@@ -122,25 +126,33 @@ class _CommunityPostsScreenState extends State<CommunityPostsScreen> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment: CrossAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       item.authorName ?? 'Community Member',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15),
                                     ),
                                     Text(
                                       dateFormat.format(item.createdAt),
-                                      style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                                      style: const TextStyle(
+                                          fontSize: 11,
+                                          color: AppTheme.textMuted),
                                     ),
                                   ],
                                 ),
                               ),
-                              StatusBadge(status: item.authorRole ?? 'member', isRole: true),
+                              StatusBadge(
+                                  status: item.authorRole ?? 'member',
+                                  isRole: true),
                               if (canDelete)
                                 IconButton(
-                                  icon: const Icon(Icons.delete_outline, size: 20, color: Colors.red),
+                                  icon: const Icon(Icons.delete_outline,
+                                      size: 20, color: Colors.red),
                                   onPressed: () async {
-                                    await SupabaseService.instance.deletePost(item.id);
+                                    await SupabaseService.instance
+                                        .deletePost(item.id);
                                     _loadPosts();
                                   },
                                 ),

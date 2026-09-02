@@ -33,7 +33,7 @@ class PublicPortal extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Welcome Header Card
             CustomCard(
@@ -44,7 +44,8 @@ class PublicPortal extends StatelessWidget {
                     radius: 28,
                     backgroundColor: Colors.white,
                     child: Text(
-                      (profile?.fullName != null && profile!.fullName!.isNotEmpty)
+                      (profile?.fullName != null &&
+                              profile!.fullName!.isNotEmpty)
                           ? profile.fullName![0].toUpperCase()
                           : 'A',
                       style: const TextStyle(
@@ -57,7 +58,7 @@ class PublicPortal extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Welcome, ${profile?.fullName ?? "Community Member"}!',
@@ -70,7 +71,9 @@ class PublicPortal extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            StatusBadge(status: profile?.role ?? 'member', isRole: true),
+                            StatusBadge(
+                                status: profile?.role ?? 'member',
+                                isRole: true),
                             const SizedBox(width: 8),
                             StatusBadge(status: profile?.status ?? 'pending'),
                           ],
@@ -88,17 +91,18 @@ class PublicPortal extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.statusPending.withOpacity(0.15),
+                  color: AppTheme.statusPending.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppTheme.statusPending),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.hourglass_top, color: Color(0xFFB45309), size: 28),
+                    const Icon(Icons.hourglass_top,
+                        color: Color(0xFFB45309), size: 28),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Membership Application Pending Review',
@@ -110,7 +114,8 @@ class PublicPortal extends StatelessWidget {
                           SizedBox(height: 2),
                           Text(
                             'Your application has been received. Community management will review and approve your membership shortly.',
-                            style: TextStyle(fontSize: 12, color: Color(0xFF92400E)),
+                            style: TextStyle(
+                                fontSize: 12, color: Color(0xFF92400E)),
                           ),
                         ],
                       ),
@@ -120,14 +125,15 @@ class PublicPortal extends StatelessWidget {
               )
             else if (profile?.isApproved ?? false)
               CustomCard(
-                color: Colors.emerald.shade50,
+                color: Colors.green.shade50,
                 child: Row(
                   children: [
-                    const Icon(Icons.verified, color: AppTheme.primaryEmerald, size: 32),
+                    const Icon(Icons.verified,
+                        color: AppTheme.primaryEmerald, size: 32),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Verified Active Community Member',
@@ -139,21 +145,27 @@ class PublicPortal extends StatelessWidget {
                           ),
                           Text(
                             'You have full access to community services, voting, and downloadable digital certificate.',
-                            style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                            style: TextStyle(
+                                fontSize: 12, color: AppTheme.textMuted),
                           ),
                         ],
                       ),
                     ),
                     ElevatedButton.icon(
                       onPressed: () async {
-                        final pdfBytes = await PdfService.generateMembershipCertificate(profile!);
-                        await PdfService.printOrDownloadPdf(pdfBytes, 'Membership_Certificate.pdf');
+                        final pdfBytes =
+                            await PdfService.generateMembershipCertificate(
+                                profile!);
+                        await PdfService.printOrDownloadPdf(
+                            pdfBytes, 'Membership_Certificate.pdf');
                       },
                       icon: const Icon(Icons.download, size: 16),
-                      label: const Text('Certificate', style: TextStyle(fontSize: 12)),
+                      label: const Text('Certificate',
+                          style: TextStyle(fontSize: 12)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryEmerald,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                       ),
                     ),
                   ],
@@ -186,7 +198,8 @@ class PublicPortal extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const FamilyMembersScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const FamilyMembersScreen()),
                     );
                   },
                   child: Row(
@@ -194,25 +207,28 @@ class PublicPortal extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryTeal.withOpacity(0.1),
+                          color: AppTheme.primaryTeal.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.family_restroom, color: AppTheme.primaryTeal, size: 28),
+                        child: const Icon(Icons.family_restroom,
+                            color: AppTheme.primaryTeal, size: 28),
                       ),
                       const SizedBox(width: 14),
                       const Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'Family Members',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             SizedBox(height: 2),
                             Text(
                               'Register dependents & household',
-                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              style: TextStyle(
+                                  fontSize: 12, color: AppTheme.textMuted),
                             ),
                           ],
                         ),
@@ -224,7 +240,8 @@ class PublicPortal extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const CommunityPostsScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const CommunityPostsScreen()),
                     );
                   },
                   child: Row(
@@ -232,25 +249,28 @@ class PublicPortal extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryEmerald.withOpacity(0.1),
+                          color: AppTheme.primaryEmerald.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.handshake_outlined, color: AppTheme.primaryEmerald, size: 28),
+                        child: const Icon(Icons.handshake_outlined,
+                            color: AppTheme.primaryEmerald, size: 28),
                       ),
                       const SizedBox(width: 14),
                       const Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'Services & Posts',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             SizedBox(height: 2),
                             Text(
                               'Request assistance or share news',
-                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              style: TextStyle(
+                                  fontSize: 12, color: AppTheme.textMuted),
                             ),
                           ],
                         ),
@@ -262,7 +282,8 @@ class PublicPortal extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const FeePaymentScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const FeePaymentScreen()),
                     );
                   },
                   child: Row(
@@ -270,25 +291,28 @@ class PublicPortal extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.secondaryGold.withOpacity(0.1),
+                          color: AppTheme.secondaryGold.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.volunteer_activism, color: AppTheme.secondaryGold, size: 28),
+                        child: const Icon(Icons.volunteer_activism,
+                            color: AppTheme.secondaryGold, size: 28),
                       ),
                       const SizedBox(width: 14),
                       const Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'Fees & Charity',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             SizedBox(height: 2),
                             Text(
                               'Pay membership fee & donate',
-                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              style: TextStyle(
+                                  fontSize: 12, color: AppTheme.textMuted),
                             ),
                           ],
                         ),

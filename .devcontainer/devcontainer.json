@@ -1,10 +1,16 @@
 {
   "name": "Flutter Dev Container",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+<<<<<<< HEAD
   "features": {
     "ghcr.io/devcontainers-contrib/features/flutter:1": {
       "version": "stable"
     }
+=======
+  "postCreateCommand": "git clone https://github.com/flutter/flutter.git -b stable /home/vscode/flutter",
+  "remoteEnv": {
+    "PATH": "/home/vscode/flutter/bin:${containerEnv:PATH}"
+>>>>>>> 43a4760 (remote codespace changes)
   },
   "customizations": {
     "vscode": {
@@ -15,4 +21,8 @@
     }
   },
   "forwardPorts": [8080]
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 43a4760 (remote codespace changes)

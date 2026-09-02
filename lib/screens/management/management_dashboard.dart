@@ -71,14 +71,14 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Dashboard Title
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
-                        crossAxisAlignment: CrossAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
                             'Executive Management Overview',
@@ -90,7 +90,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                           ),
                           Text(
                             'Logged in as ${auth.currentProfile?.fullName ?? "Manager"} (${auth.currentProfile?.role.toUpperCase()})',
-                            style: const TextStyle(color: AppTheme.textMuted, fontSize: 13),
+                            style: const TextStyle(
+                                color: AppTheme.textMuted, fontSize: 13),
                           ),
                         ],
                       ),
@@ -104,17 +105,18 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                       margin: const EdgeInsets.only(bottom: 20),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.statusPending.withOpacity(0.15),
+                        color: AppTheme.statusPending.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppTheme.statusPending),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.notifications_active, color: Color(0xFFB45309), size: 28),
+                          const Icon(Icons.notifications_active,
+                              color: Color(0xFFB45309), size: 28),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Column(
-                              crossAxisAlignment: CrossAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   '$_pendingCount Pending Membership Application(s)',
@@ -125,7 +127,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 ),
                                 const Text(
                                   'Review and approve user requests with 1-click controls.',
-                                  style: TextStyle(fontSize: 12, color: Color(0xFF92400E)),
+                                  style: TextStyle(
+                                      fontSize: 12, color: Color(0xFF92400E)),
                                 ),
                               ],
                             ),
@@ -134,7 +137,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const MemberApprovalsScreen()),
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        const MemberApprovalsScreen()),
                               ).then((_) => _loadMetrics());
                             },
                             style: ElevatedButton.styleFrom(
@@ -148,7 +153,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
 
                   // KPI Cards
                   GridView.count(
-                    crossAxisCount: MediaQuery.of(context).size.width > 700 ? 4 : 2,
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 700 ? 4 : 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 14,
@@ -197,7 +203,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
 
                   // Modules Grid
                   GridView.count(
-                    crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 1,
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 600 ? 3 : 1,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 16,
@@ -208,11 +215,12 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const MemberApprovalsScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => const MemberApprovalsScreen()),
                           ).then((_) => _loadMetrics());
                         },
                         child: Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Row(
@@ -220,36 +228,41 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryEmerald.withOpacity(0.1),
+                                    color: AppTheme.primaryEmerald
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(Icons.how_to_reg, color: AppTheme.primaryEmerald),
+                                  child: const Icon(Icons.how_to_reg,
+                                      color: AppTheme.primaryEmerald),
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
                                   '1-Click Approvals',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
                             const Text(
                               'Approve or reject new member applications instantly.',
-                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              style: TextStyle(
+                                  fontSize: 12, color: AppTheme.textMuted),
                             ),
                           ],
                         ),
                       ),
-
                       CustomCard(
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const FeeManagementScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => const FeeManagementScreen()),
                           ).then((_) => _loadMetrics());
                         },
                         child: Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Row(
@@ -257,36 +270,41 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.secondaryGold.withOpacity(0.1),
+                                    color: AppTheme.secondaryGold
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(Icons.receipt_long, color: AppTheme.secondaryGold),
+                                  child: const Icon(Icons.receipt_long,
+                                      color: AppTheme.secondaryGold),
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
                                   'Financial Receipts',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
                             const Text(
                               'Track membership fees, donations, and record manual entries.',
-                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              style: TextStyle(
+                                  fontSize: 12, color: AppTheme.textMuted),
                             ),
                           ],
                         ),
                       ),
-
                       CustomCard(
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const ReportsScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => const ReportsScreen()),
                           );
                         },
                         child: Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Row(
@@ -294,22 +312,27 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryTeal.withOpacity(0.1),
+                                    color: AppTheme.primaryTeal
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(Icons.picture_as_pdf, color: AppTheme.primaryTeal),
+                                  child: const Icon(Icons.picture_as_pdf,
+                                      color: AppTheme.primaryTeal),
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
                                   'PDF Report Generator',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
                             const Text(
                               'Export printable financial summaries & membership certificates.',
-                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              style: TextStyle(
+                                  fontSize: 12, color: AppTheme.textMuted),
                             ),
                           ],
                         ),
@@ -330,7 +353,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
   }) {
     return CustomCard(
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
@@ -338,7 +361,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 12, color: AppTheme.textMuted, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textMuted,
+                    fontWeight: FontWeight.w600),
               ),
               Icon(icon, color: color, size: 20),
             ],

@@ -22,7 +22,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final pdfBytes = await PdfService.generateFinancialSummaryReport(fees);
     setState(() => _isGenerating = false);
 
-    await PdfService.printOrDownloadPdf(pdfBytes, 'Financial_Summary_Report.pdf');
+    await PdfService.printOrDownloadPdf(
+        pdfBytes, 'Financial_Summary_Report.pdf');
   }
 
   void _generateCertificatePdf() async {
@@ -30,12 +31,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final profiles = await SupabaseService.instance.fetchAllProfiles();
     final sampleProfile = profiles.isNotEmpty
         ? profiles.first
-        : ProfileModel(id: '123', fullName: 'Sample Community Member', role: 'member', status: 'approved');
+        : ProfileModel(
+            id: '123',
+            fullName: 'Sample Community Member',
+            role: 'member',
+            status: 'approved');
 
-    final pdfBytes = await PdfService.generateMembershipCertificate(sampleProfile);
+    final pdfBytes =
+        await PdfService.generateMembershipCertificate(sampleProfile);
     setState(() => _isGenerating = false);
 
-    await PdfService.printOrDownloadPdf(pdfBytes, 'Membership_Certificate_Sample.pdf');
+    await PdfService.printOrDownloadPdf(
+        pdfBytes, 'Membership_Certificate_Sample.pdf');
   }
 
   @override
@@ -47,7 +54,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'EXPORT COMMUNITY DOCUMENTS & REPORTS',
@@ -59,10 +66,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ),
             const SizedBox(height: 14),
-
             CustomCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
@@ -70,7 +76,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       SizedBox(width: 12),
                       Text(
                         'Financial Audit Summary Report',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ],
                   ),
@@ -84,25 +91,26 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     onPressed: _isGenerating ? null : _generateFinancialPdf,
                     icon: const Icon(Icons.download),
                     label: const Text('Download Financial Summary PDF'),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryEmerald),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryEmerald),
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
             CustomCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.verified, color: AppTheme.primaryTeal, size: 28),
+                      Icon(Icons.verified,
+                          color: AppTheme.primaryTeal, size: 28),
                       SizedBox(width: 12),
                       Text(
                         'Membership Certificate Generator',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ],
                   ),
@@ -116,7 +124,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     onPressed: _isGenerating ? null : _generateCertificatePdf,
                     icon: const Icon(Icons.download),
                     label: const Text('Download Certificate PDF'),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryTeal),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryTeal),
                   ),
                 ],
               ),

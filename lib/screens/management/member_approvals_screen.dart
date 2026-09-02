@@ -41,12 +41,14 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
   }
 
   void _updateStatus(String userId, String status) async {
-    final success = await SupabaseService.instance.updateProfileStatus(userId, status);
+    final success =
+        await SupabaseService.instance.updateProfileStatus(userId, status);
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Member status updated to ${status.toUpperCase()}'),
-          backgroundColor: status == 'approved' ? AppTheme.primaryEmerald : Colors.red,
+          backgroundColor:
+              status == 'approved' ? AppTheme.primaryEmerald : Colors.red,
         ),
       );
       _loadPending();
@@ -69,11 +71,13 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check_circle_outline, size: 64, color: Colors.emerald.shade300),
+                      Icon(Icons.check_circle_outline,
+                          size: 64, color: Colors.green.shade300),
                       const SizedBox(height: 12),
                       const Text(
                         'All caught up! No pending member applications.',
-                        style: TextStyle(color: AppTheme.textMuted, fontSize: 16),
+                        style:
+                            TextStyle(color: AppTheme.textMuted, fontSize: 16),
                       ),
                     ],
                   ),
@@ -88,12 +92,13 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
 
                     return CustomCard(
                       child: Column(
-                        crossAxisAlignment: CrossAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
                               CircleAvatar(
-                                backgroundColor: AppTheme.primaryEmerald.withOpacity(0.1),
+                                backgroundColor: AppTheme.primaryEmerald
+                                    .withValues(alpha: 0.1),
                                 child: Text(
                                   (p.fullName != null && p.fullName!.isNotEmpty)
                                       ? p.fullName![0].toUpperCase()
@@ -107,7 +112,7 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                               const SizedBox(width: 14),
                               Expanded(
                                 child: Column(
-                                  crossAxisAlignment: CrossAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       p.fullName ?? 'Applicant',
@@ -118,7 +123,9 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                                     ),
                                     Text(
                                       'Phone: ${p.phone ?? "N/A"}  •  Address: ${p.address ?? "N/A"}',
-                                      style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                                      style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.textMuted),
                                     ),
                                   ],
                                 ),
@@ -126,7 +133,7 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                               StatusBadge(status: p.status),
                             ],
                           ),
-                          
+
                           if (familyList.isNotEmpty) ...[
                             const SizedBox(height: 12),
                             Container(
@@ -136,7 +143,7 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Column(
-                                crossAxisAlignment: CrossAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Registered Household (${familyList.length} Dependents):',
@@ -154,7 +161,8 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                                           (fm) => Chip(
                                             label: Text(
                                               '${fm.name} (${fm.relation}, age ${fm.age})',
-                                              style: const TextStyle(fontSize: 11),
+                                              style:
+                                                  const TextStyle(fontSize: 11),
                                             ),
                                             backgroundColor: Colors.white,
                                             padding: EdgeInsets.zero,
@@ -174,16 +182,20 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               OutlinedButton.icon(
-                                onPressed: () => _updateStatus(p.id, 'rejected'),
-                                icon: const Icon(Icons.cancel, color: Colors.red, size: 18),
-                                label: const Text('Reject Application', style: TextStyle(color: Colors.red)),
+                                onPressed: () =>
+                                    _updateStatus(p.id, 'rejected'),
+                                icon: const Icon(Icons.cancel,
+                                    color: Colors.red, size: 18),
+                                label: const Text('Reject Application',
+                                    style: TextStyle(color: Colors.red)),
                                 style: OutlinedButton.styleFrom(
                                   side: const BorderSide(color: Colors.red),
                                 ),
                               ),
                               const SizedBox(width: 12),
                               ElevatedButton.icon(
-                                onPressed: () => _updateStatus(p.id, 'approved'),
+                                onPressed: () =>
+                                    _updateStatus(p.id, 'approved'),
                                 icon: const Icon(Icons.check_circle, size: 18),
                                 label: const Text('Approve Member'),
                                 style: ElevatedButton.styleFrom(

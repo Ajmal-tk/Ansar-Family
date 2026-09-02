@@ -12,7 +12,8 @@ class LandingPage extends StatefulWidget {
   State<LandingPage> createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> with SingleTickerProviderStateMixin {
+class _LandingPageState extends State<LandingPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _authCardKey = GlobalKey();
@@ -21,7 +22,8 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
   final _formKeyRegister = GlobalKey<FormState>();
 
   // Login Controllers
-  final _emailLoginController = TextEditingController(text: 'member@ansarfamily.org');
+  final _emailLoginController =
+      TextEditingController(text: 'member@ansarfamily.org');
   final _passLoginController = TextEditingController(text: 'password123');
 
   // Signup Controllers
@@ -73,7 +75,8 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
       );
       if (!success && mounted && auth.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(auth.errorMessage!), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(auth.errorMessage!), backgroundColor: Colors.red),
         );
       }
     }
@@ -93,13 +96,15 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Registration submitted! Account pending management approval.'),
+            content: Text(
+                'Registration submitted! Account pending management approval.'),
             backgroundColor: AppTheme.primaryEmerald,
           ),
         );
       } else if (mounted && auth.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(auth.errorMessage!), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(auth.errorMessage!), backgroundColor: Colors.red),
         );
       }
     }
@@ -122,16 +127,20 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.hands_holding_child, color: AppTheme.primaryEmerald, size: 24),
+              child: const Icon(Icons.volunteer_activism,
+                  color: AppTheme.primaryEmerald, size: 24),
             ),
             const SizedBox(width: 12),
             const Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'ANSAR FAMILY',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, letterSpacing: 1),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      letterSpacing: 1),
                 ),
                 Text(
                   'Local Muslim Community Platform',
@@ -145,11 +154,13 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
           if (isDesktop) ...[
             TextButton(
               onPressed: _scrollToAuthForm,
-              child: const Text('Overview', style: TextStyle(color: Colors.white)),
+              child:
+                  const Text('Overview', style: TextStyle(color: Colors.white)),
             ),
             TextButton(
               onPressed: _scrollToAuthForm,
-              child: const Text('Community Pillars', style: TextStyle(color: Colors.white)),
+              child: const Text('Community Pillars',
+                  style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(width: 12),
           ],
@@ -208,16 +219,18 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                     child: Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: Colors.white30),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.star, color: AppTheme.secondaryGold, size: 16),
+                              Icon(Icons.star,
+                                  color: AppTheme.secondaryGold, size: 16),
                               SizedBox(width: 8),
                               Text(
                                 'COMMUNITY EMPOWERMENT & MUTUAL AID',
@@ -248,7 +261,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: isDesktop ? 16 : 14,
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             height: 1.5,
                           ),
                         ),
@@ -268,8 +281,10 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.secondaryGold,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 28, vertical: 16),
+                                textStyle: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ),
                             OutlinedButton.icon(
@@ -277,11 +292,15 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                 _tabController.animateTo(0);
                                 _scrollToAuthForm();
                               },
-                              icon: const Icon(Icons.lock_open, color: Colors.white),
-                              label: const Text('Member Portal Sign In', style: TextStyle(color: Colors.white)),
+                              icon: const Icon(Icons.lock_open,
+                                  color: Colors.white),
+                              label: const Text('Member Portal Sign In',
+                                  style: TextStyle(color: Colors.white)),
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Colors.white, width: 1.5),
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                side: const BorderSide(
+                                    color: Colors.white, width: 1.5),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 16),
                               ),
                             ),
                           ],
@@ -325,7 +344,9 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
 
                     // Grid of 4 Pillars
                     GridView.count(
-                      crossAxisCount: isDesktop ? 4 : (MediaQuery.of(context).size.width > 600 ? 2 : 1),
+                      crossAxisCount: isDesktop
+                          ? 4
+                          : (MediaQuery.of(context).size.width > 600 ? 2 : 1),
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: 20,
@@ -333,27 +354,31 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                       childAspectRatio: 1.1,
                       children: [
                         _buildFeatureCard(
-                          icon: Icons.people_roof,
+                          icon: Icons.groups,
                           title: 'Family Dependents',
-                          desc: 'Register household members and dependents linked to your profile for community welfare tracking.',
+                          desc:
+                              'Register household members and dependents linked to your profile for community welfare tracking.',
                           color: AppTheme.primaryEmerald,
                         ),
                         _buildFeatureCard(
                           icon: Icons.handshake,
                           title: 'Assistance Requests',
-                          desc: 'Post community service requests, volunteering calls, food drives, and educational halaqahs.',
+                          desc:
+                              'Post community service requests, volunteering calls, food drives, and educational halaqahs.',
                           color: AppTheme.primaryTeal,
                         ),
                         _buildFeatureCard(
                           icon: Icons.volunteer_activism,
                           title: 'Fees & Sadaqah',
-                          desc: 'Zero-cost transparent fee collection, general charity contributions, and microfinance records.',
+                          desc:
+                              'Zero-cost transparent fee collection, general charity contributions, and microfinance records.',
                           color: AppTheme.secondaryGold,
                         ),
                         _buildFeatureCard(
                           icon: Icons.workspace_premium,
                           title: 'Digital Certificates',
-                          desc: 'Download official printable membership certificates with verification seal and issue dates.',
+                          desc:
+                              'Download official printable membership certificates with verification seal and issue dates.',
                           color: AppTheme.accentMint,
                         ),
                       ],
@@ -388,7 +413,8 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                             color: AppTheme.primaryEmerald,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.shield_outlined, size: 32, color: Colors.white),
+                          child: const Icon(Icons.shield_outlined,
+                              size: 32, color: Colors.white),
                         ),
                         const SizedBox(height: 14),
                         const Text(
@@ -403,7 +429,8 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                         const Text(
                           'Sign in to access your dashboard or submit a membership request.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                          style: TextStyle(
+                              fontSize: 12, color: AppTheme.textMuted),
                         ),
                         const SizedBox(height: 20),
 
@@ -433,10 +460,14 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                       TextFormField(
                                         controller: _emailLoginController,
                                         decoration: const InputDecoration(
-                                          labelText: 'Email Address or Username',
-                                          prefixIcon: Icon(Icons.email_outlined),
+                                          labelText:
+                                              'Email Address or Username',
+                                          prefixIcon:
+                                              Icon(Icons.email_outlined),
                                         ),
-                                        validator: (v) => v == null || v.isEmpty ? 'Enter email or username' : null,
+                                        validator: (v) => v == null || v.isEmpty
+                                            ? 'Enter email or username'
+                                            : null,
                                       ),
                                       const SizedBox(height: 14),
                                       TextFormField(
@@ -446,21 +477,30 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                           labelText: 'Password',
                                           prefixIcon: Icon(Icons.lock_outline),
                                         ),
-                                        validator: (v) => v == null || v.length < 6 ? 'Min 6 characters' : null,
+                                        validator: (v) =>
+                                            v == null || v.length < 6
+                                                ? 'Min 6 characters'
+                                                : null,
                                       ),
                                       const SizedBox(height: 24),
                                       SizedBox(
                                         width: double.infinity,
                                         height: 50,
                                         child: ElevatedButton(
-                                          onPressed: auth.isLoading ? null : _handleSignIn,
+                                          onPressed: auth.isLoading
+                                              ? null
+                                              : _handleSignIn,
                                           child: auth.isLoading
                                               ? const SizedBox(
                                                   height: 20,
                                                   width: 20,
-                                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                          color: Colors.white,
+                                                          strokeWidth: 2),
                                                 )
-                                              : const Text('Sign In to Dashboard'),
+                                              : const Text(
+                                                  'Sign In to Dashboard'),
                                         ),
                                       ),
                                     ],
@@ -478,27 +518,36 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                         controller: _nameRegisterController,
                                         decoration: const InputDecoration(
                                           labelText: 'Full Name',
-                                          prefixIcon: Icon(Icons.person_outline),
+                                          prefixIcon:
+                                              Icon(Icons.person_outline),
                                         ),
-                                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                                        validator: (v) => v == null || v.isEmpty
+                                            ? 'Required'
+                                            : null,
                                       ),
                                       const SizedBox(height: 10),
                                       TextFormField(
                                         controller: _usernameRegisterController,
                                         decoration: const InputDecoration(
                                           labelText: 'Username (Unique ID)',
-                                          prefixIcon: Icon(Icons.alternate_email),
+                                          prefixIcon:
+                                              Icon(Icons.alternate_email),
                                         ),
-                                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                                        validator: (v) => v == null || v.isEmpty
+                                            ? 'Required'
+                                            : null,
                                       ),
                                       const SizedBox(height: 10),
                                       TextFormField(
                                         controller: _emailRegisterController,
                                         decoration: const InputDecoration(
                                           labelText: 'Email Address',
-                                          prefixIcon: Icon(Icons.email_outlined),
+                                          prefixIcon:
+                                              Icon(Icons.email_outlined),
                                         ),
-                                        validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                                        validator: (v) => v == null || v.isEmpty
+                                            ? 'Required'
+                                            : null,
                                       ),
                                       const SizedBox(height: 10),
                                       TextFormField(
@@ -508,14 +557,18 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                           labelText: 'Password',
                                           prefixIcon: Icon(Icons.lock_outline),
                                         ),
-                                        validator: (v) => v == null || v.length < 6 ? 'Min 6 chars' : null,
+                                        validator: (v) =>
+                                            v == null || v.length < 6
+                                                ? 'Min 6 chars'
+                                                : null,
                                       ),
                                       const SizedBox(height: 10),
                                       TextFormField(
                                         controller: _phoneRegisterController,
                                         decoration: const InputDecoration(
                                           labelText: 'Phone Number',
-                                          prefixIcon: Icon(Icons.phone_outlined),
+                                          prefixIcon:
+                                              Icon(Icons.phone_outlined),
                                         ),
                                       ),
                                       const SizedBox(height: 10),
@@ -531,11 +584,17 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                         width: double.infinity,
                                         height: 50,
                                         child: ElevatedButton(
-                                          onPressed: auth.isLoading ? null : _handleSignUp,
-                                          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryTeal),
+                                          onPressed: auth.isLoading
+                                              ? null
+                                              : _handleSignUp,
+                                          style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppTheme.primaryTeal),
                                           child: auth.isLoading
-                                              ? const CircularProgressIndicator(color: Colors.white)
-                                              : const Text('Submit Application'),
+                                              ? const CircularProgressIndicator(
+                                                  color: Colors.white)
+                                              : const Text(
+                                                  'Submit Application'),
                                         ),
                                       ),
                                     ],
@@ -551,7 +610,10 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                         // Fast Demo Access Section
                         const Text(
                           'DEMO DASHBOARD PREVIEW (CLICK TO TEST ROLE):',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -560,17 +622,21 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                             OutlinedButton.icon(
                               onPressed: () => auth.switchDemoRole('admin'),
                               icon: const Icon(Icons.security, size: 14),
-                              label: const Text('Admin', style: TextStyle(fontSize: 11)),
+                              label: const Text('Admin',
+                                  style: TextStyle(fontSize: 11)),
                             ),
                             OutlinedButton.icon(
-                              onPressed: () => auth.switchDemoRole('management'),
+                              onPressed: () =>
+                                  auth.switchDemoRole('management'),
                               icon: const Icon(Icons.work, size: 14),
-                              label: const Text('Manager', style: TextStyle(fontSize: 11)),
+                              label: const Text('Manager',
+                                  style: TextStyle(fontSize: 11)),
                             ),
                             OutlinedButton.icon(
                               onPressed: () => auth.switchDemoRole('member'),
                               icon: const Icon(Icons.person, size: 14),
-                              label: const Text('Member', style: TextStyle(fontSize: 11)),
+                              label: const Text('Member',
+                                  style: TextStyle(fontSize: 11)),
                             ),
                           ],
                         ),
@@ -607,12 +673,12 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
     return CustomCard(
       padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 28),
@@ -625,7 +691,8 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
           const SizedBox(height: 6),
           Text(
             desc,
-            style: const TextStyle(fontSize: 12, color: AppTheme.textMuted, height: 1.4),
+            style: const TextStyle(
+                fontSize: 12, color: AppTheme.textMuted, height: 1.4),
           ),
         ],
       ),

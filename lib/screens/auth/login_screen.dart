@@ -67,6 +67,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (_formKeyRegister.currentState!.validate()) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final success = await auth.signUp(
+        username: _emailRegisterController.text.trim().split("@") .first,
         email: _emailRegisterController.text.trim(),
         password: _passRegisterController.text.trim(),
         fullName: _nameRegisterController.text.trim(),
@@ -97,8 +98,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppTheme.primaryEmerald.withOpacity(0.9),
-              AppTheme.primaryTeal.withOpacity(0.8),
+              AppTheme.primaryEmerald.withValues(alpha: 0.9),
+              AppTheme.primaryTeal.withValues(alpha: 0.8),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

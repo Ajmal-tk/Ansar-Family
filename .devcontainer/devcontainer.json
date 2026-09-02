@@ -1,6 +1,11 @@
 {
-  "name": "Flutter Dev Environment",
-  "image": "ghcr.io/cirruslabs/flutter:stable",
+  "name": "Flutter Dev Container",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers-contrib/features/flutter:1": {
+      "version": "stable"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [

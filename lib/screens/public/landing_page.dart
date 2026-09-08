@@ -22,13 +22,11 @@ class _LandingPageState extends State<LandingPage>
   final _formKeyRegister = GlobalKey<FormState>();
 
   // Login Controllers
-  final _emailLoginController =
-      TextEditingController(text: 'member@ansarfamily.org');
+  final _emailLoginController = TextEditingController(text: 'ansar_member');
   final _passLoginController = TextEditingController(text: 'password123');
 
   // Signup Controllers
   final _usernameRegisterController = TextEditingController();
-  final _emailRegisterController = TextEditingController();
   final _passRegisterController = TextEditingController();
   final _nameRegisterController = TextEditingController();
   final _phoneRegisterController = TextEditingController();
@@ -47,7 +45,6 @@ class _LandingPageState extends State<LandingPage>
     _emailLoginController.dispose();
     _passLoginController.dispose();
     _usernameRegisterController.dispose();
-    _emailRegisterController.dispose();
     _passRegisterController.dispose();
     _nameRegisterController.dispose();
     _phoneRegisterController.dispose();
@@ -87,7 +84,7 @@ class _LandingPageState extends State<LandingPage>
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final success = await auth.signUp(
         username: _usernameRegisterController.text.trim(),
-        email: _emailRegisterController.text.trim(),
+        email: null,
         password: _passRegisterController.text.trim(),
         fullName: _nameRegisterController.text.trim(),
         phone: _phoneRegisterController.text.trim(),
@@ -460,13 +457,12 @@ class _LandingPageState extends State<LandingPage>
                                       TextFormField(
                                         controller: _emailLoginController,
                                         decoration: const InputDecoration(
-                                          labelText:
-                                              'Email Address or Username',
+                                          labelText: 'Username',
                                           prefixIcon:
-                                              Icon(Icons.email_outlined),
+                                              Icon(Icons.alternate_email),
                                         ),
                                         validator: (v) => v == null || v.isEmpty
-                                            ? 'Enter email or username'
+                                            ? 'Enter username'
                                             : null,
                                       ),
                                       const SizedBox(height: 14),
@@ -532,18 +528,6 @@ class _LandingPageState extends State<LandingPage>
                                           labelText: 'Username (Unique ID)',
                                           prefixIcon:
                                               Icon(Icons.alternate_email),
-                                        ),
-                                        validator: (v) => v == null || v.isEmpty
-                                            ? 'Required'
-                                            : null,
-                                      ),
-                                      const SizedBox(height: 10),
-                                      TextFormField(
-                                        controller: _emailRegisterController,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Email Address',
-                                          prefixIcon:
-                                              Icon(Icons.email_outlined),
                                         ),
                                         validator: (v) => v == null || v.isEmpty
                                             ? 'Required'

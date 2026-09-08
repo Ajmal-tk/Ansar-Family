@@ -94,7 +94,8 @@ class SupabaseService {
     PostModel(
       id: 'post-1',
       userId: 'demo-management',
-      content: 'Assalamu Alaikum family! Monthly Mahallu Halaqah & food drive this Saturday at 10 AM.',
+      content:
+          'Assalamu Alaikum family! Monthly Mahallu Halaqah & food drive this Saturday at 10 AM.',
       createdAt: DateTime.now().subtract(const Duration(hours: 14)),
       authorName: 'Mahallu Secretary',
       authorRole: 'management',
@@ -102,7 +103,8 @@ class SupabaseService {
     PostModel(
       id: 'post-2',
       userId: 'demo-member',
-      content: 'Assistance request: Looking for volunteer tutors for high school mathematics.',
+      content:
+          'Assistance request: Looking for volunteer tutors for high school mathematics.',
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
       authorName: 'Tariq Al-Mansoor',
       authorRole: 'member',
@@ -123,10 +125,17 @@ class SupabaseService {
     ),
   ];
 
-  String? _mockCurrentUserId = 'demo-admin';
+  String? _mockCurrentUserId;
+  final Map<String, String> _mockPasswords = {
+    'admin': 'password123',
+    'manager': 'password123',
+    'ansar_member': 'password123',
+    'applicant_user': 'password123',
+  };
 
   // --- AUTHENTICATION ---
   User? get currentUser => client?.auth.currentUser;
+  bool get hasLocalSession => _mockCurrentUserId != null;
 
   String get currentUserId {
     if (client != null && currentUser != null) {
@@ -137,13 +146,18 @@ class SupabaseService {
 
   Future<AuthResponse?> signUp({
     required String username,
-    required String email,
+    String? email,
     required String password,
     required String fullName,
     required String phone,
     required String address,
   }) async {
     if (client != null) {
+      if (email == null || email.isEmpty) {
+        throw const AuthException(
+          'Supabase password auth requires an email address. Enable Email Auth or run with local mode.',
+        );
+      }
       final res = await client!.auth.signUp(
         email: email,
         password: password,
@@ -160,9 +174,14 @@ class SupabaseService {
     } else {
       // Mock signup logic
       final newId = const Uuid().v4();
+      final normalizedUsername = username.trim().toLowerCase();
+      if (_mockPasswords.containsKey(normalizedUsername)) {
+        throw const AuthException('That username is already registered.');
+      }
+      _mockPasswords[normalizedUsername] = password;
       _mockProfiles[newId] = ProfileModel(
         id: newId,
-        username: username.isNotEmpty ? username : email.split('@').first,
+        username: normalizedUsername,
         fullName: fullName,
         phone: phone,
         address: address,
@@ -210,16 +229,25 @@ class SupabaseService {
         password: password,
       );
     } else {
-      // Mock sign in lookup by email or username
+      // Local username/password authentication does not use Supabase.
       final term = emailOrUsername.toLowerCase().trim();
-      if (term.contains('admin')) {
+      final username = term.contains('@') ? term.split('@').first : term;
+      final expectedPassword = _mockPasswords[username];
+      if (expectedPassword == null || expectedPassword != password) {
+        throw const AuthException('Invalid username or password.');
+      }
+      if (username == 'admin') {
         _mockCurrentUserId = 'demo-admin';
-      } else if (term.contains('manager') || term.contains('management')) {
+      } else if (username == 'manager') {
         _mockCurrentUserId = 'demo-management';
-      } else if (term.contains('pending') || term.contains('applicant')) {
+      } else if (username == 'applicant_user') {
         _mockCurrentUserId = 'demo-pending';
       } else {
-        _mockCurrentUserId = 'demo-member';
+        final profile = _mockProfiles.values.firstWhere(
+          (profile) => profile.username == username,
+          orElse: () => throw const AuthException('Local profile not found.'),
+        );
+        _mockCurrentUserId = profile.id;
       }
       return null;
     }
@@ -255,6 +283,7 @@ class SupabaseService {
       } catch (e) {
         debugPrint("Error fetching profile: $e");
       }
+      return null;
     }
     return _mockProfiles[userId] ?? _mockProfiles['demo-member'];
   }
@@ -262,10 +291,8 @@ class SupabaseService {
   Future<List<ProfileModel>> fetchPendingProfiles() async {
     if (client != null) {
       try {
-        final res = await client!
-            .from('profiles')
-            .select()
-            .eq('status', 'pending');
+        final res =
+            await client!.from('profiles').select().eq('status', 'pending');
         return (res as List).map((e) => ProfileModel.fromJson(e)).toList();
       } catch (e) {
         debugPrint("Error fetching pending profiles: $e");
@@ -330,10 +357,8 @@ class SupabaseService {
   Future<List<FamilyMemberModel>> fetchFamilyMembers(String userId) async {
     if (client != null) {
       try {
-        final res = await client!
-            .from('family_members')
-            .select()
-            .eq('user_id', userId);
+        final res =
+            await client!.from('family_members').select().eq('user_id', userId);
         return (res as List).map((e) => FamilyMemberModel.fromJson(e)).toList();
       } catch (e) {
         debugPrint("Error fetching family members: $e");

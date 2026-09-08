@@ -12,18 +12,19 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   final _formKeyLogin = GlobalKey<FormState>();
   final _formKeyRegister = GlobalKey<FormState>();
 
   // Login Controllers
-  final _emailLoginController = TextEditingController(text: 'member@ansarfamily.org');
+  final _emailLoginController = TextEditingController(text: 'ansar_member');
   final _passLoginController = TextEditingController(text: 'password123');
 
   // Signup Controllers
-  final _emailRegisterController = TextEditingController();
+  final _usernameRegisterController = TextEditingController();
   final _passRegisterController = TextEditingController();
   final _nameRegisterController = TextEditingController();
   final _phoneRegisterController = TextEditingController();
@@ -40,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     _tabController.dispose();
     _emailLoginController.dispose();
     _passLoginController.dispose();
-    _emailRegisterController.dispose();
+    _usernameRegisterController.dispose();
     _passRegisterController.dispose();
     _nameRegisterController.dispose();
     _phoneRegisterController.dispose();
@@ -57,7 +58,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       );
       if (!success && mounted && auth.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(auth.errorMessage!), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(auth.errorMessage!), backgroundColor: Colors.red),
         );
       }
     }
@@ -67,8 +69,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     if (_formKeyRegister.currentState!.validate()) {
       final auth = Provider.of<AuthProvider>(context, listen: false);
       final success = await auth.signUp(
-        username: _emailRegisterController.text.trim().split("@") .first,
-        email: _emailRegisterController.text.trim(),
+        username: _usernameRegisterController.text.trim(),
+        email: null,
         password: _passRegisterController.text.trim(),
         fullName: _nameRegisterController.text.trim(),
         phone: _phoneRegisterController.text.trim(),
@@ -77,13 +79,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Registration submitted! Account pending management approval.'),
+            content: Text(
+                'Registration submitted! Account pending management approval.'),
             backgroundColor: AppTheme.primaryEmerald,
           ),
         );
       } else if (mounted && auth.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(auth.errorMessage!), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(auth.errorMessage!), backgroundColor: Colors.red),
         );
       }
     }
@@ -122,7 +126,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         color: AppTheme.primaryEmerald,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.diversity_3, size: 40, color: Colors.white),
+                      child: const Icon(Icons.diversity_3,
+                          size: 40, color: Colors.white),
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -170,10 +175,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   TextFormField(
                                     controller: _emailLoginController,
                                     decoration: const InputDecoration(
-                                      labelText: 'Email Address',
-                                      prefixIcon: Icon(Icons.email_outlined),
+                                      labelText: 'Username',
+                                      prefixIcon: Icon(Icons.alternate_email),
                                     ),
-                                    validator: (v) => v == null || v.isEmpty ? 'Enter email' : null,
+                                    validator: (v) => v == null || v.isEmpty
+                                        ? 'Enter username'
+                                        : null,
                                   ),
                                   const SizedBox(height: 14),
                                   TextFormField(
@@ -183,19 +190,24 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       labelText: 'Password',
                                       prefixIcon: Icon(Icons.lock_outline),
                                     ),
-                                    validator: (v) => v == null || v.length < 6 ? 'Min 6 characters' : null,
+                                    validator: (v) => v == null || v.length < 6
+                                        ? 'Min 6 characters'
+                                        : null,
                                   ),
                                   const SizedBox(height: 24),
                                   SizedBox(
                                     width: double.infinity,
                                     height: 50,
                                     child: ElevatedButton(
-                                      onPressed: auth.isLoading ? null : _handleSignIn,
+                                      onPressed:
+                                          auth.isLoading ? null : _handleSignIn,
                                       child: auth.isLoading
                                           ? const SizedBox(
                                               height: 20,
                                               width: 20,
-                                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                              child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 2),
                                             )
                                           : const Text('Sign In'),
                                     ),
@@ -217,16 +229,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       labelText: 'Full Name',
                                       prefixIcon: Icon(Icons.person_outline),
                                     ),
-                                    validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                                    validator: (v) => v == null || v.isEmpty
+                                        ? 'Required'
+                                        : null,
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(
-                                    controller: _emailRegisterController,
+                                    controller: _usernameRegisterController,
                                     decoration: const InputDecoration(
-                                      labelText: 'Email',
-                                      prefixIcon: Icon(Icons.email_outlined),
+                                      labelText: 'Username',
+                                      prefixIcon: Icon(Icons.alternate_email),
                                     ),
-                                    validator: (v) => v == null || v.isEmpty ? 'Required' : null,
+                                    validator: (v) => v == null || v.isEmpty
+                                        ? 'Required'
+                                        : null,
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(
@@ -236,7 +252,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       labelText: 'Password',
                                       prefixIcon: Icon(Icons.lock_outline),
                                     ),
-                                    validator: (v) => v == null || v.length < 6 ? 'Min 6 chars' : null,
+                                    validator: (v) => v == null || v.length < 6
+                                        ? 'Min 6 chars'
+                                        : null,
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(
@@ -259,10 +277,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     width: double.infinity,
                                     height: 50,
                                     child: ElevatedButton(
-                                      onPressed: auth.isLoading ? null : _handleSignUp,
-                                      style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryTeal),
+                                      onPressed:
+                                          auth.isLoading ? null : _handleSignUp,
+                                      style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              AppTheme.primaryTeal),
                                       child: auth.isLoading
-                                          ? const CircularProgressIndicator(color: Colors.white)
+                                          ? const CircularProgressIndicator(
+                                              color: Colors.white)
                                           : const Text('Submit Application'),
                                     ),
                                   ),
@@ -279,7 +301,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     // Fast Demo Access Section
                     const Text(
                       'QUICK DEMO ACCESS (CLICK TO SWITCH ROLE):',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey),
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -288,17 +313,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         OutlinedButton.icon(
                           onPressed: () => auth.switchDemoRole('admin'),
                           icon: const Icon(Icons.security, size: 14),
-                          label: const Text('Admin', style: TextStyle(fontSize: 11)),
+                          label: const Text('Admin',
+                              style: TextStyle(fontSize: 11)),
                         ),
                         OutlinedButton.icon(
                           onPressed: () => auth.switchDemoRole('management'),
                           icon: const Icon(Icons.work, size: 14),
-                          label: const Text('Manager', style: TextStyle(fontSize: 11)),
+                          label: const Text('Manager',
+                              style: TextStyle(fontSize: 11)),
                         ),
                         OutlinedButton.icon(
                           onPressed: () => auth.switchDemoRole('member'),
                           icon: const Icon(Icons.person, size: 14),
-                          label: const Text('Member', style: TextStyle(fontSize: 11)),
+                          label: const Text('Member',
+                              style: TextStyle(fontSize: 11)),
                         ),
                       ],
                     ),

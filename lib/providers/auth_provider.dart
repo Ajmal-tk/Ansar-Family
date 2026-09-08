@@ -26,8 +26,15 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final uId = SupabaseService.instance.currentUserId;
-      _currentProfile = await SupabaseService.instance.fetchProfile(uId);
+      final user = SupabaseService.instance.currentUser;
+      if ((SupabaseService.instance.client != null && user == null) ||
+          (SupabaseService.instance.client == null &&
+              !SupabaseService.instance.hasLocalSession)) {
+        _currentProfile = null;
+      } else {
+        final uId = SupabaseService.instance.currentUserId;
+        _currentProfile = await SupabaseService.instance.fetchProfile(uId);
+      }
     } catch (e) {
       debugPrint("Error initializing auth: $e");
     } finally {
@@ -42,7 +49,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await SupabaseService.instance.signIn(emailOrUsername: emailOrUsername, password: password);
+      await SupabaseService.instance
+          .signIn(emailOrUsername: emailOrUsername, password: password);
       final uId = SupabaseService.instance.currentUserId;
       _currentProfile = await SupabaseService.instance.fetchProfile(uId);
       _isLoading = false;
@@ -58,7 +66,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> signUp({
     required String username,
-    required String email,
+    String? email,
     required String password,
     required String fullName,
     required String phone,
@@ -69,7 +77,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await SupabaseService.instance.signUp(
+      final response = await SupabaseService.instance.signUp(
         username: username,
         email: email,
         password: password,
@@ -77,8 +85,15 @@ class AuthProvider extends ChangeNotifier {
         phone: phone,
         address: address,
       );
-      final uId = SupabaseService.instance.currentUserId;
-      _currentProfile = await SupabaseService.instance.fetchProfile(uId);
+      if (SupabaseService.instance.client != null &&
+          response?.session == null) {
+        // Email confirmation leaves the new account unauthenticated until the
+        // user confirms their address, so do not route through demo state.
+        _currentProfile = null;
+      } else {
+        final uId = SupabaseService.instance.currentUserId;
+        _currentProfile = await SupabaseService.instance.fetchProfile(uId);
+      }
       _isLoading = false;
       notifyListeners();
       return true;
@@ -110,7 +125,8 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> refreshProfile() async {
     if (_currentProfile != null) {
-      _currentProfile = await SupabaseService.instance.fetchProfile(_currentProfile!.id);
+      _currentProfile =
+          await SupabaseService.instance.fetchProfile(_currentProfile!.id);
       notifyListeners();
     }
   }

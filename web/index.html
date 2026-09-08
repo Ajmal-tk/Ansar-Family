@@ -536,6 +536,10 @@
             <input type="email" class="form-control" id="regEmail" placeholder="name@example.com">
           </div>
           <div class="form-group">
+            <label class="form-label">Password:</label>
+            <input type="password" class="form-control" id="regPass" placeholder="At least 6 characters">
+          </div>
+          <div class="form-group">
             <label class="form-label">Phone Number:</label>
             <input type="text" class="form-control" id="regPhone" placeholder="+91 94470 12345">
           </div>
@@ -546,16 +550,6 @@
           <button class="btn btn-gold" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleRegister()"><i class="fa-solid fa-user-plus"></i> Submit Membership Application</button>
         </div>
 
-        <!-- Role Preview Switcher -->
-        <div class="role-switcher-box">
-          <div class="role-switcher-title"><i class="fa-solid fa-flask"></i> DEMO ROLE DASHBOARD PREVIEW:</div>
-          <div class="role-btn-group">
-            <button class="role-btn active" onclick="enterPortalAs('admin')">Admin</button>
-            <button class="role-btn" onclick="enterPortalAs('management')">Manager</button>
-            <button class="role-btn" onclick="enterPortalAs('member')">Member</button>
-            <button class="role-btn" onclick="enterPortalAs('pending')">Pending</button>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -638,7 +632,13 @@
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    const supabaseClient = window.supabase.createClient(
+      'https://vwuemjomullnhfmkkwws.supabase.co',
+      'sb_publishable_hrCyK0lXFe5aLHZwimnRcg_rF7LXPo_'
+    );
+
     function switchAuthTab(tab) {
       document.getElementById('tab-login-btn').classList.remove('active');
       document.getElementById('tab-register-btn').classList.remove('active');
@@ -661,11 +661,43 @@
       }
     }
 
-    function handleRegister() {
-      const name = document.getElementById('regName').value;
-      if (name) {
-        alert('Membership Application Submitted! Pending management approval.');
-        enterPortalAs('pending');
+    async function handleRegister() {
+      const name = document.getElementById('regName').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPass')?.value || '';
+      const phone = document.getElementById('regPhone').value.trim();
+      const address = document.getElementById('regAddress').value.trim();
+
+      if (!name || !username || !email || !password || !phone || !address) {
+        alert('Please complete every registration field, including a password.');
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+            full_name: name,
+            phone,
+            address,
+            role: 'member',
+            status: 'pending'
+          }
+        }
+      });
+
+      if (error) {
+        alert(`Registration failed: ${error.message}`);
+        return;
+      }
+
+      if (data.user) {
+        alert(data.session
+          ? 'Registration submitted. Your account is pending management approval.'
+          : 'Registration saved. Check your email to confirm your account, then sign in.');
       }
     }
 

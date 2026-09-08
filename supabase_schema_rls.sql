@@ -9,17 +9,21 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, username, full_name, role, status, updated_at)
+  INSERT INTO public.profiles (id, username, full_name, phone, address, role, status, updated_at)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+    NEW.raw_user_meta_data->>'phone',
+    NEW.raw_user_meta_data->>'address',
     COALESCE(NEW.raw_user_meta_data->>'role', 'member'),
     COALESCE(NEW.raw_user_meta_data->>'status', 'pending'),
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
+    phone = EXCLUDED.phone,
+    address = EXCLUDED.address,
     updated_at = NOW();
   RETURN NEW;
 END;

@@ -3,7 +3,7 @@
 class SupabaseConfig {
   static const bool useSupabase = bool.fromEnvironment(
     'USE_SUPABASE',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   // YOUR SUPABASE URL & ANON KEY

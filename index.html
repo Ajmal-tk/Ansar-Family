@@ -424,6 +424,98 @@
     .badge-approved, .badge-paid { background: rgba(16, 185, 129, 0.15); color: var(--primary-emerald); }
     .badge-role { background: rgba(13, 148, 136, 0.15); color: var(--primary-teal); }
 
+    /* Portal Styles */
+    .portal-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .portal-table th {
+      background: #f8fafc;
+      padding: 12px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+      text-align: left;
+    }
+    .portal-table td {
+      padding: 14px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    .portal-table tr:hover td {
+      background: #f8fafc;
+    }
+    .portal-alert {
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .portal-alert-pending {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #92400e;
+    }
+    .portal-alert-approved {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--primary-emerald);
+    }
+    .user-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .info-item {
+      background: #f8fafc;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+    .info-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .info-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+    .post-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .counter-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-left: 6px;
+      font-weight: bold;
+    }
+
     /* Footer */
     footer {
       background: var(--text-dark);
@@ -512,13 +604,14 @@
         <div id="form-login">
           <div class="form-group">
             <label class="form-label">Email Address or Username:</label>
-            <input type="text" class="form-control" id="loginEmail" placeholder="e.g. member@ansarfamily.org or ansar_member">
+            <input type="text" class="form-control" id="loginEmail" placeholder="e.g. member@ansarfamily.org or username">
           </div>
           <div class="form-group">
             <label class="form-label">Password:</label>
-            <input type="password" class="form-control" id="loginPass" value="password123">
+            <input type="password" class="form-control" id="loginPass" placeholder="Enter your password">
           </div>
-          <button class="btn btn-emerald" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal</button>
+          <button class="btn btn-emerald" id="loginSubmitBtn" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal</button>
+          <div id="loginError" style="display: none; background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 8px; font-size: 13px; margin-top: 12px; text-align: center; border: 1px solid #fca5a5;"></div>
         </div>
 
         <!-- Register Form -->
@@ -532,8 +625,8 @@
             <input type="text" class="form-control" id="regUsername" placeholder="e.g. tariq_al_mansoor">
           </div>
           <div class="form-group">
-            <label class="form-label">Email Address:</label>
-            <input type="email" class="form-control" id="regEmail" placeholder="name@example.com">
+            <label class="form-label">Email Address (Optional for testing):</label>
+            <input type="email" class="form-control" id="regEmail" placeholder="e.g. name@example.com (optional)">
           </div>
           <div class="form-group">
             <label class="form-label">Password:</label>
@@ -560,7 +653,7 @@
   </div>
 
   <!-- ==================================================================== -->
-  <!-- PORTAL / DASHBOARD VIEW (AUTHENTICATED) -->
+  <!-- PORTAL / DASHBOARD VIEW (AUTHENTICATED - LIVE SUPABASE DATA) -->
   <!-- ==================================================================== -->
   <div id="portal-view" class="portal-layout">
     <aside class="sidebar">
@@ -573,60 +666,228 @@
       </div>
 
       <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
-        <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--secondary-gold); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;" id="pAvatar">A</div>
-        <div>
-          <div style="font-size: 14px; font-weight: 600;" id="pName">Chief Administrator</div>
-          <span class="badge badge-role" id="pRole">ADMIN</span>
+        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--secondary-gold); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;" id="pAvatar">A</div>
+        <div style="overflow: hidden;">
+          <div style="font-size: 14px; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" id="pName">Community Member</div>
+          <span class="badge badge-role" id="pRole">MEMBER</span>
         </div>
       </div>
 
       <div style="font-size: 11px; text-transform: uppercase; opacity: 0.6; margin-bottom: 8px;">Portal Navigation</div>
-      <div class="nav-item active" onclick="showPortalTab('portal-home')"><i class="fa-solid fa-house"></i> Overview</div>
-      <div class="nav-item" onclick="showPortalTab('portal-approvals')" id="navApprovals"><i class="fa-solid fa-user-check"></i> 1-Click Approvals</div>
-      <div class="nav-item" onclick="showPortalTab('portal-fees')"><i class="fa-solid fa-receipt"></i> Receipts & Fees</div>
-      <div class="nav-item" onclick="showPortalTab('portal-admin')" id="navAdmin"><i class="fa-solid fa-sliders"></i> Admin RBAC</div>
+      <div class="nav-item active" id="nav-portal-home" onclick="showPortalTab('portal-home')"><i class="fa-solid fa-house"></i> Overview</div>
+      <div class="nav-item" id="navApprovals" style="display: none;" onclick="showPortalTab('portal-approvals')">
+        <i class="fa-solid fa-user-check"></i> 1-Click Approvals
+        <span id="pendingBadge" class="counter-badge" style="display: none;">0</span>
+      </div>
+      <div class="nav-item" id="nav-portal-family" onclick="showPortalTab('portal-family')"><i class="fa-solid fa-people-roof"></i> Family Registry</div>
+      <div class="nav-item" id="nav-portal-fees" onclick="showPortalTab('portal-fees')"><i class="fa-solid fa-receipt"></i> Receipts & Fees</div>
+      <div class="nav-item" id="nav-portal-posts" onclick="showPortalTab('portal-posts')"><i class="fa-solid fa-comments"></i> Community Feed</div>
 
       <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15);">
-        <button class="btn btn-outline-white" style="width: 100%; justify-content: center;" onclick="exitPortal()"><i class="fa-solid fa-arrow-left"></i> Public Landing Page</button>
+        <button class="btn btn-outline-white" style="width: 100%; justify-content: center;" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
       </div>
     </aside>
 
     <main class="main-content">
-      <div id="portal-home">
-        <h2 class="section-title">Welcome to Ansar Family Portal</h2>
-        <p style="color: var(--text-muted); margin-bottom: 24px;">Community dashboard overview and management panel.</p>
-        <div class="features-grid">
+      <!-- TAB 1: OVERVIEW -->
+      <div id="portal-home" class="portal-tab-content">
+        <h2 class="section-title" id="welcomeTitle">Community Dashboard</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Kerala Mahallu community member portal & welfare management.</p>
+
+        <!-- Status Alert Banner -->
+        <div id="statusAlertBanner" class="portal-alert portal-alert-pending">
+          <i class="fa-solid fa-clock-rotate-left fa-2x" style="color: #b45309;"></i>
+          <div>
+            <div style="font-weight: 700; font-size: 15px;">Membership Application Under Review</div>
+            <div style="font-size: 12px; margin-top: 2px;">Your application has been received. Mahallu executive management will review and approve your membership.</div>
+          </div>
+        </div>
+
+        <!-- Admin / Management KPI Metrics Row -->
+        <div id="adminMetricsRow" class="features-grid" style="display: none; margin-bottom: 24px;">
           <div class="feature-card">
             <h3>Registered Members</h3>
-            <div style="font-size: 32px; font-weight: 700; color: var(--primary-emerald);">4</div>
+            <div style="font-size: 32px; font-weight: 700; color: var(--primary-emerald);" id="metricTotalMembers">0</div>
           </div>
           <div class="feature-card">
             <h3>Pending Applications</h3>
-            <div style="font-size: 32px; font-weight: 700; color: var(--status-pending);" id="pendingCnt">1</div>
+            <div style="font-size: 32px; font-weight: 700; color: var(--status-pending);" id="metricPendingCount">0</div>
           </div>
           <div class="feature-card">
-            <h3>Funds Collected</h3>
-            <div style="font-size: 32px; font-weight: 700; color: var(--accent-mint);">$150.00</div>
+            <h3>Baithul Maal Collection</h3>
+            <div style="font-size: 32px; font-weight: 700; color: var(--accent-mint);" id="metricFundsCollected">₹0.00</div>
+          </div>
+        </div>
+
+        <!-- Member Profile Overview Card -->
+        <div class="feature-card" style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 12px;">
+            <h3 style="margin: 0; font-size: 16px;"><i class="fa-solid fa-id-card" style="color: var(--primary-emerald); margin-right: 8px;"></i> Registered Membership Profile</h3>
+            <div id="infoStatus"><span class="badge badge-pending">PENDING</span></div>
+          </div>
+          <div class="user-info-grid">
+            <div class="info-item">
+              <div class="info-label">Full Name</div>
+              <div class="info-value" id="infoName">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Username (Unique ID)</div>
+              <div class="info-value" id="infoUsername">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Contact Phone</div>
+              <div class="info-value" id="infoPhone">-</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Village / Mahallu Address</div>
+              <div class="info-value" id="infoAddress">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action Shortcuts -->
+        <div class="features-grid">
+          <div class="feature-card" style="cursor: pointer;" onclick="showPortalTab('portal-family')">
+            <div class="feature-icon"><i class="fa-solid fa-people-roof"></i></div>
+            <h3>Family Dependents</h3>
+            <p>View and manage household family members registered under your profile.</p>
+          </div>
+          <div class="feature-card" style="cursor: pointer;" onclick="showPortalTab('portal-fees')">
+            <div class="feature-icon" style="color: var(--secondary-gold); background: rgba(217, 119, 6, 0.08);"><i class="fa-solid fa-receipt"></i></div>
+            <h3>Mahallu Fund & Fees</h3>
+            <p>Track membership fee payments, Sadaqah contributions, and receipts.</p>
+          </div>
+          <div class="feature-card" style="cursor: pointer;" onclick="showPortalTab('portal-posts')">
+            <div class="feature-icon" style="color: var(--primary-teal); background: rgba(13, 148, 136, 0.08);"><i class="fa-solid fa-comments"></i></div>
+            <h3>Community Board</h3>
+            <p>Read community notices, Halaqah announcements, and assistance requests.</p>
           </div>
         </div>
       </div>
 
-      <div id="portal-approvals" style="display: none;">
+      <!-- TAB 2: 1-CLICK APPROVALS (ADMIN/MANAGEMENT) -->
+      <div id="portal-approvals" class="portal-tab-content" style="display: none;">
         <h2 class="section-title">1-Click Pending Approvals</h2>
-        <div class="feature-card" style="margin-top: 20px;">
-          <table style="width: 100%;">
-            <thead><tr><th>Applicant</th><th>Phone</th><th>Status</th><th>1-Click Action</th></tr></thead>
-            <tbody id="appTable">
-              <tr>
-                <td><strong>Fatima Zohra</strong></td>
-                <td>+1 555 9821</td>
-                <td><span class="badge badge-pending">PENDING</span></td>
-                <td>
-                  <button class="btn btn-emerald" style="padding: 4px 10px; font-size: 12px;" onclick="approveApplicant()">Approve</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Review and approve pending Mahallu community registrations with a single click.</p>
+        <div class="feature-card">
+          <div style="overflow-x: auto;">
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>Applicant Name</th>
+                  <th>Username</th>
+                  <th>Contact Phone</th>
+                  <th>Mahallu / Village</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="appTable">
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading pending applicants...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: FAMILY REGISTRY -->
+      <div id="portal-family" class="portal-tab-content" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div>
+            <h2 class="section-title">Family Dependents Registry</h2>
+            <p style="color: var(--text-muted); margin-top: 4px;">Household dependents linked to your family profile for targeted community welfare.</p>
+          </div>
+          <button class="btn btn-emerald" onclick="toggleAddFamBox()"><i class="fa-solid fa-plus"></i> Add Dependent</button>
+        </div>
+
+        <!-- Add Family Member Form Box -->
+        <div id="addFamFormBox" class="feature-card" style="display: none; margin-bottom: 24px; border: 1px solid var(--primary-emerald);">
+          <h3 style="font-size: 15px; margin-bottom: 14px;">Register New Household Member</h3>
+          <form onsubmit="handleAddFamilyMember(event)">
+            <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Full Name:</label>
+                <input type="text" class="form-control" id="famName" placeholder="e.g. Aisha Al-Mansoor" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Relation:</label>
+                <select class="form-control" id="famRelation">
+                  <option value="Spouse">Spouse</option>
+                  <option value="Child">Child</option>
+                  <option value="Parent">Parent</option>
+                  <option value="Sibling">Sibling</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Age:</label>
+                <input type="number" class="form-control" id="famAge" placeholder="e.g. 10" min="0" max="120">
+              </div>
+            </div>
+            <div style="margin-top: 14px; display: flex; gap: 10px;">
+              <button type="submit" class="btn btn-emerald" id="addFamBtn"><i class="fa-solid fa-check"></i> Save Dependent</button>
+              <button type="button" class="btn" style="background: #e2e8f0; color: var(--text-dark);" onclick="toggleAddFamBox()">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="feature-card">
+          <div style="overflow-x: auto;">
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>Dependent Name</th>
+                  <th>Relation</th>
+                  <th>Age</th>
+                  <th>Registered On</th>
+                </tr>
+              </thead>
+              <tbody id="familyTable">
+                <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading family members...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: RECEIPTS & FEES -->
+      <div id="portal-fees" class="portal-tab-content" style="display: none;">
+        <h2 class="section-title">Mahallu Welfare Fund & Receipts</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Membership subscription records & charitable contributions in Indian Rupees (₹).</p>
+        <div class="feature-card">
+          <div style="overflow-x: auto;">
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>Period / Purpose</th>
+                  <th>Amount (₹ INR)</th>
+                  <th>Payment Status</th>
+                  <th>Payment Date</th>
+                </tr>
+              </thead>
+              <tbody id="feesTable">
+                <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading fee records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: COMMUNITY FEED -->
+      <div id="portal-posts" class="portal-tab-content" style="display: none;">
+        <h2 class="section-title">Community Feed & Announcements</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Mahallu announcements, volunteer drives, and mutual aid assistance.</p>
+
+        <!-- Create Post Card -->
+        <div class="feature-card" style="margin-bottom: 24px;">
+          <h3 style="font-size: 15px; margin-bottom: 12px;"><i class="fa-solid fa-pen-to-square" style="color: var(--primary-teal); margin-right: 6px;"></i> Share Community Notice or Request</h3>
+          <form onsubmit="handleCreatePost(event)">
+            <textarea id="postContent" class="form-control" rows="3" placeholder="Write your announcement or community assistance request..." required style="resize: vertical; margin-bottom: 12px;"></textarea>
+            <button type="submit" id="postSubmitBtn" class="btn btn-emerald"><i class="fa-solid fa-paper-plane"></i> Post to Community Board</button>
+          </form>
+        </div>
+
+        <div id="postsList">
+          <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading community posts...</div>
         </div>
       </div>
     </main>
@@ -638,6 +899,16 @@
       'https://vwuemjomullnhfmkkwws.supabase.co',
       'sb_publishable_hrCyK0lXFe5aLHZwimnRcg_rF7LXPo_'
     );
+
+    let currentAuthUser = null;
+    let currentProfile = null;
+
+    function formatINR(val) {
+      return '₹' + Number(val || 0).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
 
     function switchAuthTab(tab) {
       document.getElementById('tab-login-btn').classList.remove('active');
@@ -654,24 +925,89 @@
       }
     }
 
-    function handleLogin() {
-      const email = document.getElementById('loginEmail').value;
-      if (email) {
-        enterPortalAs(email.includes('admin') ? 'admin' : 'member');
+    function toggleAddFamBox() {
+      const box = document.getElementById('addFamFormBox');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function handleLogin() {
+      const emailOrUser = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPass').value;
+      const btn = document.getElementById('loginSubmitBtn');
+      const errBox = document.getElementById('loginError');
+
+      if (!emailOrUser || !password) {
+        errBox.style.display = 'block';
+        errBox.innerText = 'Please enter your username/email and password.';
+        return;
+      }
+
+      errBox.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+      try {
+        let targetEmail = emailOrUser;
+
+        // If user entered a username instead of email, resolve from profiles table
+        if (!targetEmail.includes('@')) {
+          try {
+            const { data: foundUser } = await supabaseClient
+              .from('profiles')
+              .select('id, username')
+              .eq('username', targetEmail)
+              .maybeSingle();
+
+            if (foundUser && foundUser.username) {
+              targetEmail = `${foundUser.username}@ansarfamily.org`;
+            } else {
+              targetEmail = `${targetEmail}@ansarfamily.org`;
+            }
+          } catch (_) {
+            targetEmail = `${targetEmail}@ansarfamily.org`;
+          }
+        }
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: targetEmail,
+          password: password,
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data.user) {
+          await loadUserProfileAndRender(data.user);
+        }
+      } catch (err) {
+        errBox.style.display = 'block';
+        let msg = err.message || 'Invalid username or password.';
+        if (msg.toLowerCase().includes('email') && (msg.toLowerCase().includes('disable') || msg.toLowerCase().includes('not allowed'))) {
+          msg = `<strong>Email provider is disabled in Supabase.</strong><br><span style="font-size: 12px; display: block; margin-top: 4px;">To test without confirmation emails: In Supabase Dashboard &rarr; <em>Authentication</em> &rarr; <em>Providers</em> &rarr; <em>Email</em>: Turn <strong>Enable Email provider</strong> ON, and turn <strong>Confirm email</strong> OFF.</span>`;
+        }
+        errBox.innerHTML = msg;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal';
       }
     }
 
     async function handleRegister() {
       const name = document.getElementById('regName').value.trim();
-      const username = document.getElementById('regUsername').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
+      const username = document.getElementById('regUsername').value.trim().toLowerCase();
+      let email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPass')?.value || '';
       const phone = document.getElementById('regPhone').value.trim();
       const address = document.getElementById('regAddress').value.trim();
 
-      if (!name || !username || !email || !password || !phone || !address) {
-        alert('Please complete every registration field, including a password.');
+      if (!name || !username || !password || !phone || !address) {
+        alert('Please complete all required fields (Name, Username, Password, Phone, Address).');
         return;
+      }
+
+      if (!email) {
+        email = `${username}@ansarfamily.org`;
       }
 
       const { data, error } = await supabaseClient.auth.signUp({
@@ -690,67 +1026,407 @@
       });
 
       if (error) {
-        alert(`Registration failed: ${error.message}`);
+        let msg = error.message;
+        if (msg.toLowerCase().includes('email') && (msg.toLowerCase().includes('disable') || msg.toLowerCase().includes('not allowed'))) {
+          msg = 'Email provider is disabled in Supabase.\n\nTo bypass confirmation emails for testing:\n1. Open Supabase Dashboard > Authentication > Providers > Email\n2. Turn "Enable Email provider" ON\n3. Turn "Confirm email" OFF\n\nThis allows instant test accounts without any confirmation email!';
+        }
+        alert(`Registration failed: ${msg}`);
         return;
       }
 
       if (data.user) {
-        alert(data.session
-          ? 'Registration submitted. Your account is pending management approval.'
-          : 'Registration saved. Check your email to confirm your account, then sign in.');
+        if (data.session) {
+          alert('Registration successful! Logging into your dashboard...');
+          await loadUserProfileAndRender(data.user);
+        } else {
+          alert('Registration application saved! Please sign in with your credentials.');
+          switchAuthTab('login');
+          document.getElementById('loginEmail').value = username;
+        }
       }
     }
 
-    function enterPortalAs(role) {
+    async function loadUserProfileAndRender(user) {
+      currentAuthUser = user;
+
+      // Fetch profile from public.profiles
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      currentProfile = profile || {
+        id: user.id,
+        full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Community Member',
+        username: user.user_metadata?.username || user.email?.split('@')[0],
+        role: user.user_metadata?.role || 'member',
+        status: user.user_metadata?.status || 'pending',
+        phone: user.user_metadata?.phone || '+91 94470 00000',
+        address: user.user_metadata?.address || 'Kerala, India'
+      };
+
+      const fullName = currentProfile.full_name || 'Community Member';
+      const role = (currentProfile.role || 'member').toLowerCase();
+      const status = (currentProfile.status || 'pending').toLowerCase();
+      const isAdminOrMgr = role === 'admin' || role === 'management';
+
+      // Update sidebar
+      document.getElementById('pName').innerText = fullName;
+      document.getElementById('pRole').innerText = role.toUpperCase();
+      document.getElementById('pRole').className = `badge ${isAdminOrMgr ? 'badge-role' : 'badge-role'}`;
+      document.getElementById('pAvatar').innerText = fullName[0].toUpperCase();
+
+      // Toggle Admin navigation
+      document.getElementById('navApprovals').style.display = isAdminOrMgr ? 'flex' : 'none';
+
+      // Update user info cards
+      document.getElementById('infoName').innerText = fullName;
+      document.getElementById('infoUsername').innerText = currentProfile.username ? `@${currentProfile.username}` : 'N/A';
+      document.getElementById('infoPhone').innerText = currentProfile.phone || 'N/A';
+      document.getElementById('infoAddress').innerText = currentProfile.address || 'Kerala, India';
+      document.getElementById('infoStatus').innerHTML = status === 'approved'
+        ? '<span class="badge badge-approved">APPROVED</span>'
+        : '<span class="badge badge-pending">PENDING APPROVAL</span>';
+
+      // Update Status Alert Banner
+      const banner = document.getElementById('statusAlertBanner');
+      if (status === 'pending') {
+        banner.className = 'portal-alert portal-alert-pending';
+        banner.innerHTML = `
+          <i class="fa-solid fa-clock-rotate-left fa-2x" style="color: #b45309;"></i>
+          <div>
+            <div style="font-weight: 700; font-size: 15px;">Membership Application Under Review</div>
+            <div style="font-size: 12px; margin-top: 2px;">Your application has been received. Mahallu executive management will review and approve your membership.</div>
+          </div>
+        `;
+      } else {
+        banner.className = 'portal-alert portal-alert-approved';
+        banner.innerHTML = `
+          <i class="fa-solid fa-circle-check fa-2x" style="color: var(--primary-emerald);"></i>
+          <div>
+            <div style="font-weight: 700; font-size: 15px;">Verified Active Mahallu Member</div>
+            <div style="font-size: 12px; margin-top: 2px;">You have full active membership privileges in the Mahallu Welfare & Empowerment Network.</div>
+          </div>
+        `;
+      }
+
+      // Show/hide admin metrics row
+      document.getElementById('adminMetricsRow').style.display = isAdminOrMgr ? 'grid' : 'none';
+
+      // Switch view
       document.getElementById('landing-page-view').style.display = 'none';
       document.getElementById('portal-view').classList.add('active');
-      
-      document.getElementById('pName').innerText = role === 'admin' ? 'Chief Administrator' : (role === 'management' ? 'Community Manager' : 'Tariq Al-Mansoor');
-      
-      let profiles = [
-        { id: 'usr-101', name: 'Mahallu President', role: 'admin', status: 'approved', phone: '+91 94470 12345', address: 'Juma Masjid Road, Malappuram, Kerala' },
-        { id: 'usr-102', name: 'Mahallu Secretary', role: 'management', status: 'approved', phone: '+91 98471 23456', address: 'Town Hall Rd, Kozhikode, Kerala' },
-        { id: 'usr-103', name: 'Tariq Al-Mansoor', role: 'member', status: 'approved', phone: '+91 97452 34567', address: 'Near Juma Masjid, Ponnani, Kerala' },
-        { id: 'usr-104', name: 'Fatima Zohra', role: 'member', status: 'pending', phone: '+91 94953 45678', address: 'Green Valley, Ernakulam, Kerala' }
-      ];
 
-      let familyMembers = [
-        { id: 'fam-1', userId: 'usr-103', name: 'Aisha Al-Mansoor', relation: 'Spouse', age: 32, date: '2026-08-01' },
-        { id: 'fam-2', userId: 'usr-103', name: 'Zayd Al-Mansoor', relation: 'Child', age: 6, date: '2026-08-01' },
-        { id: 'fam-3', userId: 'usr-104', name: 'Youssef Zohra', relation: 'Child', age: 4, date: '2026-08-25' }
-      ];
-
-      let posts = [
-        { id: 'post-1', author: 'Mahallu Secretary', role: 'management', content: 'Assalamu Alaikum family! Monthly Mahallu Halaqah & food drive this Saturday at 10 AM.', date: 'Today at 09:30 AM' },
-        { id: 'post-2', author: 'Tariq Al-Mansoor', role: 'member', content: 'Assistance request: Looking for volunteer tutors for high school mathematics.', date: 'Yesterday' }
-      ];
-
-      let fees = [
-        { id: 'fee-1', memberName: 'Tariq Al-Mansoor', period: '2026-Q1', amount: 500.00, status: 'paid', date: '2026-08-15' },
-        { id: 'fee-2', memberName: 'Mahallu President', period: 'Annual 2026', amount: 2000.00, status: 'paid', date: '2026-08-10' }
-      ];
-
-      document.getElementById('pRole').innerText = role.toUpperCase();
-      document.getElementById('pAvatar').innerText = role[0].toUpperCase();
+      // Load live data from Supabase
+      if (isAdminOrMgr) {
+        await loadAdminMetrics();
+        await loadPendingApplicants();
+      }
+      await loadFamilyMembers();
+      await loadFees();
+      await loadPosts();
 
       showPortalTab('portal-home');
     }
 
-    function exitPortal() {
+    async function loadAdminMetrics() {
+      try {
+        const { count: totalMembers } = await supabaseClient
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+        document.getElementById('metricTotalMembers').innerText = totalMembers || '0';
+
+        const { count: pendingCount } = await supabaseClient
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        document.getElementById('metricPendingCount').innerText = pendingCount || '0';
+        document.getElementById('pendingBadge').innerText = pendingCount || '0';
+        document.getElementById('pendingBadge').style.display = (pendingCount && pendingCount > 0) ? 'inline-block' : 'none';
+
+        const { data: fees } = await supabaseClient
+          .from('membership_fees')
+          .select('amount, status')
+          .eq('status', 'paid');
+        const total = (fees || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
+        document.getElementById('metricFundsCollected').innerText = formatINR(total);
+      } catch (e) {
+        console.error('Error loading admin metrics:', e);
+      }
+    }
+
+    async function loadPendingApplicants() {
+      const tbody = document.getElementById('appTable');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading pending applicants...</td></tr>';
+
+      try {
+        const { data: applicants, error } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('status', 'pending')
+          .order('updated_at', { ascending: false });
+
+        if (error || !applicants || applicants.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">No pending applicants! All Mahallu registrations are processed.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = applicants.map(app => `
+          <tr>
+            <td><strong>${escapeHtml(app.full_name || 'New Member')}</strong></td>
+            <td>@${escapeHtml(app.username || 'user')}</td>
+            <td>${escapeHtml(app.phone || 'N/A')}</td>
+            <td>${escapeHtml(app.address || 'Kerala')}</td>
+            <td>
+              <button class="btn btn-emerald" style="padding: 6px 12px; font-size: 12px;" onclick="approveApplicant('${app.id}')">
+                <i class="fa-solid fa-check"></i> 1-Click Approve
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Failed to load applicants: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function approveApplicant(id) {
+      if (!confirm('Approve this member for active Mahallu membership?')) return;
+      try {
+        const { error } = await supabaseClient
+          .from('profiles')
+          .update({ status: 'approved', updated_at: new Date().toISOString() })
+          .eq('id', id);
+
+        if (error) {
+          alert(`Approval failed: ${error.message}`);
+        } else {
+          alert('Member approved successfully!');
+          await loadAdminMetrics();
+          await loadPendingApplicants();
+        }
+      } catch (e) {
+        alert(`Error: ${e.message}`);
+      }
+    }
+
+    async function loadFamilyMembers() {
+      const tbody = document.getElementById('familyTable');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading family dependents...</td></tr>';
+
+      try {
+        const { data: fam, error } = await supabaseClient
+          .from('family_members')
+          .select('*')
+          .eq('user_id', currentAuthUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error || !fam || fam.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">No family dependents registered yet. Click "Add Dependent" above.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = fam.map(m => `
+          <tr>
+            <td><strong>${escapeHtml(m.name)}</strong></td>
+            <td><span class="badge badge-role">${escapeHtml(m.relation || 'Dependent')}</span></td>
+            <td>${m.age ?? '-'} yrs</td>
+            <td>${m.created_at ? new Date(m.created_at).toLocaleDateString('en-IN') : '-'}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Error: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function handleAddFamilyMember(e) {
+      e.preventDefault();
+      const name = document.getElementById('famName').value.trim();
+      const relation = document.getElementById('famRelation').value;
+      const age = parseInt(document.getElementById('famAge').value, 10);
+
+      if (!name) {
+        alert('Please enter member name');
+        return;
+      }
+
+      const btn = document.getElementById('addFamBtn');
+      btn.disabled = true;
+
+      try {
+        const { error } = await supabaseClient
+          .from('family_members')
+          .insert({
+            user_id: currentAuthUser.id,
+            name,
+            relation,
+            age: isNaN(age) ? null : age,
+            created_at: new Date().toISOString()
+          });
+
+        if (error) {
+          alert(`Failed to add dependent: ${error.message}`);
+        } else {
+          document.getElementById('famName').value = '';
+          document.getElementById('famAge').value = '';
+          document.getElementById('addFamFormBox').style.display = 'none';
+          await loadFamilyMembers();
+        }
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadFees() {
+      const tbody = document.getElementById('feesTable');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading fee receipts...</td></tr>';
+
+      try {
+        const isAdminOrMgr = currentProfile.role === 'admin' || currentProfile.role === 'management';
+        const query = isAdminOrMgr
+          ? supabaseClient.from('membership_fees').select('*').order('created_at', { ascending: false }).limit(20)
+          : supabaseClient.from('membership_fees').select('*').eq('user_id', currentAuthUser.id).order('created_at', { ascending: false });
+
+        const { data: fees, error } = await query;
+
+        if (error || !fees || fees.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 24px;">No fee transactions recorded.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = fees.map(f => `
+          <tr>
+            <td><strong>${escapeHtml(f.period || 'Monthly Subscription')}</strong></td>
+            <td><strong>${formatINR(f.amount)}</strong></td>
+            <td><span class="badge badge-${(f.status || 'paid').toLowerCase()}">${(f.status || 'PAID').toUpperCase()}</span></td>
+            <td>${f.payment_date ? new Date(f.payment_date).toLocaleDateString('en-IN') : (f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN') : '-')}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Error: ${e.message}</td></tr>`;
+      }
+    }
+
+    async function loadPosts() {
+      const container = document.getElementById('postsList');
+      container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 24px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading community feed...</div>';
+
+      try {
+        const { data: posts, error } = await supabaseClient
+          .from('posts')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        if (error || !posts || posts.length === 0) {
+          container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 24px;">No posts in community feed yet. Share an announcement above!</div>';
+          return;
+        }
+
+        container.innerHTML = posts.map(p => `
+          <div class="post-card">
+            <div class="post-header">
+              <div style="font-weight: 700; color: var(--primary-emerald);"><i class="fa-solid fa-user-circle"></i> Mahallu Announcement</div>
+              <div style="color: var(--text-muted); font-size: 11px;">${p.created_at ? new Date(p.created_at).toLocaleString('en-IN') : ''}</div>
+            </div>
+            <div style="font-size: 14px; line-height: 1.5; color: var(--text-dark);">${escapeHtml(p.content)}</div>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = `<div style="color: red; text-align: center;">Error: ${e.message}</div>`;
+      }
+    }
+
+    async function handleCreatePost(e) {
+      e.preventDefault();
+      const content = document.getElementById('postContent').value.trim();
+      if (!content) return;
+
+      const btn = document.getElementById('postSubmitBtn');
+      btn.disabled = true;
+
+      try {
+        const { error } = await supabaseClient
+          .from('posts')
+          .insert({
+            user_id: currentAuthUser.id,
+            content,
+            created_at: new Date().toISOString()
+          });
+
+        if (error) {
+          alert(`Failed to post: ${error.message}`);
+        } else {
+          document.getElementById('postContent').value = '';
+          await loadPosts();
+        }
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        await supabaseClient.auth.signOut();
+      } catch (_) {}
+      currentAuthUser = null;
+      currentProfile = null;
       document.getElementById('portal-view').classList.remove('active');
       document.getElementById('landing-page-view').style.display = 'block';
+      document.getElementById('loginPass').value = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showPortalTab(tabId) {
-      document.getElementById('portal-home').style.display = tabId === 'portal-home' ? 'block' : 'none';
-      document.getElementById('portal-approvals').style.display = tabId === 'portal-approvals' ? 'block' : 'none';
+      document.querySelectorAll('.portal-tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(tabId);
+      if (target) target.style.display = 'block';
+
+      const navLink = document.getElementById('nav-' + tabId);
+      if (navLink) navLink.classList.add('active');
+      if (tabId === 'portal-approvals') {
+        const appNav = document.getElementById('navApprovals');
+        if (appNav) appNav.classList.add('active');
+      }
     }
 
-    function approveApplicant() {
-      document.getElementById('appTable').innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No pending applicants! All caught up.</td></tr>';
-      document.getElementById('pendingCnt').innerText = '0';
-      alert('Member Approved Successfully!');
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session?.user) {
+          await loadUserProfileAndRender(session.user);
+        }
+      } catch (e) {
+        console.warn('Session restoration note:', e);
+      }
+
+      supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user && !currentAuthUser) {
+          await loadUserProfileAndRender(session.user);
+        } else if (event === 'SIGNED_OUT') {
+          currentAuthUser = null;
+          currentProfile = null;
+          document.getElementById('portal-view').classList.remove('active');
+          document.getElementById('landing-page-view').style.display = 'block';
+        }
+      });
+    });
   </script>
 </body>
 </html>

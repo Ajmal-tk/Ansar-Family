@@ -1,3 +1,8 @@
 Registration working - simple (no confirm password repeat field)
 Now able to login with username or email.
+
+Set a Authenticated Administrator.
+- who will able to approve other new users. 
+- who will able to approve family member, fee.
+
 [Configure project in Trae IDE also]

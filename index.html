@@ -62,6 +62,13 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .brand-logo:hover {
+      opacity: 0.9;
     }
 
     .brand-logo-icon {
@@ -535,7 +542,7 @@
   <div id="landing-page-view">
     <!-- Header -->
     <header class="landing-header">
-      <div class="brand-logo">
+      <div class="brand-logo" onclick="navigateToHome()" title="Home - Ansar Family" role="button" tabindex="0">
         <div class="brand-logo-icon"><i class="fa-solid fa-hands-holding-child"></i></div>
         <div>
           <div style="font-size: 18px; font-weight: 700;">ANSAR FAMILY</div>
@@ -680,7 +687,7 @@
   <!-- ==================================================================== -->
   <div id="portal-view" class="portal-layout">
     <aside class="sidebar">
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.15);">
+      <div class="brand-logo" onclick="navigateToHome()" title="Overview - Ansar Family" role="button" tabindex="0" style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.15);">
         <div class="brand-logo-icon"><i class="fa-solid fa-hands-holding-child"></i></div>
         <div>
           <div style="font-size: 18px; font-weight: 700;">ANSAR FAMILY</div>
@@ -1007,6 +1014,57 @@
       }
     }
 
+    function navigateToHome() {
+      if (currentAuthUser && document.getElementById('portal-view').classList.contains('active')) {
+        showPortalTab('portal-home');
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        if (window.location.hash) {
+          history.replaceState(null, null, window.location.pathname);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function clearAuthForms(clearAll = true) {
+      // Clear all registration form fields
+      ['regName', 'regUsername', 'regEmail', 'regPass', 'regPassConfirm', 'regPhone', 'regAddress'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const hint = document.getElementById('passwordMatchHint');
+      if (hint) {
+        hint.style.display = 'none';
+        hint.innerHTML = '';
+      }
+
+      // Reset password mask states
+      ['loginPass', 'regPass', 'regPassConfirm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.type = 'password';
+      });
+      document.querySelectorAll('#form-login button[onclick*="togglePasswordVisibility"] i, #form-register button[onclick*="togglePasswordVisibility"] i').forEach(icon => {
+        icon.className = 'fa-solid fa-eye';
+      });
+
+      // Clear login form fields
+      if (clearAll) {
+        const loginEmail = document.getElementById('loginEmail');
+        if (loginEmail) loginEmail.value = '';
+        const loginPass = document.getElementById('loginPass');
+        if (loginPass) loginPass.value = '';
+        const badge = document.getElementById('loginUsernameBadge');
+        if (badge) badge.style.display = 'none';
+      }
+
+      const errBox = document.getElementById('loginError');
+      if (errBox) {
+        errBox.style.display = 'none';
+        errBox.innerHTML = '';
+      }
+    }
+
     function formatINR(val) {
       return '₹' + Number(val || 0).toLocaleString('en-IN', {
         minimumFractionDigits: 2,
@@ -1017,6 +1075,12 @@
     function switchAuthTab(tab) {
       document.getElementById('tab-login-btn').classList.remove('active');
       document.getElementById('tab-register-btn').classList.remove('active');
+
+      const errBox = document.getElementById('loginError');
+      if (errBox) {
+        errBox.style.display = 'none';
+        errBox.innerHTML = '';
+      }
       
       if (tab === 'login') {
         document.getElementById('tab-login-btn').classList.add('active');
@@ -1200,14 +1264,13 @@
       if (data.user) {
         // Save mapping immediately on this device!
         saveUsernameEmailMapping(username, email);
+        clearAuthForms(true); // Clear all registration fields completely so nothing lingers!
         if (data.session) {
           alert('Registration successful! Logging into your dashboard...');
           await loadUserProfileAndRender(data.user);
         } else {
-          alert('Registration application saved! Please sign in with your username or email.');
+          alert('Registration application saved! Please sign in with your credentials.');
           switchAuthTab('login');
-          document.getElementById('loginEmail').value = username;
-          handleLoginInput(username);
         }
       }
     }
@@ -1565,9 +1628,10 @@
       } catch (_) {}
       currentAuthUser = null;
       currentProfile = null;
+      clearAuthForms(true); // Reset both login and registration inputs completely
       document.getElementById('portal-view').classList.remove('active');
       document.getElementById('landing-page-view').style.display = 'block';
-      document.getElementById('loginPass').value = '';
+      switchAuthTab('login');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 

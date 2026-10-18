@@ -3,16 +3,20 @@
 -- Target Schema: Existing Supabase Instance (profiles, posts, membership_fees, family_members)
 -- ============================================================================
 
+-- Ensure email column exists on public.profiles
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email text;
+
 -- ----------------------------------------------------------------------------
 -- 1. AUTOMATIC PROFILE CREATION TRIGGER ON USER SIGNUP
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, username, full_name, phone, address, role, status, updated_at)
+  INSERT INTO public.profiles (id, username, email, full_name, phone, address, role, status, updated_at)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
+    NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
     NEW.raw_user_meta_data->>'phone',
     NEW.raw_user_meta_data->>'address',
@@ -21,6 +25,7 @@ BEGIN
     NOW()
   )
   ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
     full_name = EXCLUDED.full_name,
     phone = EXCLUDED.phone,
     address = EXCLUDED.address,
@@ -34,6 +39,47 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ----------------------------------------------------------------------------
+-- 1.1 SECURE USERNAME-TO-EMAIL LOOKUP RPC (FOR USERNAME SIGN-IN)
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.get_email_for_username(p_username text)
+RETURNS text
+SECURITY DEFINER
+SET search_path = public, auth
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_email text;
+BEGIN
+  -- 1. Look up directly in auth.users by user metadata 'username'
+  SELECT u.email INTO v_email
+  FROM auth.users u
+  WHERE LOWER(COALESCE(u.raw_user_meta_data->>'username', '')) = LOWER(TRIM(p_username))
+  LIMIT 1;
+
+  -- 2. If not found in metadata, check public.profiles username link
+  IF v_email IS NULL THEN
+    SELECT u.email INTO v_email
+    FROM auth.users u
+    JOIN public.profiles p ON p.id = u.id
+    WHERE LOWER(p.username) = LOWER(TRIM(p_username))
+    LIMIT 1;
+  END IF;
+
+  -- 3. Fallback: match email prefix (e.g. username@domain.com)
+  IF v_email IS NULL THEN
+    SELECT u.email INTO v_email
+    FROM auth.users u
+    WHERE LOWER(split_part(u.email, '@', 1)) = LOWER(TRIM(p_username))
+    LIMIT 1;
+  END IF;
+
+  RETURN v_email;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_email_for_username(text) TO anon, authenticated;
 
 -- ----------------------------------------------------------------------------
 -- 2. ENABLE ROW-LEVEL SECURITY (RLS) ON ALL EXISTING TABLES

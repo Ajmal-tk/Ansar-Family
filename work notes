@@ -1,4 +1,3 @@
 Registration working - simple (no confirm password repeat field)
-But after registration , can't able to login with that details.
-Not able to LOGIN anyone.
+Now able to login with username or email.
 [Configure project in Trae IDE also]

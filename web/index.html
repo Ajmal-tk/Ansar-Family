@@ -604,14 +604,22 @@
         <div id="form-login">
           <div class="form-group">
             <label class="form-label">Email Address or Username:</label>
-            <input type="text" class="form-control" id="loginEmail" placeholder="e.g. member@ansarfamily.org or username">
+            <div style="position: relative;">
+              <input type="text" class="form-control" id="loginEmail" placeholder="e.g. member@ansarfamily.org or username" oninput="handleLoginInput(this.value)">
+              <span id="loginUsernameBadge" style="display: none; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; background: #ecfdf5; color: var(--primary-emerald); border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 12px; font-weight: 600;"><i class="fa-solid fa-check"></i> Known Username</span>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Password:</label>
-            <input type="password" class="form-control" id="loginPass" placeholder="Enter your password">
+            <div style="position: relative;">
+              <input type="password" class="form-control" id="loginPass" placeholder="Enter your password" style="padding-right: 42px;">
+              <button type="button" onclick="togglePasswordVisibility('loginPass', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 4px;" title="Toggle password visibility">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
           </div>
           <button class="btn btn-emerald" id="loginSubmitBtn" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal</button>
-          <div id="loginError" style="display: none; background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 8px; font-size: 13px; margin-top: 12px; text-align: center; border: 1px solid #fca5a5;"></div>
+          <div id="loginError" style="display: none; background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; font-size: 13px; margin-top: 12px; border: 1px solid #fca5a5;"></div>
         </div>
 
         <!-- Register Form -->
@@ -630,7 +638,22 @@
           </div>
           <div class="form-group">
             <label class="form-label">Password:</label>
-            <input type="password" class="form-control" id="regPass" placeholder="At least 6 characters">
+            <div style="position: relative;">
+              <input type="password" class="form-control" id="regPass" placeholder="At least 6 characters" oninput="validatePasswordMatch()" style="padding-right: 42px;">
+              <button type="button" onclick="togglePasswordVisibility('regPass', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 4px;" title="Toggle password visibility">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password:</label>
+            <div style="position: relative;">
+              <input type="password" class="form-control" id="regPassConfirm" placeholder="Re-enter your password" oninput="validatePasswordMatch()" style="padding-right: 42px;">
+              <button type="button" onclick="togglePasswordVisibility('regPassConfirm', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px; padding: 4px;" title="Toggle password visibility">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <div id="passwordMatchHint" style="font-size: 12px; margin-top: 5px; font-weight: 500; display: none;"></div>
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number:</label>
@@ -903,6 +926,87 @@
     let currentAuthUser = null;
     let currentProfile = null;
 
+    // --- USERNAME TO EMAIL MAPPING HELPERS ---
+    function getStoredEmailForUsername(username) {
+      if (!username) return null;
+      const clean = username.trim().toLowerCase();
+      try {
+        const direct = localStorage.getItem('ansar_u_email_' + clean);
+        if (direct) return direct.trim();
+        const rawMap = localStorage.getItem('ansar_username_map');
+        if (rawMap) {
+          const map = JSON.parse(rawMap);
+          if (map && map[clean]) return String(map[clean]).trim();
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    function saveUsernameEmailMapping(username, email) {
+      if (!username || !email) return;
+      const clean = username.trim().toLowerCase();
+      const cleanEmail = email.trim();
+      try {
+        localStorage.setItem('ansar_u_email_' + clean, cleanEmail);
+        const rawMap = localStorage.getItem('ansar_username_map');
+        const map = rawMap ? JSON.parse(rawMap) : {};
+        map[clean] = cleanEmail;
+        localStorage.setItem('ansar_username_map', JSON.stringify(map));
+      } catch (_) {}
+    }
+
+    function handleLoginInput(val) {
+      const badge = document.getElementById('loginUsernameBadge');
+      if (!badge) return;
+      const clean = (val || '').trim().toLowerCase();
+      if (!clean || clean.includes('@')) {
+        badge.style.display = 'none';
+        return;
+      }
+      const known = getStoredEmailForUsername(clean);
+      if (known) {
+        badge.style.display = 'inline-flex';
+        badge.title = `Mapped to registered email: ${known}`;
+        badge.innerHTML = `<i class="fa-solid fa-check"></i> Known User`;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const isPass = input.type === 'password';
+      input.type = isPass ? 'text' : 'password';
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+      }
+    }
+
+    function validatePasswordMatch() {
+      const pass = document.getElementById('regPass')?.value || '';
+      const confirm = document.getElementById('regPassConfirm')?.value || '';
+      const hint = document.getElementById('passwordMatchHint');
+      if (!hint) return true;
+
+      if (!confirm) {
+        hint.style.display = 'none';
+        return false;
+      }
+
+      hint.style.display = 'block';
+      if (pass === confirm) {
+        hint.style.color = '#059669';
+        hint.innerHTML = '<i class="fa-solid fa-circle-check"></i> Passwords match';
+        return true;
+      } else {
+        hint.style.color = '#dc2626';
+        hint.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Passwords do not match';
+        return false;
+      }
+    }
+
     function formatINR(val) {
       return '₹' + Number(val || 0).toLocaleString('en-IN', {
         minimumFractionDigits: 2,
@@ -946,25 +1050,62 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
 
+      const isUsername = !emailOrUser.includes('@');
+      let targetEmail = emailOrUser;
+
       try {
-        let targetEmail = emailOrUser;
+        // If user entered a username instead of email, resolve actual registered email
+        if (isUsername) {
+          const cleanUser = emailOrUser.toLowerCase().trim();
 
-        // If user entered a username instead of email, resolve from profiles table
-        if (!targetEmail.includes('@')) {
-          try {
-            const { data: foundUser } = await supabaseClient
-              .from('profiles')
-              .select('id, username')
-              .eq('username', targetEmail)
-              .maybeSingle();
+          // 1. Try local mapped credentials on this browser first (instant)
+          const localEmail = getStoredEmailForUsername(cleanUser);
+          if (localEmail) {
+            targetEmail = localEmail;
+          } else {
+            // 2. Try Supabase RPC get_email_for_username
+            try {
+              const { data: resolvedEmail, error: rpcErr } = await supabaseClient
+                .rpc('get_email_for_username', { p_username: cleanUser });
 
-            if (foundUser && foundUser.username) {
-              targetEmail = `${foundUser.username}@ansarfamily.org`;
-            } else {
-              targetEmail = `${targetEmail}@ansarfamily.org`;
+              if (!rpcErr && resolvedEmail) {
+                targetEmail = resolvedEmail.trim();
+                saveUsernameEmailMapping(cleanUser, targetEmail);
+              } else {
+                // 3. Fallback: check public.profiles safely without failing on missing 'email' column
+                try {
+                  const { data: foundUser } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username')
+                    .ilike('username', cleanUser)
+                    .maybeSingle();
+
+                  if (foundUser) {
+                    try {
+                      const { data: withEmail } = await supabaseClient
+                        .from('profiles')
+                        .select('email')
+                        .eq('id', foundUser.id)
+                        .maybeSingle();
+                      if (withEmail && withEmail.email) {
+                        targetEmail = withEmail.email.trim();
+                        saveUsernameEmailMapping(cleanUser, targetEmail);
+                      } else {
+                        targetEmail = `${cleanUser}@ansarfamily.org`;
+                      }
+                    } catch (_) {
+                      targetEmail = `${cleanUser}@ansarfamily.org`;
+                    }
+                  } else {
+                    targetEmail = `${cleanUser}@ansarfamily.org`;
+                  }
+                } catch (_) {
+                  targetEmail = `${cleanUser}@ansarfamily.org`;
+                }
+              }
+            } catch (_) {
+              targetEmail = `${cleanUser}@ansarfamily.org`;
             }
-          } catch (_) {
-            targetEmail = `${targetEmail}@ansarfamily.org`;
           }
         }
 
@@ -978,6 +1119,9 @@
         }
 
         if (data.user) {
+          if (isUsername) {
+            saveUsernameEmailMapping(emailOrUser, data.user.email);
+          }
           await loadUserProfileAndRender(data.user);
         }
       } catch (err) {
@@ -985,6 +1129,12 @@
         let msg = err.message || 'Invalid username or password.';
         if (msg.toLowerCase().includes('email') && (msg.toLowerCase().includes('disable') || msg.toLowerCase().includes('not allowed'))) {
           msg = `<strong>Email provider is disabled in Supabase.</strong><br><span style="font-size: 12px; display: block; margin-top: 4px;">To test without confirmation emails: In Supabase Dashboard &rarr; <em>Authentication</em> &rarr; <em>Providers</em> &rarr; <em>Email</em>: Turn <strong>Enable Email provider</strong> ON, and turn <strong>Confirm email</strong> OFF.</span>`;
+        } else if (isUsername && (msg.toLowerCase().includes('invalid login credentials') || msg.toLowerCase().includes('invalid grant') || msg.toLowerCase().includes('invalid username'))) {
+          msg = `<strong>Sign-in failed for username &ldquo;${escapeHtml(emailOrUser)}&rdquo;.</strong><br>` +
+                `<div style="font-size: 12px; line-height: 1.5; margin-top: 6px; text-align: left;">` +
+                `&bull; Please verify that your username and password are entered correctly.<br>` +
+                `&bull; If you registered with an email address, you can also sign in using your email.` +
+                `</div>`;
         }
         errBox.innerHTML = msg;
       } finally {
@@ -998,11 +1148,24 @@
       const username = document.getElementById('regUsername').value.trim().toLowerCase();
       let email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPass')?.value || '';
+      const passwordConfirm = document.getElementById('regPassConfirm')?.value || '';
       const phone = document.getElementById('regPhone').value.trim();
       const address = document.getElementById('regAddress').value.trim();
 
       if (!name || !username || !password || !phone || !address) {
         alert('Please complete all required fields (Name, Username, Password, Phone, Address).');
+        return;
+      }
+
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters long.');
+        document.getElementById('regPass').focus();
+        return;
+      }
+
+      if (password !== passwordConfirm) {
+        alert('Passwords do not match. Please re-enter your password to confirm.');
+        document.getElementById('regPassConfirm').focus();
         return;
       }
 
@@ -1035,13 +1198,16 @@
       }
 
       if (data.user) {
+        // Save mapping immediately on this device!
+        saveUsernameEmailMapping(username, email);
         if (data.session) {
           alert('Registration successful! Logging into your dashboard...');
           await loadUserProfileAndRender(data.user);
         } else {
-          alert('Registration application saved! Please sign in with your credentials.');
+          alert('Registration application saved! Please sign in with your username or email.');
           switchAuthTab('login');
           document.getElementById('loginEmail').value = username;
+          handleLoginInput(username);
         }
       }
     }
@@ -1065,6 +1231,30 @@
         phone: user.user_metadata?.phone || '+91 94470 00000',
         address: user.user_metadata?.address || 'Kerala, India'
       };
+
+      // Automatically remember username -> email mapping for this device
+      const resolvedUsername = currentProfile.username || user.user_metadata?.username || user.email?.split('@')[0];
+      if (resolvedUsername && user.email) {
+        saveUsernameEmailMapping(resolvedUsername, user.email);
+      }
+
+      // Auto-sync profile to public.profiles table if missing
+      if (!profile) {
+        try {
+          await supabaseClient.from('profiles').upsert({
+            id: user.id,
+            username: (resolvedUsername || '').toLowerCase(),
+            full_name: currentProfile.full_name,
+            phone: currentProfile.phone,
+            address: currentProfile.address,
+            role: currentProfile.role,
+            status: currentProfile.status,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'id' });
+        } catch (syncErr) {
+          console.warn('Profile sync note:', syncErr);
+        }
+      }
 
       const fullName = currentProfile.full_name || 'Community Member';
       const role = (currentProfile.role || 'member').toLowerCase();

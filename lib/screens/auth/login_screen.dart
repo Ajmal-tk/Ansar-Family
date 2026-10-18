@@ -22,13 +22,17 @@ class _LoginScreenState extends State<LoginScreen>
   // Login Controllers
   final _emailLoginController = TextEditingController(text: 'ansar_member');
   final _passLoginController = TextEditingController(text: 'password123');
+  bool _obscureLoginPass = true;
 
   // Signup Controllers
   final _usernameRegisterController = TextEditingController();
   final _passRegisterController = TextEditingController();
+  final _confirmPassRegisterController = TextEditingController();
   final _nameRegisterController = TextEditingController();
   final _phoneRegisterController = TextEditingController();
   final _addressRegisterController = TextEditingController();
+  bool _obscureRegisterPass = true;
+  bool _obscureRegisterConfirmPass = true;
 
   @override
   void initState() {
@@ -43,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen>
     _passLoginController.dispose();
     _usernameRegisterController.dispose();
     _passRegisterController.dispose();
+    _confirmPassRegisterController.dispose();
     _nameRegisterController.dispose();
     _phoneRegisterController.dispose();
     _addressRegisterController.dispose();
@@ -162,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                     // Tab View
                     SizedBox(
-                      height: 340,
+                      height: 380,
                       child: TabBarView(
                         controller: _tabController,
                         children: [
@@ -175,20 +180,27 @@ class _LoginScreenState extends State<LoginScreen>
                                   TextFormField(
                                     controller: _emailLoginController,
                                     decoration: const InputDecoration(
-                                      labelText: 'Username',
+                                      labelText: 'Username or Email',
                                       prefixIcon: Icon(Icons.alternate_email),
                                     ),
                                     validator: (v) => v == null || v.isEmpty
-                                        ? 'Enter username'
+                                        ? 'Enter username or email'
                                         : null,
                                   ),
                                   const SizedBox(height: 14),
                                   TextFormField(
                                     controller: _passLoginController,
-                                    obscureText: true,
-                                    decoration: const InputDecoration(
+                                    obscureText: _obscureLoginPass,
+                                    decoration: InputDecoration(
                                       labelText: 'Password',
-                                      prefixIcon: Icon(Icons.lock_outline),
+                                      prefixIcon: const Icon(Icons.lock_outline),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(_obscureLoginPass
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined),
+                                        onPressed: () => setState(() =>
+                                            _obscureLoginPass = !_obscureLoginPass),
+                                      ),
                                     ),
                                     validator: (v) => v == null || v.length < 6
                                         ? 'Min 6 characters'
@@ -247,14 +259,48 @@ class _LoginScreenState extends State<LoginScreen>
                                   const SizedBox(height: 10),
                                   TextFormField(
                                     controller: _passRegisterController,
-                                    obscureText: true,
-                                    decoration: const InputDecoration(
+                                    obscureText: _obscureRegisterPass,
+                                    decoration: InputDecoration(
                                       labelText: 'Password',
-                                      prefixIcon: Icon(Icons.lock_outline),
+                                      prefixIcon: const Icon(Icons.lock_outline),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(_obscureRegisterPass
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined),
+                                        onPressed: () => setState(() =>
+                                            _obscureRegisterPass =
+                                                !_obscureRegisterPass),
+                                      ),
                                     ),
                                     validator: (v) => v == null || v.length < 6
                                         ? 'Min 6 chars'
                                         : null,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _confirmPassRegisterController,
+                                    obscureText: _obscureRegisterConfirmPass,
+                                    decoration: InputDecoration(
+                                      labelText: 'Confirm Password',
+                                      prefixIcon: const Icon(Icons.lock_outline),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(_obscureRegisterConfirmPass
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined),
+                                        onPressed: () => setState(() =>
+                                            _obscureRegisterConfirmPass =
+                                                !_obscureRegisterConfirmPass),
+                                      ),
+                                    ),
+                                    validator: (v) {
+                                      if (v == null || v.isEmpty) {
+                                        return 'Confirm your password';
+                                      }
+                                      if (v != _passRegisterController.text) {
+                                        return 'Passwords do not match';
+                                      }
+                                      return null;
+                                    },
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(

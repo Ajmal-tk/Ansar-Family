@@ -201,33 +201,67 @@ class SupabaseService {
     if (client != null) {
       String targetEmail = emailOrUsername.trim();
 
-      // If user provided a username instead of email, resolve email from public.profiles
+      // If user provided a username instead of email, resolve actual registered email
       if (!targetEmail.contains('@')) {
+        final cleanUsername = targetEmail.toLowerCase().trim();
         try {
-          final res = await client!
-              .from('profiles')
-              .select('id, username')
-              .eq('username', targetEmail)
-              .maybeSingle();
+          // 1. Try secure RPC function (resolves authentic email securely)
+          final rpcEmail = await client!.rpc(
+            'get_email_for_username',
+            params: {'p_username': cleanUsername},
+          );
 
-          if (res != null) {
-            // Find corresponding email or query auth profile
-            final String uId = res['id'];
-            final profile = await fetchProfile(uId);
-            if (profile != null && profile.username != null) {
-              // Standard sign in fallback
-              targetEmail = '${profile.username}@ansarfamily.org';
+          if (rpcEmail != null && rpcEmail.toString().trim().isNotEmpty) {
+            targetEmail = rpcEmail.toString().trim();
+          } else {
+            // 2. Fallback: check public.profiles safely without failing on missing email column
+            final res = await client!
+                .from('profiles')
+                .select('id, username')
+                .ilike('username', cleanUsername)
+                .maybeSingle();
+
+            if (res != null) {
+              try {
+                final withEmail = await client!
+                    .from('profiles')
+                    .select('email')
+                    .eq('id', res['id'])
+                    .maybeSingle();
+                if (withEmail != null &&
+                    withEmail['email'] != null &&
+                    withEmail['email'].toString().trim().isNotEmpty) {
+                  targetEmail = withEmail['email'].toString().trim();
+                } else {
+                  targetEmail = '$cleanUsername@ansarfamily.org';
+                }
+              } catch (_) {
+                targetEmail = '$cleanUsername@ansarfamily.org';
+              }
+            } else {
+              targetEmail = '$cleanUsername@ansarfamily.org';
             }
           }
         } catch (e) {
           debugPrint("Username lookup note: $e");
+          targetEmail = '$cleanUsername@ansarfamily.org';
         }
       }
 
-      return await client!.auth.signInWithPassword(
-        email: targetEmail,
-        password: password,
-      );
+      try {
+        return await client!.auth.signInWithPassword(
+          email: targetEmail,
+          password: password,
+        );
+      } catch (authErr) {
+        if (!emailOrUsername.contains('@')) {
+          throw AuthException(
+            'Unable to sign in with username "$emailOrUsername". '
+            'Please verify your password or sign in using your registered email address.',
+          );
+        }
+        rethrow;
+      }
     } else {
       // Local username/password authentication does not use Supabase.
       final term = emailOrUsername.toLowerCase().trim();

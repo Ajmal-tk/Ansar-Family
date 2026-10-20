@@ -50,6 +50,7 @@ flutter run -d chrome --dart-define=SUPABASE_URL=https://xyz.supabase.co --dart-
 This script sets up:
 - Automated `auth.users` to `public.profiles` profile creation trigger.
 - Strict Row-Level Security (RLS) policies for `profiles`, `posts`, `membership_fees`, and `family_members`.
+- For an existing project, rerun this script after policy updates so the Supabase database receives them.
 
 ---
 

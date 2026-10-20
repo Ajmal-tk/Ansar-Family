@@ -330,6 +330,7 @@ class SupabaseService {
         return (res as List).map((e) => ProfileModel.fromJson(e)).toList();
       } catch (e) {
         debugPrint("Error fetching pending profiles: $e");
+        rethrow;
       }
     }
     return _mockProfiles.values.where((p) => p.status == 'pending').toList();
@@ -350,10 +351,20 @@ class SupabaseService {
   Future<bool> updateProfileStatus(String userId, String status) async {
     if (client != null) {
       try {
-        await client!.from('profiles').update({
-          'status': status,
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', userId);
+        final updatedProfile = await client!
+            .from('profiles')
+            .update({
+              'status': status,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', userId)
+            .select('id, status')
+            .maybeSingle();
+        if (updatedProfile == null || updatedProfile['status'] != status) {
+          debugPrint(
+              "Profile status update did not change $userId to $status.");
+          return false;
+        }
         return true;
       } catch (e) {
         debugPrint("Error updating status: $e");
@@ -362,8 +373,9 @@ class SupabaseService {
     } else {
       if (_mockProfiles.containsKey(userId)) {
         _mockProfiles[userId] = _mockProfiles[userId]!.copyWith(status: status);
+        return true;
       }
-      return true;
+      return false;
     }
   }
 

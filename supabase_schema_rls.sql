@@ -92,22 +92,42 @@ ALTER TABLE public.family_members ENABLE ROW LEVEL SECURITY;
 -- ----------------------------------------------------------------------------
 -- 3. PROFILES TABLE RLS POLICIES
 -- ----------------------------------------------------------------------------
+-- Use a SECURITY DEFINER helper so profile policies can check the current
+-- user's role without recursively querying the RLS-protected profiles table.
+CREATE OR REPLACE FUNCTION public.is_management_or_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles p
+    WHERE p.id = (SELECT auth.uid())
+      AND p.role IN ('management', 'admin')
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.is_management_or_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_management_or_admin() TO authenticated;
+
 -- Drop existing policies if any
 DROP POLICY IF EXISTS "Public profiles read access" ON public.profiles;
 DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Management and Admin can read all profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Users can update own profile info" ON public.profiles;
 DROP POLICY IF EXISTS "Admin and Management can update profile role and status" ON public.profiles;
+DROP POLICY IF EXISTS "Read profiles policy" ON public.profiles;
+DROP POLICY IF EXISTS "Insert profiles policy" ON public.profiles;
+DROP POLICY IF EXISTS "Update profiles policy" ON public.profiles;
 
 -- Read Policy: Users can view their own profile, and management/admin can view all profiles
 CREATE POLICY "Read profiles policy" ON public.profiles
   FOR SELECT
   USING (
     auth.uid() = id
-    OR EXISTS (
-      SELECT 1 FROM public.profiles p 
-      WHERE p.id = auth.uid() AND p.role IN ('management', 'admin')
-    )
+    OR public.is_management_or_admin()
   );
 
 -- Insert Policy: Allow self creation or service trigger
@@ -120,10 +140,7 @@ CREATE POLICY "Update profiles policy" ON public.profiles
   FOR UPDATE
   USING (
     auth.uid() = id
-    OR EXISTS (
-      SELECT 1 FROM public.profiles p 
-      WHERE p.id = auth.uid() AND p.role IN ('management', 'admin')
-    )
+    OR public.is_management_or_admin()
   );
 
 -- ----------------------------------------------------------------------------
@@ -132,6 +149,10 @@ CREATE POLICY "Update profiles policy" ON public.profiles
 DROP POLICY IF EXISTS "Anyone authenticated can read posts" ON public.posts;
 DROP POLICY IF EXISTS "Users can insert own posts" ON public.posts;
 DROP POLICY IF EXISTS "Users can edit own posts or Management/Admin delete" ON public.posts;
+DROP POLICY IF EXISTS "Read posts policy" ON public.posts;
+DROP POLICY IF EXISTS "Insert posts policy" ON public.posts;
+DROP POLICY IF EXISTS "Update posts policy" ON public.posts;
+DROP POLICY IF EXISTS "Delete posts policy" ON public.posts;
 
 CREATE POLICY "Read posts policy" ON public.posts
   FOR SELECT
@@ -166,6 +187,9 @@ CREATE POLICY "Delete posts policy" ON public.posts
 -- ----------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Users view own fees" ON public.membership_fees;
 DROP POLICY IF EXISTS "Management view all fees" ON public.membership_fees;
+DROP POLICY IF EXISTS "Read membership_fees policy" ON public.membership_fees;
+DROP POLICY IF EXISTS "Insert membership_fees policy" ON public.membership_fees;
+DROP POLICY IF EXISTS "Update membership_fees policy" ON public.membership_fees;
 
 CREATE POLICY "Read membership_fees policy" ON public.membership_fees
   FOR SELECT
@@ -200,6 +224,10 @@ CREATE POLICY "Update membership_fees policy" ON public.membership_fees
 -- 6. FAMILY_MEMBERS TABLE RLS POLICIES
 -- ----------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Users manage own family members" ON public.family_members;
+DROP POLICY IF EXISTS "Read family_members policy" ON public.family_members;
+DROP POLICY IF EXISTS "Insert family_members policy" ON public.family_members;
+DROP POLICY IF EXISTS "Update family_members policy" ON public.family_members;
+DROP POLICY IF EXISTS "Delete family_members policy" ON public.family_members;
 
 CREATE POLICY "Read family_members policy" ON public.family_members
   FOR SELECT

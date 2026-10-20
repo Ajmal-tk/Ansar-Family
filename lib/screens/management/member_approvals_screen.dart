@@ -18,6 +18,7 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
   List<ProfileModel> _pendingProfiles = [];
   Map<String, List<FamilyMemberModel>> _familyData = {};
   bool _isLoading = true;
+  String? _loadError;
 
   @override
   void initState() {
@@ -26,24 +27,41 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
   }
 
   Future<void> _loadPending() async {
-    final list = await SupabaseService.instance.fetchPendingProfiles();
-    final Map<String, List<FamilyMemberModel>> famMap = {};
-
-    for (var p in list) {
-      famMap[p.id] = await SupabaseService.instance.fetchFamilyMembers(p.id);
-    }
-
     setState(() {
-      _pendingProfiles = list;
-      _familyData = famMap;
-      _isLoading = false;
+      _isLoading = true;
+      _loadError = null;
     });
+    try {
+      final list = await SupabaseService.instance.fetchPendingProfiles();
+      final Map<String, List<FamilyMemberModel>> famMap = {};
+
+      for (var p in list) {
+        famMap[p.id] = await SupabaseService.instance.fetchFamilyMembers(p.id);
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _pendingProfiles = list;
+        _familyData = famMap;
+        _isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading pending member applications: $e');
+      if (!mounted) return;
+      setState(() {
+        _pendingProfiles = [];
+        _familyData = {};
+        _loadError = 'Could not load applications. Please try again.';
+        _isLoading = false;
+      });
+    }
   }
 
-  void _updateStatus(String userId, String status) async {
+  Future<void> _updateStatus(String userId, String status) async {
     final success =
         await SupabaseService.instance.updateProfileStatus(userId, status);
-    if (success && mounted) {
+    if (!mounted) return;
+    if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Member status updated to ${status.toUpperCase()}'),
@@ -51,7 +69,15 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
               status == 'approved' ? AppTheme.primaryEmerald : Colors.red,
         ),
       );
-      _loadPending();
+      await _loadPending();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              'Could not update member status. Check the database permissions and try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -71,14 +97,23 @@ class _MemberApprovalsScreenState extends State<MemberApprovalsScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check_circle_outline,
-                          size: 64, color: Colors.green.shade300),
+                      if (_loadError == null)
+                        Icon(Icons.check_circle_outline,
+                            size: 64, color: Colors.green.shade300),
                       const SizedBox(height: 12),
-                      const Text(
-                        'All caught up! No pending member applications.',
-                        style:
-                            TextStyle(color: AppTheme.textMuted, fontSize: 16),
+                      Text(
+                        _loadError ??
+                            'All caught up! No pending member applications.',
+                        style: const TextStyle(
+                            color: AppTheme.textMuted, fontSize: 16),
                       ),
+                      if (_loadError != null) ...[
+                        const SizedBox(height: 12),
+                        OutlinedButton(
+                          onPressed: _loadPending,
+                          child: const Text('Retry'),
+                        ),
+                      ],
                     ],
                   ),
                 )

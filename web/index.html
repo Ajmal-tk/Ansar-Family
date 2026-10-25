@@ -898,7 +898,7 @@
         <p style="color: var(--text-muted); margin-bottom: 20px;">Membership subscription records & charitable contributions in Indian Rupees (₹).</p>
         <div id="adminFeeEntryCard" class="feature-card" style="display: none; margin-bottom: 24px;">
           <h3 style="font-size: 16px; margin: 0 0 8px;"><i class="fa-solid fa-circle-plus" style="color: var(--primary-emerald); margin-right: 8px;"></i>Enter Member Fee Details</h3>
-          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Select an approved member, enter the fee amount and period, then set the payment status.</p>
+          <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Select an approved member, choose the purpose and payment month, then set the amount and status.</p>
           <form id="adminFeeEntryForm" onsubmit="handleRecordMemberFee(event)">
             <div class="user-info-grid" style="margin-bottom: 12px;">
               <div>
@@ -912,8 +912,44 @@
                 <input id="feeAmount" class="form-control" type="number" min="0.01" step="0.01" placeholder="e.g. 500" required>
               </div>
               <div>
-                <label for="feePeriod" class="info-label">Period / Purpose</label>
-                <input id="feePeriod" class="form-control" type="text" placeholder="e.g. 2026-Q1" required>
+                <label for="feePurpose" class="info-label">Purpose</label>
+                <select id="feePurpose" class="form-control" required>
+                  <option value="Monthly Members Fee">Monthly Members Fee</option>
+                  <option value="charity">charity</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
+              <div>
+                <label for="feeYear" class="info-label">Year</label>
+                <select id="feeYear" class="form-control" required>
+                  <option value="2026" selected>2026</option>
+                  <option value="2027">2027</option>
+                  <option value="2028">2028</option>
+                  <option value="2029">2029</option>
+                  <option value="2030">2030</option>
+                  <option value="2031">2031</option>
+                  <option value="2032">2032</option>
+                  <option value="2033">2033</option>
+                  <option value="2034">2034</option>
+                  <option value="2035">2035</option>
+                </select>
+              </div>
+              <div>
+                <label for="feeMonth" class="info-label">Month</label>
+                <select id="feeMonth" class="form-control" required>
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
               </div>
               <div>
                 <label for="feeStatus" class="info-label">Payment Status</label>
@@ -1633,13 +1669,20 @@
 
       const userId = document.getElementById('feeMemberSelect').value;
       const amount = Number(document.getElementById('feeAmount').value);
-      const period = document.getElementById('feePeriod').value.trim();
+      const purpose = document.getElementById('feePurpose').value;
+      const year = Number(document.getElementById('feeYear').value);
+      const month = Number(document.getElementById('feeMonth').value);
+      const monthName = new Intl.DateTimeFormat('en', { month: 'long' }).format(new Date(2026, month - 1, 1));
+      const period = `${purpose} - ${monthName} ${year}`;
       const status = document.getElementById('feeStatus').value;
       const button = document.getElementById('feeEntrySubmit');
 
-      if (!userId || !Number.isFinite(amount) || amount <= 0 || !period ||
+      if (!userId || !Number.isFinite(amount) || amount <= 0 ||
+          !['Monthly Members Fee', 'charity', 'Others'].includes(purpose) ||
+          !Number.isInteger(year) || year < 2026 || year > 2035 ||
+          !Number.isInteger(month) || month < 1 || month > 12 ||
           !['pending', 'paid'].includes(status)) {
-        showFeeEntryMessage('Select a member and enter a valid amount, period, and status.', true);
+        showFeeEntryMessage('Select a member and enter a valid amount, purpose, year, month, and status.', true);
         return;
       }
 
@@ -1698,8 +1741,8 @@
 
       try {
         const query = isAdminOrMgr
-          ? supabaseClient.from('membership_fees').select('*, profiles(full_name, username)').order('created_at', { ascending: false }).limit(100)
-          : supabaseClient.from('membership_fees').select('*').eq('user_id', currentAuthUser.id).order('created_at', { ascending: false });
+          ? supabaseClient.from('membership_fees').select('*, profiles(full_name, username)').order('payment_date', { ascending: false }).limit(100)
+          : supabaseClient.from('membership_fees').select('*').eq('user_id', currentAuthUser.id).order('payment_date', { ascending: false });
 
         const { data: fees, error } = await query;
         if (error) throw error;
@@ -1715,7 +1758,7 @@
             <td><strong>${escapeHtml(f.period || 'Monthly Subscription')}</strong></td>
             <td><strong>${formatINR(f.amount)}</strong></td>
             <td><span class="badge badge-${(f.status || 'paid').toLowerCase()}">${(f.status || 'PAID').toUpperCase()}</span></td>
-            <td>${f.status === 'paid' ? 'Paid' : 'Recorded'}: ${f.payment_date ? new Date(f.payment_date).toLocaleDateString('en-IN') : (f.created_at ? new Date(f.created_at).toLocaleDateString('en-IN') : '-')}</td>
+            <td>${f.status === 'paid' ? 'Paid' : 'Recorded'}: ${f.payment_date ? new Date(f.payment_date).toLocaleDateString('en-IN') : '-'}</td>
             ${isAdminOrMgr ? `<td>${f.status === 'pending' ? `<button class="btn btn-emerald" type="button" onclick="markMemberFeePaid('${escapeHtml(f.id)}')"><i class="fa-solid fa-check"></i> Mark paid</button>` : '—'}</td>` : ''}
           </tr>
         `).join('');

@@ -42,10 +42,16 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
 
   Future<void> _showAddManualFeeDialog() async {
     final amountController = TextEditingController();
-    final periodController = TextEditingController(text: '2026-Q1');
     ProfileModel? selectedMember =
         _allProfiles.isNotEmpty ? _allProfiles.first : null;
+    String selectedPurpose = 'Monthly Members Fee';
+    int selectedYear = 2026;
+    int selectedMonth = DateTime.now().month;
     String selectedStatus = 'pending';
+    final months = List.generate(
+      12,
+      (index) => DateFormat.MMMM().format(DateTime(2026, index + 1)),
+    );
 
     await showDialog(
       context: context,
@@ -80,10 +86,56 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                   decoration: const InputDecoration(labelText: 'Amount (INR)'),
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: periodController,
-                  decoration: const InputDecoration(
-                      labelText: 'Period / Note (e.g. 2026-Q1)'),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedPurpose,
+                  decoration: const InputDecoration(labelText: 'Purpose'),
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Monthly Members Fee',
+                      child: Text('Monthly Members Fee'),
+                    ),
+                    DropdownMenuItem(value: 'charity', child: Text('charity')),
+                    DropdownMenuItem(value: 'Others', child: Text('Others')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => selectedPurpose = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<int>(
+                  initialValue: selectedYear,
+                  decoration: const InputDecoration(labelText: 'Year'),
+                  items: List.generate(
+                    10,
+                    (index) => DropdownMenuItem(
+                      value: 2026 + index,
+                      child: Text('${2026 + index}'),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => selectedYear = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<int>(
+                  initialValue: selectedMonth,
+                  decoration: const InputDecoration(labelText: 'Month'),
+                  items: List.generate(
+                    12,
+                    (index) => DropdownMenuItem(
+                      value: index + 1,
+                      child: Text(months[index]),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => selectedMonth = value);
+                    }
+                  },
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
@@ -125,7 +177,8 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                         userId: selectedMember!.id,
                         amount: amount,
                         currency: 'INR',
-                        period: periodController.text.trim(),
+                        period:
+                            '$selectedPurpose - ${months[selectedMonth - 1]} $selectedYear',
                         status: selectedStatus,
                         paymentDate: DateTime.now(),
                         createdBy: SupabaseService.instance.currentUserId,
@@ -152,7 +205,6 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
       ),
     );
     amountController.dispose();
-    periodController.dispose();
   }
 
   Future<void> _markFeePaid(FeeModel fee) async {

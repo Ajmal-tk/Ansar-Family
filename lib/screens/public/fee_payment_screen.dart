@@ -263,7 +263,7 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
             const SizedBox(height: 28),
 
             const Text(
-              'YOUR PAYMENT TRANSACTION HISTORY',
+              'YOUR FEE STATUS & PAYMENT HISTORY',
               style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -305,13 +305,13 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${f.period ?? "Payment"} • \$${f.amount.toStringAsFixed(2)} ${f.currency}',
+                                        '${f.period ?? "Fee"} • ${f.currency} ${f.amount.toStringAsFixed(2)}',
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 15),
                                       ),
                                       Text(
-                                        dateFormat.format(f.paymentDate),
+                                        '${f.status == 'paid' ? 'Paid on' : 'Recorded'}: ${dateFormat.format(f.paymentDate)}',
                                         style: const TextStyle(
                                             fontSize: 12,
                                             color: AppTheme.textMuted),

@@ -209,6 +209,12 @@ CREATE POLICY "Insert membership_fees policy" ON public.membership_fees
       SELECT 1 FROM public.profiles p 
       WHERE p.id = auth.uid() AND p.role IN ('management', 'admin')
     )
+    AND EXISTS (
+      SELECT 1 FROM public.profiles member
+      WHERE member.id = user_id
+        AND member.role = 'member'
+        AND member.status = 'approved'
+    )
   );
 
 CREATE POLICY "Update membership_fees policy" ON public.membership_fees

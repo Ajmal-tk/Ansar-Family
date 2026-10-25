@@ -30,51 +30,74 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
   Future<void> _loadData() async {
     final fees = await SupabaseService.instance.fetchAllFees();
     final profiles = await SupabaseService.instance.fetchAllProfiles();
+    if (!mounted) return;
     setState(() {
       _allFees = fees;
-      _allProfiles = profiles;
+      _allProfiles = profiles
+          .where((profile) => profile.role == 'member' && profile.isApproved)
+          .toList();
       _isLoading = false;
     });
   }
 
-  void _showAddManualFeeDialog() {
-    final amountController = TextEditingController(text: '50.0');
+  Future<void> _showAddManualFeeDialog() async {
+    final amountController = TextEditingController();
     final periodController = TextEditingController(text: '2026-Q1');
     ProfileModel? selectedMember =
         _allProfiles.isNotEmpty ? _allProfiles.first : null;
+    String selectedStatus = 'pending';
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Record Manual Fee / Donation'),
+          title: const Text('Enter Member Fee Details'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                DropdownButtonFormField<ProfileModel>(
-                  initialValue: selectedMember,
-                  decoration: const InputDecoration(labelText: 'Select Member'),
-                  items: _allProfiles
-                      .map((p) => DropdownMenuItem(
-                            value: p,
-                            child: Text(p.fullName ?? p.username ?? 'Member'),
-                          ))
-                      .toList(),
-                  onChanged: (val) =>
-                      setDialogState(() => selectedMember = val),
-                ),
+                if (_allProfiles.isEmpty)
+                  const Text('No approved members are available.')
+                else
+                  DropdownButtonFormField<ProfileModel>(
+                    initialValue: selectedMember,
+                    decoration: const InputDecoration(
+                        labelText: 'Select Approved Member'),
+                    items: _allProfiles
+                        .map((p) => DropdownMenuItem(
+                              value: p,
+                              child: Text(p.fullName ?? p.username ?? 'Member'),
+                            ))
+                        .toList(),
+                    onChanged: (val) =>
+                        setDialogState(() => selectedMember = val),
+                  ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Amount (USD)'),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(labelText: 'Amount (INR)'),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: periodController,
                   decoration: const InputDecoration(
                       labelText: 'Period / Note (e.g. 2026-Q1)'),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedStatus,
+                  decoration: const InputDecoration(labelText: 'Fee Status'),
+                  items: const [
+                    DropdownMenuItem(value: 'pending', child: Text('Pending')),
+                    DropdownMenuItem(value: 'paid', child: Text('Paid')),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() => selectedStatus = value);
+                    }
+                  },
                 ),
               ],
             ),
@@ -85,39 +108,80 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () async {
-                if (selectedMember != null) {
-                  final amount = double.tryParse(amountController.text) ?? 50.0;
-                  final fee = FeeModel(
-                    id: const Uuid().v4(),
-                    userId: selectedMember!.id,
-                    amount: amount,
-                    currency: 'USD',
-                    period: periodController.text.trim(),
-                    status: 'paid',
-                    paymentDate: DateTime.now(),
-                    createdBy: SupabaseService.instance.currentUserId,
-                    userName: selectedMember!.fullName,
-                  );
-                  await SupabaseService.instance.recordFee(fee);
-                  Navigator.pop(ctx);
-                  _loadData();
-                }
-              },
-              child: const Text('Record Entry'),
+              onPressed: selectedMember == null
+                  ? null
+                  : () async {
+                      final amount = double.tryParse(amountController.text);
+                      if (amount == null || !amount.isFinite || amount <= 0) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Enter a valid amount greater than zero.')),
+                        );
+                        return;
+                      }
+                      final fee = FeeModel(
+                        id: const Uuid().v4(),
+                        userId: selectedMember!.id,
+                        amount: amount,
+                        currency: 'INR',
+                        period: periodController.text.trim(),
+                        status: selectedStatus,
+                        paymentDate: DateTime.now(),
+                        createdBy: SupabaseService.instance.currentUserId,
+                        userName: selectedMember!.fullName,
+                      );
+                      final saved =
+                          await SupabaseService.instance.recordFee(fee);
+                      if (!saved) {
+                        if (ctx.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Unable to save the fee entry.')),
+                          );
+                        }
+                        return;
+                      }
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      _loadData();
+                    },
+              child: const Text('Save Fee Details'),
             ),
           ],
         ),
       ),
     );
+    amountController.dispose();
+    periodController.dispose();
+  }
+
+  Future<void> _markFeePaid(FeeModel fee) async {
+    final updated = await SupabaseService.instance.updateFeeStatus(
+      fee.id,
+      'paid',
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          updated ? 'Fee marked as paid.' : 'Unable to update the fee status.',
+        ),
+      ),
+    );
+    if (updated) await _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM dd, yyyy');
-    final totalCollected = _allFees
-        .where((f) => f.status == 'paid')
-        .fold<double>(0, (sum, f) => sum + f.amount);
+    final totalsByCurrency = <String, double>{};
+    for (final fee in _allFees.where((fee) => fee.status == 'paid')) {
+      totalsByCurrency.update(
+        fee.currency,
+        (total) => total + fee.amount,
+        ifAbsent: () => fee.amount,
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -127,10 +191,10 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showAddManualFeeDialog,
+        onPressed: _allProfiles.isEmpty ? null : _showAddManualFeeDialog,
         backgroundColor: AppTheme.secondaryGold,
         icon: const Icon(Icons.add),
-        label: const Text('Record Manual Entry'),
+        label: const Text('Enter Member Fee'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -163,7 +227,13 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                           ],
                         ),
                         Text(
-                          '\$${totalCollected.toStringAsFixed(2)} USD',
+                          totalsByCurrency.isEmpty
+                              ? 'No payments yet'
+                              : totalsByCurrency.entries
+                                  .map((entry) =>
+                                      '${entry.key} ${entry.value.toStringAsFixed(2)}')
+                                  .join('  •  '),
+                          textAlign: TextAlign.end,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -220,7 +290,7 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                                               fontSize: 15),
                                         ),
                                         Text(
-                                          'Period: ${item.period ?? "N/A"}  •  Date: ${dateFormat.format(item.paymentDate)}',
+                                          'Period: ${item.period ?? "N/A"}  •  ${item.status == 'paid' ? 'Paid on' : 'Recorded'}: ${dateFormat.format(item.paymentDate)}',
                                           style: const TextStyle(
                                               fontSize: 12,
                                               color: AppTheme.textMuted),
@@ -229,7 +299,7 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                                     ),
                                   ),
                                   Text(
-                                    '\$${item.amount.toStringAsFixed(2)}',
+                                    '${item.currency} ${item.amount.toStringAsFixed(2)}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -238,6 +308,15 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                                   ),
                                   const SizedBox(width: 10),
                                   StatusBadge(status: item.status),
+                                  if (item.status == 'pending')
+                                    IconButton(
+                                      tooltip: 'Mark as paid',
+                                      icon: const Icon(
+                                        Icons.check_circle_outline,
+                                        color: AppTheme.primaryEmerald,
+                                      ),
+                                      onPressed: () => _markFeePaid(item),
+                                    ),
                                 ],
                               ),
                             );

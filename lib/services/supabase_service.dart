@@ -565,4 +565,46 @@ class SupabaseService {
       return true;
     }
   }
+
+  Future<bool> updateFeeStatus(String feeId, String status) async {
+    if (status != 'paid' && status != 'pending') {
+      throw ArgumentError.value(status, 'status', 'Unsupported fee status');
+    }
+
+    if (client != null) {
+      try {
+        final updatedFee = await client!
+            .from('membership_fees')
+            .update({
+              'status': status,
+              if (status == 'paid')
+                'payment_date': DateTime.now().toIso8601String(),
+            })
+            .eq('id', feeId)
+            .select('id')
+            .maybeSingle();
+        return updatedFee != null;
+      } catch (e) {
+        debugPrint("Error updating fee status: $e");
+        return false;
+      }
+    }
+
+    final index = _mockFees.indexWhere((fee) => fee.id == feeId);
+    if (index == -1) return false;
+
+    final fee = _mockFees[index];
+    _mockFees[index] = FeeModel(
+      id: fee.id,
+      userId: fee.userId,
+      amount: fee.amount,
+      currency: fee.currency,
+      period: fee.period,
+      status: status,
+      paymentDate: status == 'paid' ? DateTime.now() : fee.paymentDate,
+      createdBy: fee.createdBy,
+      userName: fee.userName,
+    );
+    return true;
+  }
 }

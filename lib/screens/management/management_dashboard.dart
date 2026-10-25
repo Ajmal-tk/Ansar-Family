@@ -55,8 +55,20 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Management Portal'),
+        title: Text(auth.isAdmin ? 'Admin Portal' : 'Management Portal'),
         actions: [
+          IconButton(
+            tooltip: 'Enter member fee details',
+            icon: const Icon(Icons.add_card),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FeeManagementScreen(),
+                ),
+              ).then((_) => _loadMetrics());
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadMetrics,
@@ -94,6 +106,47 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                         ],
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  CustomCard(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const FeeManagementScreen(),
+                        ),
+                      ).then((_) => _loadMetrics());
+                    },
+                    color: AppTheme.primaryEmerald,
+                    child: const Row(
+                      children: [
+                        Icon(Icons.add_card, color: Colors.white, size: 30),
+                        SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Enter Member Fee Details',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Choose an approved member and record paid or pending fees.',
+                                style: TextStyle(
+                                    color: Colors.white70, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward, color: Colors.white),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -277,7 +330,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
-                                  'Financial Receipts',
+                                  'Member Fees & Status',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
@@ -286,7 +339,7 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                             ),
                             const SizedBox(height: 8),
                             const Text(
-                              'Track membership fees, donations, and record manual entries.',
+                              'Enter fees for approved members and track pending or paid status.',
                               style: TextStyle(
                                   fontSize: 12, color: AppTheme.textMuted),
                             ),

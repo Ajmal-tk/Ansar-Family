@@ -86,12 +86,13 @@ flutter run -d android
 - **Executive Management (`role: 'management'`)**:
   - User-friendly overview dashboard with real-time KPI metrics.
   - **1-Click Approvals**: Review and approve/reject pending member applications.
-  - Track financial fee collections and record manual offline payments.
+  - Record fee amounts and periods as pending or paid for approved members, and mark pending fees paid when collected.
   - Export printable **Financial Summary PDF Reports**.
 
 - **System Admin (`role: 'admin'`)**:
   - Full CRUD control over user roles (`admin`, `management`, `member`) and statuses.
   - Database profiles inspection panel.
+  - Use the financial transactions tracker to manage approved members' fee statuses.
 
 ---
 

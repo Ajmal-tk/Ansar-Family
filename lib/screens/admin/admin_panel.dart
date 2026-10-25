@@ -6,6 +6,9 @@ import '../../services/supabase_service.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/status_badge.dart';
+import '../management/fee_management_screen.dart';
+import '../management/member_approvals_screen.dart';
+import '../management/reports_screen.dart';
 
 class AdminPanel extends StatefulWidget {
   const AdminPanel({super.key});
@@ -88,6 +91,67 @@ class _AdminPanelState extends State<AdminPanel> {
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'ADMIN & MANAGEMENT OPTIONS',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                      color: AppTheme.textMuted,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  GridView.count(
+                    crossAxisCount:
+                        MediaQuery.of(context).size.width > 600 ? 3 : 1,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 2,
+                    children: [
+                      _buildAdminActionCard(
+                        title: '1-Click Approvals',
+                        description:
+                            'Approve or reject new member applications.',
+                        icon: Icons.how_to_reg,
+                        color: AppTheme.primaryEmerald,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MemberApprovalsScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildAdminActionCard(
+                        title: 'Member Fees & Status',
+                        description:
+                            'Enter fees for approved members and track pending or paid status.',
+                        icon: Icons.receipt_long,
+                        color: AppTheme.secondaryGold,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const FeeManagementScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildAdminActionCard(
+                        title: 'PDF Report Generator',
+                        description:
+                            'Generate financial summaries and membership certificates.',
+                        icon: Icons.picture_as_pdf,
+                        color: AppTheme.primaryTeal,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ReportsScreen(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -226,6 +290,51 @@ class _AdminPanelState extends State<AdminPanel> {
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildAdminActionCard({
+    required String title,
+    required String description,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return CustomCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+          ),
+        ],
+      ),
     );
   }
 }

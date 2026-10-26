@@ -196,37 +196,6 @@ class AppDrawer extends StatelessWidget {
                     },
                   ),
                 ],
-
-                const Divider(),
-
-                // Demo Mode Role Switcher (For rapid testing)
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'DEMO ROLE SWITCHER (FOR TESTING):',
-                        style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey),
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 6,
-                        children: [
-                          _buildRoleChip(context, 'admin', 'Admin'),
-                          _buildRoleChip(context, 'management', 'Manager'),
-                          _buildRoleChip(context, 'member', 'Member'),
-                          _buildRoleChip(context, 'pending', 'Pending User'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -243,15 +212,6 @@ class AppDrawer extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildRoleChip(BuildContext context, String role, String label) {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
-    return ActionChip(
-      label: Text(label, style: const TextStyle(fontSize: 11)),
-      onPressed: () => auth.switchDemoRole(role),
-      backgroundColor: Colors.grey.shade100,
     );
   }
 }

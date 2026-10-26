@@ -332,7 +332,7 @@ class _LoginScreenState extends State<LoginScreen>
                                           ? const CircularProgressIndicator(
                                               color: Colors.white)
                                           : const Text('Submit Application'),
-                                    ),
+                                     ),
                                   ),
                                 ],
                               ),
@@ -340,41 +340,6 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ],
                       ),
-                    ),
-
-                    const Divider(height: 24),
-
-                    // Fast Demo Access Section
-                    const Text(
-                      'QUICK DEMO ACCESS (CLICK TO SWITCH ROLE):',
-                      style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () => auth.switchDemoRole('admin'),
-                          icon: const Icon(Icons.security, size: 14),
-                          label: const Text('Admin',
-                              style: TextStyle(fontSize: 11)),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => auth.switchDemoRole('management'),
-                          icon: const Icon(Icons.work, size: 14),
-                          label: const Text('Manager',
-                              style: TextStyle(fontSize: 11)),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () => auth.switchDemoRole('member'),
-                          icon: const Icon(Icons.person, size: 14),
-                          label: const Text('Member',
-                              style: TextStyle(fontSize: 11)),
-                        ),
-                      ],
                     ),
                   ],
                 ),

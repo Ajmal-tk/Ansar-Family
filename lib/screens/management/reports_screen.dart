@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../config/app_theme.dart';
-import '../../models/profile_model.dart';
 import '../../services/pdf_service.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/custom_card.dart';
@@ -29,20 +28,29 @@ class _ReportsScreenState extends State<ReportsScreen> {
   void _generateCertificatePdf() async {
     setState(() => _isGenerating = true);
     final profiles = await SupabaseService.instance.fetchAllProfiles();
-    final sampleProfile = profiles.isNotEmpty
-        ? profiles.first
-        : ProfileModel(
-            id: '123',
-            fullName: 'Sample Community Member',
-            role: 'member',
-            status: 'approved');
+    final approvedProfiles = profiles.where((p) => p.isApproved).toList();
+
+    if (approvedProfiles.isEmpty && profiles.isEmpty) {
+      setState(() => _isGenerating = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No members found in the database to generate a certificate.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    final targetProfile = approvedProfiles.isNotEmpty ? approvedProfiles.first : profiles.first;
 
     final pdfBytes =
-        await PdfService.generateMembershipCertificate(sampleProfile);
+        await PdfService.generateMembershipCertificate(targetProfile);
     setState(() => _isGenerating = false);
 
     await PdfService.printOrDownloadPdf(
-        pdfBytes, 'Membership_Certificate_Sample.pdf');
+        pdfBytes, 'Membership_Certificate.pdf');
   }
 
   @override

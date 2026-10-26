@@ -588,42 +588,6 @@ class _LandingPageState extends State<LandingPage>
                             ],
                           ),
                         ),
-
-                        const Divider(height: 24),
-
-                        // Fast Demo Access Section
-                        const Text(
-                          'DEMO DASHBOARD PREVIEW (CLICK TO TEST ROLE):',
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: () => auth.switchDemoRole('admin'),
-                              icon: const Icon(Icons.security, size: 14),
-                              label: const Text('Admin',
-                                  style: TextStyle(fontSize: 11)),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: () =>
-                                  auth.switchDemoRole('management'),
-                              icon: const Icon(Icons.work, size: 14),
-                              label: const Text('Manager',
-                                  style: TextStyle(fontSize: 11)),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: () => auth.switchDemoRole('member'),
-                              icon: const Icon(Icons.person, size: 14),
-                              label: const Text('Member',
-                                  style: TextStyle(fontSize: 11)),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),

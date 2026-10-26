@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 import '../config/supabase_config.dart';
 import '../models/profile_model.dart';
@@ -23,126 +22,10 @@ class SupabaseService {
     return null;
   }
 
-  // --- MOCK IN-MEMORY DATA STORE FOR ZERO-COST DEMO MODE WHEN NOT CONFIGURED ---
-  final Map<String, ProfileModel> _mockProfiles = {
-    'demo-admin': ProfileModel(
-      id: 'demo-admin',
-      username: 'admin',
-      fullName: 'Mahallu President',
-      role: 'admin',
-      status: 'approved',
-      phone: '+91 94470 12345',
-      address: 'Juma Masjid Road, Malappuram, Kerala 676505',
-    ),
-    'demo-management': ProfileModel(
-      id: 'demo-management',
-      username: 'manager',
-      fullName: 'Mahallu Secretary',
-      role: 'management',
-      status: 'approved',
-      phone: '+91 98471 23456',
-      address: 'Town Hall Rd, Calicut, Kerala 673001',
-    ),
-    'demo-member': ProfileModel(
-      id: 'demo-member',
-      username: 'ansar_member',
-      fullName: 'Tariq Al-Mansoor',
-      role: 'member',
-      status: 'approved',
-      phone: '+91 97452 34567',
-      address: 'Near Juma Masjid, Ponnani, Kerala 679577',
-    ),
-    'demo-pending': ProfileModel(
-      id: 'demo-pending',
-      username: 'applicant_user',
-      fullName: 'Fatima Zohra',
-      role: 'member',
-      status: 'pending',
-      phone: '+91 94953 45678',
-      address: 'Green Valley, Ernakulam, Kerala 682011',
-    ),
-  };
-
-  final List<FamilyMemberModel> _mockFamilyMembers = [
-    FamilyMemberModel(
-      id: 'fam-1',
-      userId: 'demo-member',
-      name: 'Aisha Al-Mansoor',
-      relation: 'Spouse',
-      age: 32,
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-    ),
-    FamilyMemberModel(
-      id: 'fam-2',
-      userId: 'demo-member',
-      name: 'Zayd Al-Mansoor',
-      relation: 'Child',
-      age: 6,
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-    ),
-    FamilyMemberModel(
-      id: 'fam-3',
-      userId: 'demo-pending',
-      name: 'Youssef Zohra',
-      relation: 'Child',
-      age: 4,
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
-    ),
-  ];
-
-  final List<PostModel> _mockPosts = [
-    PostModel(
-      id: 'post-1',
-      userId: 'demo-management',
-      content:
-          'Assalamu Alaikum family! Monthly Mahallu Halaqah & food drive this Saturday at 10 AM.',
-      createdAt: DateTime.now().subtract(const Duration(hours: 14)),
-      authorName: 'Mahallu Secretary',
-      authorRole: 'management',
-    ),
-    PostModel(
-      id: 'post-2',
-      userId: 'demo-member',
-      content:
-          'Assistance request: Looking for volunteer tutors for high school mathematics.',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      authorName: 'Tariq Al-Mansoor',
-      authorRole: 'member',
-    ),
-  ];
-
-  final List<FeeModel> _mockFees = [
-    FeeModel(
-      id: 'fee-1',
-      userId: 'demo-member',
-      amount: 500.0,
-      currency: 'INR',
-      period: '2026-Q1',
-      status: 'paid',
-      paymentDate: DateTime.now().subtract(const Duration(days: 10)),
-      createdBy: 'demo-management',
-      userName: 'Tariq Al-Mansoor',
-    ),
-  ];
-
-  String? _mockCurrentUserId;
-  final Map<String, String> _mockPasswords = {
-    'admin': 'password123',
-    'manager': 'password123',
-    'ansar_member': 'password123',
-    'applicant_user': 'password123',
-  };
-
   // --- AUTHENTICATION ---
   User? get currentUser => client?.auth.currentUser;
-  bool get hasLocalSession => _mockCurrentUserId != null;
 
-  String get currentUserId {
-    if (client != null && currentUser != null) {
-      return currentUser!.id;
-    }
-    return _mockCurrentUserId ?? 'demo-member';
-  }
+  String get currentUserId => currentUser?.id ?? '';
 
   Future<AuthResponse?> signUp({
     required String username,
@@ -152,159 +35,110 @@ class SupabaseService {
     required String phone,
     required String address,
   }) async {
-    if (client != null) {
-      if (email == null || email.isEmpty) {
-        throw const AuthException(
-          'Supabase password auth requires an email address. Enable Email Auth or run with local mode.',
-        );
-      }
-      final res = await client!.auth.signUp(
-        email: email,
-        password: password,
-        data: {
-          'username': username,
-          'full_name': fullName,
-          'phone': phone,
-          'address': address,
-          'role': 'member',
-          'status': 'pending',
-        },
-      );
-      return res;
-    } else {
-      // Mock signup logic
-      final newId = const Uuid().v4();
-      final normalizedUsername = username.trim().toLowerCase();
-      if (_mockPasswords.containsKey(normalizedUsername)) {
-        throw const AuthException('That username is already registered.');
-      }
-      _mockPasswords[normalizedUsername] = password;
-      _mockProfiles[newId] = ProfileModel(
-        id: newId,
-        username: normalizedUsername,
-        fullName: fullName,
-        phone: phone,
-        address: address,
-        role: 'member',
-        status: 'pending',
-        updatedAt: DateTime.now(),
-      );
-      _mockCurrentUserId = newId;
-      return null;
+    if (client == null) {
+      throw const AuthException('Database client is not configured.');
     }
+    if (email == null || email.isEmpty) {
+      throw const AuthException(
+        'Supabase password auth requires an email address.',
+      );
+    }
+    return await client!.auth.signUp(
+      email: email,
+      password: password,
+      data: {
+        'username': username,
+        'full_name': fullName,
+        'phone': phone,
+        'address': address,
+        'role': 'member',
+        'status': 'pending',
+      },
+    );
   }
 
   Future<AuthResponse?> signIn({
     required String emailOrUsername,
     required String password,
   }) async {
-    if (client != null) {
-      String targetEmail = emailOrUsername.trim();
+    if (client == null) {
+      throw const AuthException('Database client is not configured.');
+    }
 
-      // If user provided a username instead of email, resolve actual registered email
-      if (!targetEmail.contains('@')) {
-        final cleanUsername = targetEmail.toLowerCase().trim();
-        try {
-          // 1. Try secure RPC function (resolves authentic email securely)
-          final rpcEmail = await client!.rpc(
-            'get_email_for_username',
-            params: {'p_username': cleanUsername},
-          );
+    String targetEmail = emailOrUsername.trim();
 
-          if (rpcEmail != null && rpcEmail.toString().trim().isNotEmpty) {
-            targetEmail = rpcEmail.toString().trim();
-          } else {
-            // 2. Fallback: check public.profiles safely without failing on missing email column
-            final res = await client!
-                .from('profiles')
-                .select('id, username')
-                .ilike('username', cleanUsername)
-                .maybeSingle();
+    // If user provided a username instead of email, resolve actual registered email
+    if (!targetEmail.contains('@')) {
+      final cleanUsername = targetEmail.toLowerCase().trim();
+      try {
+        // 1. Try secure RPC function (resolves authentic email securely)
+        final rpcEmail = await client!.rpc(
+          'get_email_for_username',
+          params: {'p_username': cleanUsername},
+        );
 
-            if (res != null) {
-              try {
-                final withEmail = await client!
-                    .from('profiles')
-                    .select('email')
-                    .eq('id', res['id'])
-                    .maybeSingle();
-                if (withEmail != null &&
-                    withEmail['email'] != null &&
-                    withEmail['email'].toString().trim().isNotEmpty) {
-                  targetEmail = withEmail['email'].toString().trim();
-                } else {
-                  targetEmail = '$cleanUsername@ansarfamily.org';
-                }
-              } catch (_) {
+        if (rpcEmail != null && rpcEmail.toString().trim().isNotEmpty) {
+          targetEmail = rpcEmail.toString().trim();
+        } else {
+          // 2. Fallback: check public.profiles safely without failing on missing email column
+          final res = await client!
+              .from('profiles')
+              .select('id, username')
+              .ilike('username', cleanUsername)
+              .maybeSingle();
+
+          if (res != null) {
+            try {
+              final withEmail = await client!
+                  .from('profiles')
+                  .select('email')
+                  .eq('id', res['id'])
+                  .maybeSingle();
+              if (withEmail != null &&
+                  withEmail['email'] != null &&
+                  withEmail['email'].toString().trim().isNotEmpty) {
+                targetEmail = withEmail['email'].toString().trim();
+              } else {
                 targetEmail = '$cleanUsername@ansarfamily.org';
               }
-            } else {
+            } catch (_) {
               targetEmail = '$cleanUsername@ansarfamily.org';
             }
+          } else {
+            targetEmail = '$cleanUsername@ansarfamily.org';
           }
-        } catch (e) {
-          debugPrint("Username lookup note: $e");
-          targetEmail = '$cleanUsername@ansarfamily.org';
         }
+      } catch (e) {
+        debugPrint("Username lookup note: $e");
+        targetEmail = '$cleanUsername@ansarfamily.org';
       }
+    }
 
-      try {
-        return await client!.auth.signInWithPassword(
-          email: targetEmail,
-          password: password,
+    try {
+      return await client!.auth.signInWithPassword(
+        email: targetEmail,
+        password: password,
+      );
+    } catch (authErr) {
+      if (!emailOrUsername.contains('@')) {
+        throw AuthException(
+          'Unable to sign in with username "$emailOrUsername". '
+          'Please verify your password or sign in using your registered email address.',
         );
-      } catch (authErr) {
-        if (!emailOrUsername.contains('@')) {
-          throw AuthException(
-            'Unable to sign in with username "$emailOrUsername". '
-            'Please verify your password or sign in using your registered email address.',
-          );
-        }
-        rethrow;
       }
-    } else {
-      // Local username/password authentication does not use Supabase.
-      final term = emailOrUsername.toLowerCase().trim();
-      final username = term.contains('@') ? term.split('@').first : term;
-      final expectedPassword = _mockPasswords[username];
-      if (expectedPassword == null || expectedPassword != password) {
-        throw const AuthException('Invalid username or password.');
-      }
-      if (username == 'admin') {
-        _mockCurrentUserId = 'demo-admin';
-      } else if (username == 'manager') {
-        _mockCurrentUserId = 'demo-management';
-      } else if (username == 'applicant_user') {
-        _mockCurrentUserId = 'demo-pending';
-      } else {
-        final profile = _mockProfiles.values.firstWhere(
-          (profile) => profile.username == username,
-          orElse: () => throw const AuthException('Local profile not found.'),
-        );
-        _mockCurrentUserId = profile.id;
-      }
-      return null;
+      rethrow;
     }
   }
 
   Future<void> signOut() async {
     if (client != null) {
       await client!.auth.signOut();
-    } else {
-      _mockCurrentUserId = null;
     }
-  }
-
-  void switchMockRole(String role) {
-    if (role == 'admin') _mockCurrentUserId = 'demo-admin';
-    if (role == 'management') _mockCurrentUserId = 'demo-management';
-    if (role == 'member') _mockCurrentUserId = 'demo-member';
-    if (role == 'pending') _mockCurrentUserId = 'demo-pending';
   }
 
   // --- PROFILES ---
   Future<ProfileModel?> fetchProfile(String userId) async {
-    if (client != null) {
+    if (client != null && userId.isNotEmpty) {
       try {
         final res = await client!
             .from('profiles')
@@ -317,9 +151,8 @@ class SupabaseService {
       } catch (e) {
         debugPrint("Error fetching profile: $e");
       }
-      return null;
     }
-    return _mockProfiles[userId] ?? _mockProfiles['demo-member'];
+    return null;
   }
 
   Future<List<ProfileModel>> fetchPendingProfiles() async {
@@ -333,7 +166,7 @@ class SupabaseService {
         rethrow;
       }
     }
-    return _mockProfiles.values.where((p) => p.status == 'pending').toList();
+    return [];
   }
 
   Future<List<ProfileModel>> fetchAllProfiles() async {
@@ -345,7 +178,7 @@ class SupabaseService {
         debugPrint("Error fetching all profiles: $e");
       }
     }
-    return _mockProfiles.values.toList();
+    return [];
   }
 
   Future<bool> updateProfileStatus(String userId, String status) async {
@@ -370,13 +203,8 @@ class SupabaseService {
         debugPrint("Error updating status: $e");
         return false;
       }
-    } else {
-      if (_mockProfiles.containsKey(userId)) {
-        _mockProfiles[userId] = _mockProfiles[userId]!.copyWith(status: status);
-        return true;
-      }
-      return false;
     }
+    return false;
   }
 
   Future<bool> updateProfileRole(String userId, String role) async {
@@ -391,17 +219,13 @@ class SupabaseService {
         debugPrint("Error updating role: $e");
         return false;
       }
-    } else {
-      if (_mockProfiles.containsKey(userId)) {
-        _mockProfiles[userId] = _mockProfiles[userId]!.copyWith(role: role);
-      }
-      return true;
     }
+    return false;
   }
 
   // --- FAMILY MEMBERS ---
   Future<List<FamilyMemberModel>> fetchFamilyMembers(String userId) async {
-    if (client != null) {
+    if (client != null && userId.isNotEmpty) {
       try {
         final res =
             await client!.from('family_members').select().eq('user_id', userId);
@@ -410,7 +234,7 @@ class SupabaseService {
         debugPrint("Error fetching family members: $e");
       }
     }
-    return _mockFamilyMembers.where((m) => m.userId == userId).toList();
+    return [];
   }
 
   Future<bool> addFamilyMember({
@@ -419,7 +243,7 @@ class SupabaseService {
     required int age,
   }) async {
     final uId = currentUserId;
-    if (client != null) {
+    if (client != null && uId.isNotEmpty) {
       try {
         await client!.from('family_members').insert({
           'user_id': uId,
@@ -432,17 +256,8 @@ class SupabaseService {
         debugPrint("Error adding family member: $e");
         return false;
       }
-    } else {
-      _mockFamilyMembers.add(FamilyMemberModel(
-        id: const Uuid().v4(),
-        userId: uId,
-        name: name,
-        relation: relation,
-        age: age,
-        createdAt: DateTime.now(),
-      ));
-      return true;
     }
+    return false;
   }
 
   Future<bool> deleteFamilyMember(String id) async {
@@ -453,10 +268,8 @@ class SupabaseService {
       } catch (e) {
         return false;
       }
-    } else {
-      _mockFamilyMembers.removeWhere((m) => m.id == id);
-      return true;
     }
+    return false;
   }
 
   // --- POSTS / COMMUNITY ASSISTANCE ---
@@ -472,12 +285,12 @@ class SupabaseService {
         debugPrint("Error fetching posts: $e");
       }
     }
-    return List.from(_mockPosts);
+    return [];
   }
 
   Future<bool> createPost(String content) async {
     final uId = currentUserId;
-    if (client != null) {
+    if (client != null && uId.isNotEmpty) {
       try {
         await client!.from('posts').insert({
           'user_id': uId,
@@ -488,21 +301,8 @@ class SupabaseService {
         debugPrint("Error creating post: $e");
         return false;
       }
-    } else {
-      final currentProf = _mockProfiles[uId];
-      _mockPosts.insert(
-        0,
-        PostModel(
-          id: const Uuid().v4(),
-          userId: uId,
-          content: content,
-          createdAt: DateTime.now(),
-          authorName: currentProf?.fullName ?? 'Community Member',
-          authorRole: currentProf?.role ?? 'member',
-        ),
-      );
-      return true;
     }
+    return false;
   }
 
   Future<bool> deletePost(String id) async {
@@ -513,15 +313,13 @@ class SupabaseService {
       } catch (e) {
         return false;
       }
-    } else {
-      _mockPosts.removeWhere((p) => p.id == id);
-      return true;
     }
+    return false;
   }
 
   // --- MEMBERSHIP FEES & FINANCIALS ---
   Future<List<FeeModel>> fetchUserFees(String userId) async {
-    if (client != null) {
+    if (client != null && userId.isNotEmpty) {
       try {
         final res = await client!
             .from('membership_fees')
@@ -533,7 +331,7 @@ class SupabaseService {
         debugPrint("Error fetching fees: $e");
       }
     }
-    return _mockFees.where((f) => f.userId == userId).toList();
+    return [];
   }
 
   Future<List<FeeModel>> fetchAllFees() async {
@@ -548,7 +346,7 @@ class SupabaseService {
         debugPrint("Error fetching all fees: $e");
       }
     }
-    return List.from(_mockFees);
+    return [];
   }
 
   Future<bool> recordFee(FeeModel fee) async {
@@ -560,10 +358,8 @@ class SupabaseService {
         debugPrint("Error recording fee: $e");
         return false;
       }
-    } else {
-      _mockFees.insert(0, fee);
-      return true;
     }
+    return false;
   }
 
   Future<bool> updateFeeStatus(String feeId, String status) async {
@@ -589,22 +385,6 @@ class SupabaseService {
         return false;
       }
     }
-
-    final index = _mockFees.indexWhere((fee) => fee.id == feeId);
-    if (index == -1) return false;
-
-    final fee = _mockFees[index];
-    _mockFees[index] = FeeModel(
-      id: fee.id,
-      userId: fee.userId,
-      amount: fee.amount,
-      currency: fee.currency,
-      period: fee.period,
-      status: status,
-      paymentDate: status == 'paid' ? DateTime.now() : fee.paymentDate,
-      createdBy: fee.createdBy,
-      userName: fee.userName,
-    );
-    return true;
+    return false;
   }
 }

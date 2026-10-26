@@ -6,7 +6,6 @@ import 'supabase_service.dart';
 enum PaymentMethod {
   sandboxCreditCard,
   manualBankTransfer,
-  digitalWalletMock,
 }
 
 class PaymentResult {
@@ -34,7 +33,7 @@ abstract class IPaymentGateway {
   });
 }
 
-/// Zero-cost Mock & Sandbox Payment Gateway Implementation
+/// Payment Gateway Implementation
 class SandboxPaymentGateway implements IPaymentGateway {
   @override
   Future<PaymentResult> processPayment({

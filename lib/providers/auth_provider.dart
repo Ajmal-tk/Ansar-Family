@@ -27,13 +27,11 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final user = SupabaseService.instance.currentUser;
-      if ((SupabaseService.instance.client != null && user == null) ||
-          (SupabaseService.instance.client == null &&
-              !SupabaseService.instance.hasLocalSession)) {
+      if (user == null) {
         _currentProfile = null;
       } else {
-        final uId = SupabaseService.instance.currentUserId;
-        _currentProfile = await SupabaseService.instance.fetchProfile(uId);
+        _currentProfile =
+            await SupabaseService.instance.fetchProfile(user.id);
       }
     } catch (e) {
       debugPrint("Error initializing auth: $e");
@@ -85,10 +83,7 @@ class AuthProvider extends ChangeNotifier {
         phone: phone,
         address: address,
       );
-      if (SupabaseService.instance.client != null &&
-          response?.session == null) {
-        // Email confirmation leaves the new account unauthenticated until the
-        // user confirms their address, so do not route through demo state.
+      if (response?.session == null) {
         _currentProfile = null;
       } else {
         final uId = SupabaseService.instance.currentUserId;
@@ -108,18 +103,6 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     await SupabaseService.instance.signOut();
     _currentProfile = null;
-    notifyListeners();
-  }
-
-  Future<void> switchDemoRole(String role) async {
-    _isLoading = true;
-    notifyListeners();
-
-    SupabaseService.instance.switchMockRole(role);
-    final uId = SupabaseService.instance.currentUserId;
-    _currentProfile = await SupabaseService.instance.fetchProfile(uId);
-
-    _isLoading = false;
     notifyListeners();
   }
 

@@ -6,6 +6,7 @@ import '../../services/supabase_service.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/status_badge.dart';
+import '../management/all_members_screen.dart';
 import '../management/fee_management_screen.dart';
 import '../management/member_approvals_screen.dart';
 import '../management/reports_screen.dart';
@@ -135,6 +136,19 @@ class _AdminPanelState extends State<AdminPanel> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => const FeeManagementScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildAdminActionCard(
+                        title: 'All Members Directory',
+                        description:
+                            'Browse approved, pending and rejected members directory.',
+                        icon: Icons.people_alt,
+                        color: Colors.deepPurple,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AllMembersScreen(),
                           ),
                         ),
                       ),

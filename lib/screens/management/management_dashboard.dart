@@ -7,6 +7,7 @@ import '../../services/supabase_service.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/custom_card.dart';
 import 'member_approvals_screen.dart';
+import 'all_members_screen.dart';
 import 'fee_management_screen.dart';
 import 'reports_screen.dart';
 
@@ -262,6 +263,48 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                     crossAxisSpacing: 16,
                     childAspectRatio: 2.0,
                     children: [
+                      CustomCard(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const AllMembersScreen()),
+                          ).then((_) => _loadMetrics());
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryTeal
+                                        .withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(Icons.people_alt,
+                                      color: AppTheme.primaryTeal),
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'All Members Directory',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'View and search all approved, pending, and non-approved members.',
+                              style: TextStyle(
+                                  fontSize: 12, color: AppTheme.textMuted),
+                            ),
+                          ],
+                        ),
+                      ),
                       CustomCard(
                         onTap: () {
                           Navigator.push(

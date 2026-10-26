@@ -8,6 +8,7 @@ import '../screens/public/community_posts_screen.dart';
 import '../screens/public/fee_payment_screen.dart';
 import '../screens/management/management_dashboard.dart';
 import '../screens/management/member_approvals_screen.dart';
+import '../screens/management/all_members_screen.dart';
 import '../screens/management/fee_management_screen.dart';
 import '../screens/admin/admin_panel.dart';
 import 'status_badge.dart';
@@ -164,6 +165,19 @@ class AppDrawer extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (_) => const MemberApprovalsScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.people_alt,
+                        color: AppTheme.primaryEmerald),
+                    title: const Text('All Members Directory'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const AllMembersScreen()),
                       );
                     },
                   ),

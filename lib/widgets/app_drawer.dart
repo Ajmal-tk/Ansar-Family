@@ -184,7 +184,7 @@ class AppDrawer extends StatelessWidget {
                   ListTile(
                     leading: const Icon(Icons.receipt_long,
                         color: AppTheme.secondaryGold),
-                    title: const Text('Financial Transactions Tracker'),
+                    title: const Text('Member Fees & Payment Status'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(

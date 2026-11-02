@@ -84,9 +84,17 @@ GRANT EXECUTE ON FUNCTION public.get_email_for_username(text) TO anon, authentic
 -- ----------------------------------------------------------------------------
 -- 2. ENABLE ROW-LEVEL SECURITY (RLS) ON ALL EXISTING TABLES
 -- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.membership_fee_admin_remarks (
+  fee_id uuid PRIMARY KEY REFERENCES public.membership_fees(id) ON DELETE CASCADE,
+  remarks text NOT NULL DEFAULT '',
+  updated_by uuid REFERENCES auth.users(id),
+  updated_at timestamptz NOT NULL DEFAULT NOW()
+);
+
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.membership_fees ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.membership_fee_admin_remarks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.family_members ENABLE ROW LEVEL SECURITY;
 
 -- ----------------------------------------------------------------------------
@@ -111,6 +119,32 @@ $$;
 
 REVOKE ALL ON FUNCTION public.is_management_or_admin() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_management_or_admin() TO authenticated;
+
+DROP POLICY IF EXISTS "Management and Admin read fee remarks"
+  ON public.membership_fee_admin_remarks;
+DROP POLICY IF EXISTS "Management and Admin insert fee remarks"
+  ON public.membership_fee_admin_remarks;
+DROP POLICY IF EXISTS "Management and Admin update fee remarks"
+  ON public.membership_fee_admin_remarks;
+
+CREATE POLICY "Management and Admin read fee remarks"
+  ON public.membership_fee_admin_remarks
+  FOR SELECT
+  USING (public.is_management_or_admin());
+
+CREATE POLICY "Management and Admin insert fee remarks"
+  ON public.membership_fee_admin_remarks
+  FOR INSERT
+  WITH CHECK (public.is_management_or_admin());
+
+CREATE POLICY "Management and Admin update fee remarks"
+  ON public.membership_fee_admin_remarks
+  FOR UPDATE
+  USING (public.is_management_or_admin())
+  WITH CHECK (public.is_management_or_admin());
+
+GRANT SELECT, INSERT, UPDATE
+  ON public.membership_fee_admin_remarks TO authenticated;
 
 -- Drop existing policies if any
 DROP POLICY IF EXISTS "Public profiles read access" ON public.profiles;

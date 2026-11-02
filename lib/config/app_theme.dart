@@ -21,6 +21,25 @@ class AppTheme {
   static const Color statusPaid = Color(0xFF3B82F6);     // Blue
 
   static ThemeData get lightTheme {
+    final outfitTextTheme = GoogleFonts.outfitTextTheme();
+    final textTheme = TextTheme(
+      displayLarge: outfitTextTheme.displayLarge,
+      displayMedium: outfitTextTheme.displayMedium,
+      displaySmall: outfitTextTheme.displaySmall,
+      headlineLarge: outfitTextTheme.headlineLarge,
+      headlineMedium: outfitTextTheme.headlineMedium,
+      headlineSmall: outfitTextTheme.headlineSmall,
+      titleLarge: outfitTextTheme.titleLarge,
+      titleMedium: outfitTextTheme.titleMedium,
+      titleSmall: outfitTextTheme.titleSmall,
+      bodyLarge: outfitTextTheme.bodyLarge,
+      bodyMedium: outfitTextTheme.bodyMedium,
+      bodySmall: outfitTextTheme.bodySmall,
+      labelLarge: outfitTextTheme.labelLarge,
+      labelMedium: outfitTextTheme.labelMedium,
+      labelSmall: outfitTextTheme.labelSmall,
+    );
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -32,7 +51,7 @@ class AppTheme {
         background: bgLight,
       ),
       scaffoldBackgroundColor: bgLight,
-      textTheme: GoogleFonts.outfitTextTheme().copyWith(
+      textTheme: textTheme.copyWith(
         displayLarge: TextStyle(color: textDark, fontWeight: FontWeight.bold),
         titleLarge: TextStyle(color: textDark, fontWeight: FontWeight.w700),
         bodyLarge: TextStyle(color: textDark),

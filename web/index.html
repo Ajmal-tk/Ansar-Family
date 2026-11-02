@@ -1299,6 +1299,7 @@
 
         <!-- DataTable Feature Card with Head Filters & Search Bar -->
         <div class="feature-card">
+          <h3 style="font-size: 16px; margin: 0 0 14px;">Members Payment Status</h3>
           <!-- Toolbar: Status Filter Pills + Purpose Select + Search Bar -->
           <div class="table-toolbar">
             <div class="filter-pills-group">
@@ -1342,26 +1343,27 @@
             <table class="portal-table">
               <thead>
                 <tr>
-                  <th id="feeMemberHeader" class="sortable" style="display: none;" onclick="handleFeeSort('member')">
+                  <th id="feeMemberHeader" class="sortable" data-sort-key="member" style="display: none;" onclick="handleFeeSort('member')">
                     Member <span id="sortIcon-member" class="sort-icon"><i class="fa-solid fa-sort"></i></span>
                   </th>
-                  <th class="sortable" onclick="handleFeeSort('period')">
+                  <th class="sortable" data-sort-key="period" onclick="handleFeeSort('period')">
                     Period / Purpose <span id="sortIcon-period" class="sort-icon"><i class="fa-solid fa-sort"></i></span>
                   </th>
-                  <th class="sortable" onclick="handleFeeSort('amount')">
+                  <th class="sortable" data-sort-key="amount" onclick="handleFeeSort('amount')">
                     Amount (₹ INR) <span id="sortIcon-amount" class="sort-icon"><i class="fa-solid fa-sort"></i></span>
                   </th>
-                  <th class="sortable" onclick="handleFeeSort('status')">
+                  <th class="sortable" data-sort-key="status" onclick="handleFeeSort('status')">
                     Payment Status <span id="sortIcon-status" class="sort-icon"><i class="fa-solid fa-sort"></i></span>
                   </th>
-                  <th class="sortable" onclick="handleFeeSort('payment_date')">
+                  <th class="sortable" data-sort-key="payment_date" onclick="handleFeeSort('payment_date')">
                     Payment Date <span id="sortIcon-payment_date" class="sort-icon"><i class="fa-solid fa-sort-down"></i></span>
                   </th>
                   <th id="feeActionsHeader" style="display: none;">Actions</th>
+                  <th id="feeRemarksHeader" style="display: none;">Remarks</th>
                 </tr>
               </thead>
               <tbody id="feesTable">
-                <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading fee records...</td></tr>
+                <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Loading fee records...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1845,6 +1847,7 @@
       document.getElementById('adminFeeEntryCard').style.display = isAdminOrMgr ? 'block' : 'none';
       document.getElementById('feeMemberHeader').style.display = isAdminOrMgr ? 'table-cell' : 'none';
       document.getElementById('feeActionsHeader').style.display = isAdminOrMgr ? 'table-cell' : 'none';
+      document.getElementById('feeRemarksHeader').style.display = isAdminOrMgr ? 'table-cell' : 'none';
 
       // Switch view
       document.getElementById('landing-page-view').style.display = 'none';
@@ -2540,37 +2543,320 @@
       }
     }
 
+    async function saveFeeRemark(feeId, button) {
+      if (!currentProfile || !['admin', 'management'].includes(currentProfile.role)) {
+        return;
+      }
+
+      const row = button.closest('tr');
+      const input = row?.querySelector('[data-fee-remark]');
+      if (!input) return;
+
+      button.disabled = true;
+      const originalLabel = button.textContent;
+      button.textContent = 'Saving...';
+      try {
+        const { data, error } = await supabaseClient
+          .from('membership_fee_admin_remarks')
+          .upsert({
+            fee_id: feeId,
+            remarks: input.value.trim(),
+            updated_by: currentAuthUser.id,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'fee_id' })
+          .select('fee_id')
+          .maybeSingle();
+
+        if (error) throw error;
+        if (!data) throw new Error('No fee record was updated. Check your database permissions.');
+
+        const fee = feeRecords.find(record => record.id === feeId);
+        if (fee) fee.admin_remarks = { remarks: input.value.trim() };
+        button.textContent = 'Saved';
+        setTimeout(() => {
+          if (button.isConnected) button.textContent = originalLabel;
+        }, 1500);
+      } catch (error) {
+        button.textContent = originalLabel;
+        alert(`Could not save the remark: ${error.message}`);
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    let feeRecords = [];
+    let currentFeeStatusFilter = 'all';
+    let currentFeePurposeFilter = 'all';
+    let feeSearchQuery = '';
+    let feeSortKey = 'payment_date';
+    let feeSortAscending = false;
+
+    function normalizeFeeStatus(fee) {
+      return String(fee.status || 'paid').toLowerCase();
+    }
+
+    function getFeeMemberName(fee) {
+      return fee.profiles?.full_name || fee.profiles?.username || fee.user_id || 'Member';
+    }
+
+    function getFeePurpose(fee) {
+      const period = String(fee.period || 'Monthly Subscription');
+      const separator = period.indexOf(' - ');
+      const purpose = (separator < 0 ? period : period.slice(0, separator)).trim().toLowerCase();
+      return purpose === 'monthly subscription' ? 'monthly members fee' : purpose;
+    }
+
+    function getFilteredFeeRecords() {
+      const filtered = feeRecords.filter(fee => {
+        const status = normalizeFeeStatus(fee);
+        if (currentFeeStatusFilter !== 'all' && status !== currentFeeStatusFilter) return false;
+        if (currentFeePurposeFilter !== 'all' &&
+            getFeePurpose(fee) !== currentFeePurposeFilter.toLowerCase()) return false;
+        if (!feeSearchQuery) return true;
+
+        const paymentDate = fee.payment_date ? new Date(fee.payment_date) : null;
+        const searchableValues = [
+          getFeeMemberName(fee),
+          fee.profiles?.username,
+          fee.user_id,
+          fee.period || 'Monthly Subscription',
+          fee.amount,
+          formatINR(fee.amount),
+          fee.currency || 'INR',
+          status,
+          paymentDate && !Number.isNaN(paymentDate.getTime())
+            ? paymentDate.toLocaleDateString('en-IN')
+            : ''
+        ];
+        return searchableValues.some(value =>
+          String(value ?? '').toLowerCase().includes(feeSearchQuery)
+        );
+      });
+
+      const valueFor = fee => {
+        switch (feeSortKey) {
+          case 'member':
+            return getFeeMemberName(fee).toLowerCase();
+          case 'period':
+            return String(fee.period || 'Monthly Subscription').toLowerCase();
+          case 'amount': {
+            const amount = Number(fee.amount);
+            return Number.isFinite(amount) ? amount : 0;
+          }
+          case 'status':
+            return normalizeFeeStatus(fee);
+          case 'payment_date': {
+            const timestamp = Date.parse(fee.payment_date || '');
+            return Number.isFinite(timestamp) ? timestamp : 0;
+          }
+          default:
+            return '';
+        }
+      };
+
+      return filtered.sort((left, right) => {
+        const leftValue = valueFor(left);
+        const rightValue = valueFor(right);
+        const comparison = typeof leftValue === 'number'
+          ? leftValue - rightValue
+          : String(leftValue).localeCompare(String(rightValue), undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            });
+        return feeSortAscending ? comparison : -comparison;
+      });
+    }
+
+    function updateFeeSortHeaders() {
+      const table = document.getElementById('feesTable')?.closest('table');
+      if (!table) return;
+
+      table.querySelectorAll('th.sortable').forEach(header => {
+        const key = header.dataset.sortKey;
+        const sorted = key === feeSortKey;
+        header.classList.toggle('sorted', sorted);
+        header.setAttribute(
+          'aria-sort',
+          sorted ? (feeSortAscending ? 'ascending' : 'descending') : 'none'
+        );
+        const icon = document.getElementById(`sortIcon-${key}`);
+        if (icon) {
+          const iconClass = sorted
+            ? (feeSortAscending ? 'fa-sort-up' : 'fa-sort-down')
+            : 'fa-sort';
+          icon.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+        }
+      });
+    }
+
+    function updateFeeSummary() {
+      const paidFees = feeRecords.filter(fee => normalizeFeeStatus(fee) === 'paid');
+      const pendingFees = feeRecords.filter(fee => normalizeFeeStatus(fee) === 'pending');
+      const totalAmount = fees => fees.reduce((total, fee) => {
+        const amount = Number(fee.amount);
+        return total + (Number.isFinite(amount) ? amount : 0);
+      }, 0);
+
+      document.getElementById('feeStatPaidAmount').textContent = formatINR(totalAmount(paidFees));
+      document.getElementById('feeStatPaidCount').textContent =
+        `${paidFees.length} transaction${paidFees.length === 1 ? '' : 's'}`;
+      document.getElementById('feeStatPendingAmount').textContent = formatINR(totalAmount(pendingFees));
+      document.getElementById('feeStatPendingCount').textContent =
+        `${pendingFees.length} pending due${pendingFees.length === 1 ? '' : 's'}`;
+      document.getElementById('feeStatTotalAmount').textContent = formatINR(totalAmount(feeRecords));
+      document.getElementById('feeStatTotalCount').textContent =
+        `${feeRecords.length} total entr${feeRecords.length === 1 ? 'y' : 'ies'}`;
+
+      document.getElementById('feeCountAll').textContent = feeRecords.length;
+      document.getElementById('feeCountPending').textContent = pendingFees.length;
+      document.getElementById('feeCountPaid').textContent = paidFees.length;
+
+      const pendingBanner = document.getElementById('pendingFeesAlertBanner');
+      pendingBanner.style.display = pendingFees.length ? 'flex' : 'none';
+      document.getElementById('pendingFeesAlertText').textContent =
+        `${pendingFees.length} pending fee${pendingFees.length === 1 ? '' : 's'} require collection or verification.`;
+    }
+
+    function updateFeeFilterControls(filteredCount) {
+      const filters = [
+        ['feePillAll', 'all'],
+        ['feePillPending', 'pending'],
+        ['feePillPaid', 'paid']
+      ];
+      filters.forEach(([id, status]) => {
+        const button = document.getElementById(id);
+        button.classList.remove('active', 'active-pending', 'active-paid');
+        if (status === currentFeeStatusFilter) {
+          button.classList.add('active');
+          if (status === 'pending') button.classList.add('active-pending');
+          if (status === 'paid') button.classList.add('active-paid');
+        }
+      });
+
+      const searchInput = document.getElementById('feeSearchInput');
+      document.getElementById('feeSearchClearBtn').style.display =
+        searchInput.value ? 'block' : 'none';
+      document.getElementById('feesCountShowing').textContent =
+        `Showing ${filteredCount} of ${feeRecords.length} fee record${feeRecords.length === 1 ? '' : 's'}`;
+      const hasActiveFilters = currentFeeStatusFilter !== 'all' ||
+        currentFeePurposeFilter !== 'all' || feeSearchQuery.length > 0;
+      document.getElementById('feesFilterActiveNotice').style.display =
+        hasActiveFilters ? 'inline' : 'none';
+    }
+
+    function renderFeeTable() {
+      const tbody = document.getElementById('feesTable');
+      const isAdminOrMgr = ['admin', 'management'].includes(
+        (currentProfile?.role || '').toLowerCase()
+      );
+      const columnCount = isAdminOrMgr ? 7 : 4;
+      const filteredFees = getFilteredFeeRecords();
+
+      updateFeeSummary();
+      updateFeeFilterControls(filteredFees.length);
+      updateFeeSortHeaders();
+
+      if (filteredFees.length === 0) {
+        const message = feeRecords.length
+          ? 'No fee records match the selected filters.'
+          : 'No fee transactions recorded.';
+        tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align: center; color: var(--text-muted); padding: 24px;">${message}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filteredFees.map(fee => {
+        const status = normalizeFeeStatus(fee);
+        const statusClass = ['paid', 'pending'].includes(status) ? `badge-${status}` : 'badge-pending';
+        const memberCell = isAdminOrMgr
+          ? `<td>${escapeHtml(getFeeMemberName(fee))}</td>`
+          : '';
+        const paymentDate = fee.payment_date ? new Date(fee.payment_date) : null;
+        const dateLabel = paymentDate && !Number.isNaN(paymentDate.getTime())
+          ? paymentDate.toLocaleDateString('en-IN')
+          : '-';
+        const actionCell = isAdminOrMgr
+          ? `<td>${status === 'pending'
+              ? `<button class="btn btn-emerald" type="button" onclick="markMemberFeePaid('${escapeHtml(fee.id)}')"><i class="fa-solid fa-check"></i> Mark paid</button>`
+              : '—'}</td>`
+          : '';
+        const remarksCell = isAdminOrMgr
+          ? `<td>
+              <textarea data-fee-remark maxlength="1000" rows="2" class="form-control" aria-label="Admin remark for ${escapeHtml(getFeeMemberName(fee))}" placeholder="Add a remark...">${escapeHtml(fee.admin_remarks?.remarks || '')}</textarea>
+              <button class="btn btn-emerald" type="button" style="margin-top: 6px; padding: 5px 10px; font-size: 12px;" onclick="saveFeeRemark('${escapeHtml(fee.id)}', this)">Save remark</button>
+            </td>`
+          : '';
+
+        return `
+          <tr>
+            ${memberCell}
+            <td><strong>${escapeHtml(fee.period || 'Monthly Subscription')}</strong></td>
+            <td><strong>${formatINR(fee.amount)}</strong></td>
+            <td><span class="badge ${statusClass}">${escapeHtml(status.toUpperCase())}</span></td>
+            <td>${status === 'paid' ? 'Paid' : 'Recorded'}: ${dateLabel}</td>
+            ${actionCell}
+            ${remarksCell}
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setFeeStatusFilter(status) {
+      if (!['all', 'pending', 'paid'].includes(status)) return;
+      currentFeeStatusFilter = status;
+      renderFeeTable();
+    }
+
+    function setFeePurposeFilter(purpose) {
+      currentFeePurposeFilter = purpose || 'all';
+      renderFeeTable();
+    }
+
+    function handleFeeSearch(query) {
+      feeSearchQuery = String(query || '').trim().toLowerCase();
+      renderFeeTable();
+    }
+
+    function clearFeeSearch() {
+      document.getElementById('feeSearchInput').value = '';
+      feeSearchQuery = '';
+      renderFeeTable();
+    }
+
+    function handleFeeSort(key) {
+      if (!['member', 'period', 'amount', 'status', 'payment_date'].includes(key)) return;
+      if (feeSortKey === key) {
+        feeSortAscending = !feeSortAscending;
+      } else {
+        feeSortKey = key;
+        feeSortAscending = key !== 'payment_date';
+      }
+      renderFeeTable();
+    }
+
     async function loadFees() {
       const tbody = document.getElementById('feesTable');
-      const isAdminOrMgr = currentProfile.role === 'admin' || currentProfile.role === 'management';
-      const columnCount = isAdminOrMgr ? 6 : 4;
+      const isAdminOrMgr = ['admin', 'management'].includes(
+        (currentProfile?.role || '').toLowerCase()
+      );
+      const columnCount = isAdminOrMgr ? 7 : 4;
       tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading fee receipts...</td></tr>`;
 
       try {
         const query = isAdminOrMgr
-          ? supabaseClient.from('membership_fees').select('*, profiles(full_name, username)').order('payment_date', { ascending: false }).limit(100)
-          : supabaseClient.from('membership_fees').select('*').eq('user_id', currentAuthUser.id).order('payment_date', { ascending: false });
+          ? supabaseClient.from('membership_fees').select('*, profiles(full_name, username), admin_remarks:membership_fee_admin_remarks(remarks)').order('payment_date', { ascending: false }).limit(100)
+          : supabaseClient.from('membership_fees').select('id, user_id, amount, currency, period, status, payment_date, created_by').eq('user_id', currentAuthUser.id).order('payment_date', { ascending: false });
 
         const { data: fees, error } = await query;
         if (error) throw error;
 
-        if (!fees || fees.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align: center; color: var(--text-muted); padding: 24px;">No fee transactions recorded.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = fees.map(f => `
-          <tr>
-            ${isAdminOrMgr ? `<td>${escapeHtml(f.profiles?.full_name || f.profiles?.username || f.user_id || 'Member')}</td>` : ''}
-            <td><strong>${escapeHtml(f.period || 'Monthly Subscription')}</strong></td>
-            <td><strong>${formatINR(f.amount)}</strong></td>
-            <td><span class="badge badge-${(f.status || 'paid').toLowerCase()}">${(f.status || 'PAID').toUpperCase()}</span></td>
-            <td>${f.status === 'paid' ? 'Paid' : 'Recorded'}: ${f.payment_date ? new Date(f.payment_date).toLocaleDateString('en-IN') : '-'}</td>
-            ${isAdminOrMgr ? `<td>${f.status === 'pending' ? `<button class="btn btn-emerald" type="button" onclick="markMemberFeePaid('${escapeHtml(f.id)}')"><i class="fa-solid fa-check"></i> Mark paid</button>` : '—'}</td>` : ''}
-          </tr>
-        `).join('');
+        feeRecords = fees || [];
+        renderFeeTable();
       } catch (e) {
+        feeRecords = [];
         tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align: center; color: red;">Error: ${escapeHtml(e.message)}</td></tr>`;
+        updateFeeSummary();
+        updateFeeFilterControls(0);
+        updateFeeSortHeaders();
       }
     }
 

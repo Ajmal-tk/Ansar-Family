@@ -18,9 +18,9 @@ This application integrates directly with your existing Supabase database instan
 ## ⚡ Quick Start & Local Setup
 
 ### 1. Prerequisites
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (v3.0.0 or higher)
-- [Dart SDK](https://dart.dev/)
-- Chrome / Edge browser (for Web) or Visual Studio (for Windows Desktop)
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (v3.47.0 or higher)
+- [Dart SDK](https://dart.dev/) (v3.13.0 or higher)
+- Chrome / Edge browser for local web debugging, or Visual Studio for Windows Desktop
 
 ### 2. Install Dependencies
 Navigate to the project root directory and install dependencies:
@@ -60,6 +60,13 @@ This script sets up:
 ```bash
 flutter run -d chrome
 ```
+
+### Web in GitHub Codespaces
+Run the **Flutter Web (Codespaces)** profile from VS Code's Run and Debug panel, or:
+```bash
+flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8080
+```
+Open port **8080** from the Codespaces **Ports** panel.
 
 ### Windows Desktop
 ```bash

@@ -1001,13 +1001,17 @@
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Relation:</label>
-                <select class="form-control" id="famRelation">
+                <select class="form-control" id="famRelation" onchange="toggleOtherFamilyRelation()">
                   <option value="Spouse">Spouse</option>
                   <option value="Child">Child</option>
                   <option value="Parent">Parent</option>
                   <option value="Sibling">Sibling</option>
                   <option value="Other">Other</option>
                 </select>
+              </div>
+              <div class="form-group" id="famRelationOtherGroup" style="margin-bottom: 0; display: none;">
+                <label class="form-label" for="famRelationOther">Specify Relation</label>
+                <input type="text" class="form-control" id="famRelationOther">
               </div>
               <div class="form-group" style="margin-bottom: 0;">
                 <label class="form-label">Age:</label>
@@ -2149,7 +2153,11 @@
     async function handleAddFamilyMember(e) {
       e.preventDefault();
       const name = document.getElementById('famName').value.trim();
-      const relation = document.getElementById('famRelation').value;
+      const selectedRelation = document.getElementById('famRelation').value;
+      const specifiedRelation = document.getElementById('famRelationOther').value.trim();
+      const relation = selectedRelation === 'Other' && specifiedRelation
+        ? `Other - ${specifiedRelation}`
+        : selectedRelation;
       const age = parseInt(document.getElementById('famAge').value, 10);
 
       if (!name) {
@@ -2176,6 +2184,9 @@
         } else {
           document.getElementById('famName').value = '';
           document.getElementById('famAge').value = '';
+          document.getElementById('famRelation').value = 'Spouse';
+          document.getElementById('famRelationOther').value = '';
+          toggleOtherFamilyRelation();
           document.getElementById('addFamFormBox').style.display = 'none';
           await loadFamilyMembers();
         }
@@ -2184,6 +2195,11 @@
       } finally {
         btn.disabled = false;
       }
+    }
+
+    function toggleOtherFamilyRelation() {
+      const isOther = document.getElementById('famRelation').value === 'Other';
+      document.getElementById('famRelationOtherGroup').style.display = isOther ? '' : 'none';
     }
 
     function showFeeEntryMessage(message, isError = false) {

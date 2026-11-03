@@ -35,12 +35,13 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
     });
   }
 
-  void _showAddDialog() {
+  Future<void> _showAddDialog() async {
     final nameController = TextEditingController();
     final ageController = TextEditingController();
+    final specifiedRelationController = TextEditingController();
     String selectedRelation = 'Spouse';
 
-    showDialog(
+    await showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
@@ -61,10 +62,20 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                       .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                       .toList(),
                   onChanged: (val) {
-                    if (val != null)
+                    if (val != null) {
                       setDialogState(() => selectedRelation = val);
+                    }
                   },
                 ),
+                if (selectedRelation == 'Other') ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: specifiedRelationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Specify Relation',
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 TextField(
                   controller: ageController,
@@ -83,9 +94,15 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
               onPressed: () async {
                 if (nameController.text.trim().isNotEmpty) {
                   final age = int.tryParse(ageController.text.trim()) ?? 0;
+                  final specifiedRelation =
+                      specifiedRelationController.text.trim();
+                  final relation = selectedRelation == 'Other' &&
+                          specifiedRelation.isNotEmpty
+                      ? 'Other - $specifiedRelation'
+                      : selectedRelation;
                   await SupabaseService.instance.addFamilyMember(
                     name: nameController.text.trim(),
-                    relation: selectedRelation,
+                    relation: relation,
                     age: age,
                   );
                   Navigator.pop(ctx);
@@ -98,6 +115,9 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
         ),
       ),
     );
+    nameController.dispose();
+    ageController.dispose();
+    specifiedRelationController.dispose();
   }
 
   @override

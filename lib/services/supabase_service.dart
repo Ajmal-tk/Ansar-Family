@@ -158,8 +158,10 @@ class SupabaseService {
   Future<List<ProfileModel>> fetchPendingProfiles() async {
     if (client != null) {
       try {
-        final res =
-            await client!.from('profiles').select().eq('status', 'pending');
+        final res = await client!
+            .from('profiles')
+            .select()
+            .eq('status', 'pending');
         return (res as List).map((e) => ProfileModel.fromJson(e)).toList();
       } catch (e) {
         debugPrint("Error fetching pending profiles: $e");
@@ -195,7 +197,8 @@ class SupabaseService {
             .maybeSingle();
         if (updatedProfile == null || updatedProfile['status'] != status) {
           debugPrint(
-              "Profile status update did not change $userId to $status.");
+            "Profile status update did not change $userId to $status.",
+          );
           return false;
         }
         return true;
@@ -210,10 +213,13 @@ class SupabaseService {
   Future<bool> updateProfileRole(String userId, String role) async {
     if (client != null) {
       try {
-        await client!.from('profiles').update({
-          'role': role,
-          'updated_at': DateTime.now().toIso8601String(),
-        }).eq('id', userId);
+        await client!
+            .from('profiles')
+            .update({
+              'role': role,
+              'updated_at': DateTime.now().toIso8601String(),
+            })
+            .eq('id', userId);
         return true;
       } catch (e) {
         debugPrint("Error updating role: $e");
@@ -227,8 +233,10 @@ class SupabaseService {
   Future<List<FamilyMemberModel>> fetchFamilyMembers(String userId) async {
     if (client != null && userId.isNotEmpty) {
       try {
-        final res =
-            await client!.from('family_members').select().eq('user_id', userId);
+        final res = await client!
+            .from('family_members')
+            .select()
+            .eq('user_id', userId);
         return (res as List).map((e) => FamilyMemberModel.fromJson(e)).toList();
       } catch (e) {
         debugPrint("Error fetching family members: $e");
@@ -240,7 +248,11 @@ class SupabaseService {
   Future<bool> addFamilyMember({
     required String name,
     required String relation,
-    required int age,
+    required int? age,
+    String? gender,
+    String? education,
+    String? workStatus,
+    String? maritalStatus,
   }) async {
     final uId = currentUserId;
     if (client != null && uId.isNotEmpty) {
@@ -250,6 +262,10 @@ class SupabaseService {
           'name': name,
           'relation': relation,
           'age': age,
+          'gender': gender,
+          'education': education,
+          'work_status': workStatus,
+          'marital_status': maritalStatus,
         });
         return true;
       } catch (e) {

@@ -6,6 +6,13 @@
 -- Ensure email column exists on public.profiles
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email text;
 
+-- Optional household details for family registry analysis
+ALTER TABLE public.family_members
+  ADD COLUMN IF NOT EXISTS gender text,
+  ADD COLUMN IF NOT EXISTS education text,
+  ADD COLUMN IF NOT EXISTS work_status text,
+  ADD COLUMN IF NOT EXISTS marital_status text;
+
 -- ----------------------------------------------------------------------------
 -- 1. AUTOMATIC PROFILE CREATION TRIGGER ON USER SIGNUP
 -- ----------------------------------------------------------------------------

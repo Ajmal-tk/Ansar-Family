@@ -6,12 +6,12 @@ A cross-platform (Web, Android, iOS, Windows) community management application b
 
 ## 📋 Existing Supabase Database Schema
 
-This application integrates directly with your existing Supabase database instance without modifying table structures:
+This application integrates with your existing Supabase database and adds optional household-detail columns to `public.family_members`:
 
 1. **`public.profiles`**: Links to `auth.users` (`id`, `username`, `full_name`, `avatar_url`, `updated_at`, `role`, `status`, `phone`, `address`).
 2. **`public.posts`**: Community assistance requests & announcements (`id`, `user_id`, `content`, `created_at`).
 3. **`public.membership_fees`**: Financial tracking & fee receipts (`id`, `user_id`, `amount`, `currency`, `period`, `status`, `payment_date`, `created_by`).
-4. **`public.family_members`**: Registered household dependents (`id`, `user_id`, `name`, `relation`, `age`, `created_at`).
+4. **`public.family_members`**: Registered household members (`id`, `user_id`, `name`, `relation`, `age`, optional `gender`, `education`, `work_status`, `marital_status`, `created_at`).
 
 ---
 
@@ -50,7 +50,8 @@ flutter run -d chrome --dart-define=SUPABASE_URL=https://xyz.supabase.co --dart-
 This script sets up:
 - Automated `auth.users` to `public.profiles` profile creation trigger.
 - Strict Row-Level Security (RLS) policies for `profiles`, `posts`, `membership_fees`, and `family_members`.
-- For an existing project, rerun this script after policy updates so the Supabase database receives them.
+- Optional family-member analysis columns (`gender`, `education`, `work_status`, and `marital_status`); existing records remain blank for these fields.
+- For an existing project, run this script so the new columns and policies are applied to Supabase.
 
 ---
 

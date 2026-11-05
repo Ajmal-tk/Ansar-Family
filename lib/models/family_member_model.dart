@@ -4,6 +4,10 @@ class FamilyMemberModel {
   final String name;
   final String? relation;
   final int? age;
+  final String? gender;
+  final String? education;
+  final String? workStatus;
+  final String? maritalStatus;
   final DateTime createdAt;
 
   FamilyMemberModel({
@@ -12,6 +16,10 @@ class FamilyMemberModel {
     required this.name,
     this.relation,
     this.age,
+    this.gender,
+    this.education,
+    this.workStatus,
+    this.maritalStatus,
     required this.createdAt,
   });
 
@@ -22,6 +30,10 @@ class FamilyMemberModel {
       name: json['name'] as String,
       relation: json['relation'] as String?,
       age: json['age'] as int?,
+      gender: json['gender'] as String?,
+      education: json['education'] as String?,
+      workStatus: json['work_status'] as String?,
+      maritalStatus: json['marital_status'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'].toString())
           : DateTime.now(),
@@ -35,6 +47,10 @@ class FamilyMemberModel {
       'name': name,
       'relation': relation,
       'age': age,
+      'gender': gender,
+      'education': education,
+      'work_status': workStatus,
+      'marital_status': maritalStatus,
       'created_at': createdAt.toIso8601String(),
     };
   }

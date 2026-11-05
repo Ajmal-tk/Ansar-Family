@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1320" viewBox="0 0 1440 1320" role="img" aria-labelledby="title description">
+  <title id="title">Register New Household Member form mockup</title>
+  <desc id="description">A desktop form mockup showing optional gender, education, work status, and marital status dropdowns expanded with their available options.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0f7f4"/>
+      <stop offset="1" stop-color="#eaf1f5"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f5132"/>
+      <stop offset="1" stop-color="#0d9488"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#123b2c" flood-opacity=".12"/>
+    </filter>
+    <filter id="menuShadow" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+      .label { font-size: 15px; font-weight: 650; fill: #263b34; }
+      .muted { fill: #71817b; }
+      .choice { font-size: 15px; fill: #33443d; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="1320" fill="url(#background)"/>
+  <rect width="1440" height="82" fill="url(#brand)"/>
+  <circle cx="77" cy="41" r="23" fill="#ffffff" opacity=".97"/>
+  <path d="M66 47c2-9 7-14 11-14s9 5 11 14M70 31a7 7 0 1 0 14 0" fill="none" stroke="#0f5132" stroke-width="2.8" stroke-linecap="round"/>
+  <text x="114" y="39" class="sans" font-size="18" font-weight="800" letter-spacing="1.2" fill="#fff">ANSAR FAMILY</text>
+  <text x="114" y="59" class="sans" font-size="11" fill="#d6eee4">Local Muslim Community Platform</text>
+  <text x="1305" y="47" class="sans" font-size="14" font-weight="600" fill="#fff">Family Registry</text>
+
+  <text x="720" y="139" text-anchor="middle" class="sans" font-size="14" font-weight="700" letter-spacing="1.6" fill="#0d8065">FAMILY REGISTRY</text>
+  <text x="720" y="182" text-anchor="middle" class="sans" font-size="32" font-weight="750" fill="#143a2c">Register New Household Member</text>
+  <text x="720" y="211" text-anchor="middle" class="sans" font-size="15" fill="#71817b">Add basic details to help keep your household record up to date.</text>
+
+  <rect x="260" y="245" width="920" height="1018" rx="20" fill="#fff" filter="url(#shadow)"/>
+  <text x="310" y="294" class="sans" font-size="19" font-weight="720" fill="#173c2d">Member details</text>
+  <text x="310" y="319" class="sans" font-size="13" fill="#74837d">Fields marked optional can be left blank.</text>
+
+  <text x="310" y="361" class="sans label">Full name</text>
+  <rect x="310" y="374" width="535" height="50" rx="8" fill="#fff" stroke="#ccd8d2"/>
+  <text x="328" y="406" class="sans" font-size="15" fill="#84918c">e.g. Aisha Al-Mansoor</text>
+  <text x="875" y="361" class="sans label">Age</text>
+  <rect x="875" y="374" width="255" height="50" rx="8" fill="#fff" stroke="#ccd8d2"/>
+  <text x="893" y="406" class="sans" font-size="15" fill="#84918c">Age in years</text>
+
+  <text x="310" y="466" class="sans label">Relation</text>
+  <rect x="310" y="479" width="390" height="50" rx="8" fill="#fff" stroke="#ccd8d2"/>
+  <text x="328" y="511" class="sans" font-size="15" fill="#263b34">Other</text>
+  <path d="m670 499 7 7 7-7" fill="none" stroke="#71817b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="730" y="466" class="sans label">Specify Relation <tspan fill="#83918b" font-weight="450">(optional)</tspan></text>
+  <rect x="730" y="479" width="400" height="50" rx="8" fill="#fff" stroke="#ccd8d2"/>
+  <text x="748" y="511" class="sans" font-size="15" fill="#84918c">e.g. Grandparent</text>
+
+  <line x1="310" y1="562" x2="1130" y2="562" stroke="#e7eeea"/>
+  <text x="310" y="602" class="sans" font-size="19" font-weight="720" fill="#173c2d">Additional details <tspan font-size="14" font-weight="500" fill="#77867f">(optional)</tspan></text>
+  <text x="310" y="626" class="sans" font-size="13" fill="#74837d">These details help us understand education, work and family needs.</text>
+
+  <!-- Gender dropdown -->
+  <text x="310" y="667" class="sans label">Gender <tspan fill="#83918b" font-weight="450">(optional)</tspan></text>
+  <rect x="310" y="679" width="390" height="48" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="328" y="710" class="sans" font-size="15" fill="#263b34">Select gender</text>
+  <path d="m670 698 7 7 7-7" fill="none" stroke="#0d8065" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g filter="url(#menuShadow)">
+    <rect x="310" y="734" width="390" height="143" rx="9" fill="#fff" stroke="#e0e8e3"/>
+    <rect x="318" y="742" width="374" height="42" rx="6" fill="#eaf6f1"/>
+    <text x="334" y="769" class="sans choice" font-weight="650" fill="#0f684d">Male</text>
+    <text x="334" y="811" class="sans choice">Female</text>
+    <text x="334" y="853" class="sans choice">Prefer not to say</text>
+    <path d="m662 760 5 5 9-10" fill="none" stroke="#0d8065" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Education dropdown -->
+  <text x="730" y="667" class="sans label">Education <tspan fill="#83918b" font-weight="450">(optional)</tspan></text>
+  <rect x="730" y="679" width="400" height="48" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="748" y="710" class="sans" font-size="15" fill="#263b34">Select education</text>
+  <path d="m1096 698 7 7 7-7" fill="none" stroke="#0d8065" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g filter="url(#menuShadow)">
+    <rect x="730" y="734" width="400" height="227" rx="9" fill="#fff" stroke="#e0e8e3"/>
+    <rect x="738" y="742" width="384" height="42" rx="6" fill="#eaf6f1"/>
+    <text x="754" y="769" class="sans choice" font-weight="650" fill="#0f684d">School</text>
+    <text x="754" y="811" class="sans choice">College / University</text>
+    <text x="754" y="853" class="sans choice">Vocational / Technical</text>
+    <text x="754" y="895" class="sans choice">Not currently studying</text>
+    <text x="754" y="937" class="sans choice">Other</text>
+    <path d="m1092 760 5 5 9-10" fill="none" stroke="#0d8065" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Work status dropdown -->
+  <text x="310" y="1005" class="sans label">Work status <tspan fill="#83918b" font-weight="450">(optional)</tspan></text>
+  <rect x="310" y="1017" width="390" height="48" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="328" y="1048" class="sans" font-size="15" fill="#263b34">Select work status</text>
+  <path d="m670 1036 7 7 7-7" fill="none" stroke="#0d8065" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g filter="url(#menuShadow)">
+    <rect x="310" y="1072" width="390" height="185" rx="9" fill="#fff" stroke="#e0e8e3"/>
+    <rect x="318" y="1080" width="374" height="42" rx="6" fill="#eaf6f1"/>
+    <text x="334" y="1107" class="sans choice" font-weight="650" fill="#0f684d">Student</text>
+    <text x="334" y="1149" class="sans choice">Employed</text>
+    <text x="334" y="1191" class="sans choice">Self-employed</text>
+    <text x="334" y="1233" class="sans choice">Unemployed</text>
+    <text x="334" y="1275" class="sans choice">Other</text>
+    <path d="m662 1098 5 5 9-10" fill="none" stroke="#0d8065" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Marital status dropdown -->
+  <text x="730" y="1005" class="sans label">Marital status <tspan fill="#83918b" font-weight="450">(optional)</tspan></text>
+  <rect x="730" y="1017" width="400" height="48" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="748" y="1048" class="sans" font-size="15" fill="#263b34">Select marital status</text>
+  <path d="m1096 1036 7 7 7-7" fill="none" stroke="#0d8065" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g filter="url(#menuShadow)">
+    <rect x="730" y="1072" width="400" height="143" rx="9" fill="#fff" stroke="#e0e8e3"/>
+    <rect x="738" y="1080" width="384" height="42" rx="6" fill="#eaf6f1"/>
+    <text x="754" y="1107" class="sans choice" font-weight="650" fill="#0f684d">Single</text>
+    <text x="754" y="1149" class="sans choice">Married</text>
+    <text x="754" y="1191" class="sans choice">Prefer not to say</text>
+    <path d="m1092 1098 5 5 9-10" fill="none" stroke="#0d8065" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

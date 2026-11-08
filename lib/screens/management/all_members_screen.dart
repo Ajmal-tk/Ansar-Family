@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/status_badge.dart';
+import 'member_details_screen.dart';
 
 class AllMembersScreen extends StatefulWidget {
   final String initialFilter;
@@ -283,9 +284,9 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
                                     backgroundColor: item.isAdmin
                                         ? Colors.purple.shade50
                                         : (item.role == 'management'
-                                            ? Colors.teal.shade50
-                                            : AppTheme.primaryEmerald
-                                                .withValues(alpha: 0.1)),
+                                              ? Colors.teal.shade50
+                                              : AppTheme.primaryEmerald
+                                                    .withValues(alpha: 0.1)),
                                     child: Text(
                                       initial,
                                       style: TextStyle(
@@ -293,8 +294,8 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
                                         color: item.isAdmin
                                             ? Colors.purple.shade800
                                             : (item.role == 'management'
-                                                ? AppTheme.primaryTeal
-                                                : AppTheme.primaryEmerald),
+                                                  ? AppTheme.primaryTeal
+                                                  : AppTheme.primaryEmerald),
                                       ),
                                     ),
                                   ),
@@ -340,38 +341,57 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
 
                               // Quick Action Row for Admins / Managers
                               const Divider(height: 18),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              Wrap(
+                                alignment: WrapAlignment.spaceBetween,
+                                runSpacing: 8,
                                 children: [
                                   // Status action for pending members
                                   if (item.isPending) ...[
                                     Row(
                                       children: [
                                         ElevatedButton.icon(
-                                          onPressed: () =>
-                                              _updateStatus(item.id, 'approved'),
-                                          icon: const Icon(Icons.check, size: 14),
-                                          label: const Text('Approve',
-                                              style: TextStyle(fontSize: 11)),
+                                          onPressed: () => _updateStatus(
+                                            item.id,
+                                            'approved',
+                                          ),
+                                          icon: const Icon(
+                                            Icons.check,
+                                            size: 14,
+                                          ),
+                                          label: const Text(
+                                            'Approve',
+                                            style: TextStyle(fontSize: 11),
+                                          ),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor:
                                                 AppTheme.primaryEmerald,
                                             foregroundColor: Colors.white,
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
                                         OutlinedButton.icon(
-                                          onPressed: () =>
-                                              _updateStatus(item.id, 'rejected'),
-                                          icon: const Icon(Icons.close, size: 14),
-                                          label: const Text('Reject',
-                                              style: TextStyle(fontSize: 11)),
+                                          onPressed: () => _updateStatus(
+                                            item.id,
+                                            'rejected',
+                                          ),
+                                          icon: const Icon(
+                                            Icons.close,
+                                            size: 14,
+                                          ),
+                                          label: const Text(
+                                            'Reject',
+                                            style: TextStyle(fontSize: 11),
+                                          ),
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor: Colors.red,
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
+                                              horizontal: 10,
+                                              vertical: 6,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -381,35 +401,64 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
                                       onPressed: () =>
                                           _updateStatus(item.id, 'approved'),
                                       icon: const Icon(Icons.refresh, size: 14),
-                                      label: const Text('Re-Approve',
-                                          style: TextStyle(fontSize: 12)),
+                                      label: const Text(
+                                        'Re-Approve',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
                                     ),
                                   ] else ...[
                                     const Text(
                                       'Active Approved Member',
                                       style: TextStyle(
-                                          fontSize: 11,
-                                          color: AppTheme.primaryEmerald,
-                                          fontWeight: FontWeight.bold),
+                                        fontSize: 11,
+                                        color: AppTheme.primaryEmerald,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ],
 
                                   // Role change button (Admin only, especially for approved members)
                                   if (isAdmin && item.isApproved) ...[
                                     OutlinedButton.icon(
-                                      onPressed: () => _showRoleChangeDialog(item),
-                                      icon: const Icon(Icons.security, size: 14),
-                                      label: const Text('Assign Role',
-                                          style: TextStyle(fontSize: 11)),
+                                      onPressed: () =>
+                                          _showRoleChangeDialog(item),
+                                      icon: const Icon(
+                                        Icons.security,
+                                        size: 14,
+                                      ),
+                                      label: const Text(
+                                        'Assign Role',
+                                        style: TextStyle(fontSize: 11),
+                                      ),
                                       style: OutlinedButton.styleFrom(
                                         foregroundColor: Colors.purple.shade700,
                                         side: BorderSide(
-                                            color: Colors.purple.shade300),
+                                          color: Colors.purple.shade300,
+                                        ),
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 6),
+                                          horizontal: 10,
+                                          vertical: 6,
+                                        ),
                                       ),
                                     ),
                                   ],
+                                  OutlinedButton.icon(
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            MemberDetailsScreen(member: item),
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.visibility_outlined,
+                                      size: 15,
+                                    ),
+                                    label: const Text(
+                                      'View details',
+                                      style: TextStyle(fontSize: 11),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],

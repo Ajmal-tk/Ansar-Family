@@ -223,6 +223,27 @@ CREATE POLICY "Delete posts policy" ON public.posts
     )
   );
 
+-- Allow authenticated users to see only the names and roles of feed authors.
+CREATE OR REPLACE FUNCTION public.get_post_authors(p_user_ids uuid[])
+RETURNS TABLE (user_id uuid, full_name text, username text, role text)
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT p.id, p.full_name, p.username, p.role
+  FROM public.profiles p
+  WHERE p.id = ANY(COALESCE(p_user_ids, ARRAY[]::uuid[]))
+    AND EXISTS (
+      SELECT 1
+      FROM public.posts post
+      WHERE post.user_id = p.id
+    );
+$$;
+
+REVOKE ALL ON FUNCTION public.get_post_authors(uuid[]) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_post_authors(uuid[]) TO authenticated;
+
 -- ----------------------------------------------------------------------------
 -- 5. MEMBERSHIP_FEES TABLE RLS POLICIES (Financial tracking)
 -- ----------------------------------------------------------------------------

@@ -2,6 +2,7 @@ class ProfileModel {
   final String id;
   final String? username;
   final String? fullName;
+  final String? email;
   final String? avatarUrl;
   final DateTime? updatedAt;
   final String role; // 'admin', 'management', 'member'
@@ -13,6 +14,7 @@ class ProfileModel {
     required this.id,
     this.username,
     this.fullName,
+    this.email,
     this.avatarUrl,
     this.updatedAt,
     this.role = 'member',
@@ -32,6 +34,7 @@ class ProfileModel {
       id: json['id'] as String,
       username: json['username'] as String?,
       fullName: json['full_name'] as String?,
+      email: json['email'] as String?,
       avatarUrl: json['avatar_url'] as String?,
       updatedAt: json['updated_at'] != null 
           ? DateTime.tryParse(json['updated_at'].toString()) 
@@ -48,6 +51,7 @@ class ProfileModel {
       'id': id,
       'username': username,
       'full_name': fullName,
+      'email': email,
       'avatar_url': avatarUrl,
       'updated_at': updatedAt?.toIso8601String(),
       'role': role,
@@ -60,6 +64,7 @@ class ProfileModel {
   ProfileModel copyWith({
     String? username,
     String? fullName,
+    String? email,
     String? avatarUrl,
     DateTime? updatedAt,
     String? role,
@@ -71,6 +76,7 @@ class ProfileModel {
       id: id,
       username: username ?? this.username,
       fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       updatedAt: updatedAt ?? this.updatedAt,
       role: role ?? this.role,

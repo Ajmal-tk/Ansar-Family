@@ -240,6 +240,7 @@ class SupabaseService {
         return (res as List).map((e) => FamilyMemberModel.fromJson(e)).toList();
       } catch (e) {
         debugPrint("Error fetching family members: $e");
+        rethrow;
       }
     }
     return [];

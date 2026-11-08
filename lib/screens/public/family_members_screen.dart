@@ -17,6 +17,7 @@ class FamilyMembersScreen extends StatefulWidget {
 class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
   List<FamilyMemberModel> _members = [];
   bool _isLoading = true;
+  Object? _loadError;
   bool _isAddingMember = false;
   bool _isSaving = false;
   String _selectedRelation = 'Spouse';
@@ -68,12 +69,21 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final uId =
         auth.currentProfile?.id ?? SupabaseService.instance.currentUserId;
-    final list = await SupabaseService.instance.fetchFamilyMembers(uId);
-    if (!mounted) return;
-    setState(() {
-      _members = list;
-      _isLoading = false;
-    });
+    try {
+      final list = await SupabaseService.instance.fetchFamilyMembers(uId);
+      if (!mounted) return;
+      setState(() {
+        _members = list;
+        _loadError = null;
+        _isLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = error;
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -353,6 +363,27 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
+          : _loadError != null
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Could not load family members.'),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() => _isLoading = true);
+                        _loadData();
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Try again'),
+                    ),
+                  ],
+                ),
+              ),
+            )
           : SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Center(

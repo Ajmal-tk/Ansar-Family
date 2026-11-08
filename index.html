@@ -1895,7 +1895,7 @@
           roleBadge = '<span class="badge badge-role"><i class="fa-solid fa-briefcase"></i> MANAGEMENT</span>';
         }
 
-        let actionHtml = '—';
+        let actionHtml = '';
         if (status === 'pending') {
           actionHtml = `
             <div style="display: flex; gap: 6px;">
@@ -1939,10 +1939,107 @@
             </td>
             <td>${statusBadge}</td>
             <td>${roleBadge}</td>
-            <td>${actionHtml}</td>
+            <td>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                ${actionHtml}
+                <button class="btn" style="padding: 5px 10px; font-size: 11px; background: #e0f2fe; color: #075985;" data-user-id="${escapeHtml(m.id)}" onclick="showMemberDetails(this.dataset.userId)">
+                  <i class="fa-solid fa-eye"></i> View details
+                </button>
+              </div>
+            </td>
           </tr>
         `;
       }).join('');
+    }
+
+    async function showMemberDetails(userId) {
+      if (!['admin', 'management'].includes((currentProfile?.role || '').toLowerCase())) {
+        alert('Only admins and management can view member details.');
+        return;
+      }
+
+      const member = allMembersCache.find(profile => profile.id === userId);
+      if (!member) {
+        alert('Member details are unavailable. Refresh the directory and try again.');
+        return;
+      }
+
+      const overlay = document.createElement('div');
+      overlay.setAttribute('role', 'presentation');
+      overlay.style.cssText = 'position: fixed; inset: 0; z-index: 3000; background: rgba(15, 23, 42, .6); display: flex; align-items: center; justify-content: center; padding: 20px;';
+      overlay.innerHTML = `
+        <section role="dialog" aria-modal="true" aria-labelledby="memberDetailsTitle" style="background: white; border-radius: 16px; width: min(760px, 100%); max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.25);">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px;">
+            <h2 id="memberDetailsTitle" style="font-size: 20px; color: var(--primary-emerald);">${escapeHtml(member.full_name || member.username || 'Member Details')}</h2>
+            <button type="button" class="btn" data-close-details style="background: #f1f5f9; color: var(--text-dark); padding: 8px 12px;" aria-label="Close member details"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div data-member-details-content style="color: var(--text-dark);">Loading member and family details...</div>
+        </section>
+      `;
+
+      const closeDetails = () => {
+        document.removeEventListener('keydown', onDetailsKeydown);
+        overlay.remove();
+      };
+      const onDetailsKeydown = event => {
+        if (event.key === 'Escape') closeDetails();
+      };
+      overlay.addEventListener('click', event => {
+        if (event.target === overlay) closeDetails();
+      });
+      overlay.querySelector('[data-close-details]').addEventListener('click', closeDetails);
+      document.addEventListener('keydown', onDetailsKeydown);
+      document.body.appendChild(overlay);
+
+      try {
+        const { data: familyMembers, error } = await supabaseClient
+          .from('family_members')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        if (!overlay.isConnected) return;
+
+        const detailRow = (label, value) => `
+          <div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+            <strong style="display: inline-block; min-width: 130px; color: var(--text-muted);">${label}</strong>
+            <span>${escapeHtml(value || 'Not provided')}</span>
+          </div>
+        `;
+        const familyHtml = familyMembers?.length
+          ? familyMembers.map(member => `
+              <article style="padding: 14px; margin-top: 10px; border: 1px solid #e2e8f0; border-radius: 10px;">
+                <strong style="font-size: 15px;">${escapeHtml(member.name || 'Family member')}</strong>
+                ${detailRow('Relationship', member.relation)}
+                ${detailRow('Age', member.age == null ? null : `${member.age} years`)}
+                ${detailRow('Gender', member.gender)}
+                ${detailRow('Education', member.education)}
+                ${detailRow('Work status', member.work_status)}
+                ${detailRow('Marital status', member.marital_status)}
+                ${detailRow('Registered', member.created_at ? new Date(member.created_at).toLocaleDateString('en-IN') : null)}
+              </article>
+            `).join('')
+          : '<p style="color: var(--text-muted); padding: 12px 0;">No family details have been registered.</p>';
+
+        const content = overlay.querySelector('[data-member-details-content]');
+        content.innerHTML = `
+          <h3 style="margin: 4px 0 8px; font-size: 16px;">Member information</h3>
+          ${detailRow('Full name', member.full_name)}
+          ${detailRow('Username', member.username ? `@${member.username}` : null)}
+          ${detailRow('Email', member.email)}
+          ${detailRow('Phone', member.phone)}
+          ${detailRow('Address', member.address)}
+          ${detailRow('Role', (member.role || 'member').toUpperCase())}
+          ${detailRow('Approval status', (member.status || 'pending').toUpperCase())}
+          <h3 style="margin: 24px 0 8px; font-size: 16px;">Family details</h3>
+          ${familyHtml}
+        `;
+      } catch (error) {
+        if (!overlay.isConnected) return;
+        overlay.querySelector('[data-member-details-content]').innerHTML = `
+          <p style="color: #b91c1c;">Could not load family details: ${escapeHtml(error.message || String(error))}</p>
+        `;
+      }
     }
 
     async function loadRoleAssignmentDirectory() {
@@ -2431,17 +2528,29 @@
           return;
         }
 
-        container.innerHTML = posts.map(p => `
-          <div class="post-card">
-            <div class="post-header">
-              <div style="font-weight: 700; color: var(--primary-emerald);"><i class="fa-solid fa-user-circle"></i> Mahallu Announcement</div>
-              <div style="color: var(--text-muted); font-size: 11px;">${p.created_at ? new Date(p.created_at).toLocaleString('en-IN') : ''}</div>
+        const userIds = [...new Set(posts.map(post => post.user_id).filter(Boolean))];
+        const { data: authors, error: authorsError } = userIds.length
+          ? await supabaseClient.rpc('get_post_authors', { p_user_ids: userIds })
+          : { data: [], error: null };
+        if (authorsError) throw authorsError;
+
+        const authorsById = new Map((authors || []).map(author => [author.user_id, author]));
+        container.innerHTML = posts.map(p => {
+          const author = authorsById.get(p.user_id);
+          const authorName = author?.full_name || author?.username || 'Community Member';
+          const authorRole = (author?.role || 'member').toUpperCase();
+          return `
+            <div class="post-card">
+              <div class="post-header">
+                <div style="font-weight: 700; color: var(--primary-emerald);"><i class="fa-solid fa-user-circle"></i> ${escapeHtml(authorName)} - ${escapeHtml(authorRole)}</div>
+                <div style="color: var(--text-muted); font-size: 11px;">${p.created_at ? new Date(p.created_at).toLocaleString('en-IN') : ''}</div>
+              </div>
+              <div style="font-size: 14px; line-height: 1.5; color: var(--text-dark);">${escapeHtml(p.content)}</div>
             </div>
-            <div style="font-size: 14px; line-height: 1.5; color: var(--text-dark);">${escapeHtml(p.content)}</div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       } catch (e) {
-        container.innerHTML = `<div style="color: red; text-align: center;">Error: ${e.message}</div>`;
+        container.innerHTML = `<div style="color: red; text-align: center;">Error: ${escapeHtml(e.message)}</div>`;
       }
     }
 

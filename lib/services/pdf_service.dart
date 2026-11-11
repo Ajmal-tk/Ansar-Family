@@ -8,6 +8,107 @@ import '../models/profile_model.dart';
 import '../models/fee_model.dart';
 
 class PdfService {
+  /// Generate a receipt PDF for a confirmed payment.
+  static Future<Uint8List> generateFeeReceipt(FeeModel fee) async {
+    if (fee.status.toLowerCase() != 'paid') {
+      throw ArgumentError.value(
+        fee.status,
+        'fee.status',
+        'A receipt can only be generated for a paid fee.',
+      );
+    }
+
+    final pdf = pw.Document();
+    final dateFormat = DateFormat('MMMM dd, yyyy');
+    final memberName = fee.userName?.trim().isNotEmpty == true
+        ? fee.userName!.trim()
+        : 'Community Member';
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a5,
+        margin: const pw.EdgeInsets.all(32),
+        build: (context) => pw.Container(
+          padding: const pw.EdgeInsets.all(20),
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(color: PdfColors.green900, width: 2),
+            borderRadius: pw.BorderRadius.circular(8),
+          ),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+            children: [
+              pw.Text(
+                'ANSAR FAMILY COMMUNITY',
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(
+                  color: PdfColors.green900,
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 4),
+              pw.Text(
+                'PAYMENT RECEIPT',
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(
+                  color: PdfColors.amber800,
+                  fontSize: 13,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.Divider(color: PdfColors.green800, thickness: 1.5),
+              pw.SizedBox(height: 12),
+              _receiptDetail('Receipt ID', fee.id),
+              _receiptDetail('Member', memberName),
+              _receiptDetail('Member ID', fee.userId),
+              _receiptDetail('Payment for', fee.period ?? 'Membership fee'),
+              _receiptDetail(
+                'Amount paid',
+                '${fee.currency} ${fee.amount.toStringAsFixed(2)}',
+              ),
+              _receiptDetail(
+                'Payment date',
+                dateFormat.format(fee.paymentDate.toLocal()),
+              ),
+              _receiptDetail('Status', 'PAID'),
+              pw.Spacer(),
+              pw.SizedBox(height: 24),
+              pw.Text(
+                'Thank you for your contribution.',
+                textAlign: pw.TextAlign.center,
+                style: const pw.TextStyle(color: PdfColors.grey700),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  static pw.Widget _receiptDetail(String label, String value) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 7),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.SizedBox(
+            width: 92,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(
+                color: PdfColors.grey700,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.Expanded(child: pw.Text(value)),
+        ],
+      ),
+    );
+  }
+
   /// Generate printable PDF binary for Membership Certificate
   static Future<Uint8List> generateMembershipCertificate(ProfileModel profile) async {
     final pdf = pw.Document();
@@ -246,5 +347,9 @@ class PdfService {
   /// Print or open download preview
   static Future<void> printOrDownloadPdf(Uint8List pdfData, String filename) async {
     await Printing.sharePdf(bytes: pdfData, filename: filename);
+  }
+
+  static Future<void> printPdf(Uint8List pdfData) async {
+    await Printing.layoutPdf(onLayout: (_) async => pdfData);
   }
 }

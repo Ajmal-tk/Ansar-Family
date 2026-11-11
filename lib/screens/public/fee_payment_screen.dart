@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/fee_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/pdf_service.dart';
 import '../../services/payment_service.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/custom_card.dart';
@@ -71,14 +72,26 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
     _loadHistory();
   }
 
+  Future<void> _downloadReceipt(FeeModel fee) async {
+    if (fee.status.toLowerCase() != 'paid') return;
+
+    try {
+      final receipt = await PdfService.generateFeeReceipt(fee);
+      await PdfService.printOrDownloadPdf(receipt, 'Fee_Receipt_${fee.id}.pdf');
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not download receipt: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Membership Fees & Sadaqah Fund'),
-      ),
+      appBar: AppBar(title: const Text('Membership Fees & Sadaqah Fund')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -91,13 +104,17 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.volunteer_activism,
-                          color: AppTheme.secondaryGold),
+                      Icon(
+                        Icons.volunteer_activism,
+                        color: AppTheme.secondaryGold,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'Mahallu Fund - Zero-Cost Sandbox Checkout',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -109,9 +126,10 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                   const Divider(height: 24),
 
                   // Preset Amount Selection
-                  const Text('Select Contribution Type:',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  const Text(
+                    'Select Contribution Type:',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 10,
@@ -130,7 +148,8 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                       ),
                       ChoiceChip(
                         label: const Text('₹2,000 - Annual Mahallu Fee'),
-                        selected: _amount == 2000.0 &&
+                        selected:
+                            _amount == 2000.0 &&
                             _selectedPeriod == '2026-Annual',
                         onSelected: (selected) {
                           if (selected)
@@ -157,24 +176,27 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                   const SizedBox(height: 16),
 
                   // Payment Method Selection
-                  const Text('Payment Gateway Method:',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  const Text(
+                    'Payment Gateway Method:',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
                   const SizedBox(height: 8),
                   RadioListTile<PaymentMethod>(
                     value: PaymentMethod.sandboxCreditCard,
                     groupValue: _paymentMethod,
                     title: const Text('UPI / Sandbox Test Card (Instant)'),
-                    subtitle:
-                        const Text('Simulates instant payment authorization'),
+                    subtitle: const Text(
+                      'Simulates instant payment authorization',
+                    ),
                     onChanged: (val) => setState(() => _paymentMethod = val!),
                   ),
                   RadioListTile<PaymentMethod>(
                     value: PaymentMethod.manualBankTransfer,
                     groupValue: _paymentMethod,
                     title: const Text('Manual Bank Wire / Offline Log'),
-                    subtitle:
-                        const Text('Record direct offline bank transaction'),
+                    subtitle: const Text(
+                      'Record direct offline bank transaction',
+                    ),
                     onChanged: (val) => setState(() => _paymentMethod = val!),
                   ),
                   const SizedBox(height: 16),
@@ -190,7 +212,9 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2),
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
                             )
                           : const Icon(Icons.lock_open),
                       label: Text(
@@ -247,7 +271,9 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
                                 Text(
                                   'Ref ID: ${_lastResult!.transactionId}',
                                   style: const TextStyle(
-                                      fontSize: 11, color: AppTheme.textMuted),
+                                    fontSize: 11,
+                                    color: AppTheme.textMuted,
+                                  ),
                                 ),
                               ],
                             ),
@@ -265,66 +291,87 @@ class _FeePaymentScreenState extends State<FeePaymentScreen> {
             const Text(
               'YOUR FEE STATUS & PAYMENT HISTORY',
               style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                  color: AppTheme.textMuted),
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+                color: AppTheme.textMuted,
+              ),
             ),
             const SizedBox(height: 12),
 
             _isLoadingHistory
                 ? const Center(child: CircularProgressIndicator())
                 : _myFees.isEmpty
-                    ? const Text('No fee records found.')
-                    : ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _myFees.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 10),
-                        itemBuilder: (ctx, i) {
-                          final f = _myFees[i];
-                          return CustomCard(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            child: Row(
+                ? const Text('No fee records found.')
+                : ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _myFees.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (ctx, i) {
+                      final f = _myFees[i];
+                      return CustomCard(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppTheme.accentMint.withValues(
+                                  alpha: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.receipt,
+                                color: AppTheme.primaryEmerald,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${f.period ?? "Fee"} • ${f.currency} ${f.amount.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${f.status == 'paid' ? 'Paid on' : 'Recorded'}: ${dateFormat.format(f.paymentDate)}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppTheme.textMuted,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.accentMint
-                                        .withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(Icons.receipt,
-                                      color: AppTheme.primaryEmerald),
-                                ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${f.period ?? "Fee"} • ${f.currency} ${f.amount.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15),
-                                      ),
-                                      Text(
-                                        '${f.status == 'paid' ? 'Paid on' : 'Recorded'}: ${dateFormat.format(f.paymentDate)}',
-                                        style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppTheme.textMuted),
-                                      ),
-                                    ],
-                                  ),
-                                ),
                                 StatusBadge(status: f.status),
+                                if (f.status.toLowerCase() == 'paid')
+                                  IconButton(
+                                    tooltip: 'Download receipt',
+                                    icon: const Icon(
+                                      Icons.download_outlined,
+                                      color: AppTheme.primaryEmerald,
+                                    ),
+                                    onPressed: () => _downloadReceipt(f),
+                                  ),
                               ],
                             ),
-                          );
-                        },
-                      ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
           ],
         ),
       ),

@@ -1213,6 +1213,7 @@
 
     let currentAuthUser = null;
     let currentProfile = null;
+    let feeRecords = [];
 
     // --- USERNAME TO EMAIL MAPPING HELPERS ---
     function getStoredEmailForUsername(username) {
@@ -1655,7 +1656,9 @@
       if (roleCard) roleCard.style.display = isAdmin ? 'block' : 'none';
       document.getElementById('adminFeeEntryCard').style.display = isAdminOrMgr ? 'block' : 'none';
       document.getElementById('feeMemberHeader').style.display = isAdminOrMgr ? 'table-cell' : 'none';
-      document.getElementById('feeActionsHeader').style.display = isAdminOrMgr ? 'table-cell' : 'none';
+      const feeActionsHeader = document.getElementById('feeActionsHeader');
+      feeActionsHeader.textContent = isAdminOrMgr ? 'Actions' : 'Receipt';
+      feeActionsHeader.style.display = 'table-cell';
 
       // Switch view
       document.getElementById('landing-page-view').style.display = 'none';
@@ -2478,10 +2481,74 @@
       }
     }
 
+    function printFeeReceipt(feeId) {
+      const fee = feeRecords.find(record => record.id === feeId);
+      const role = (currentProfile?.role || '').toLowerCase();
+      const isAdminOrMgr = ['admin', 'management'].includes(role);
+      if (!fee || (!isAdminOrMgr && fee.user_id !== currentAuthUser?.id)) {
+        alert('This fee receipt is unavailable.');
+        return;
+      }
+      if ((fee.status || '').toLowerCase() !== 'paid') {
+        alert('A receipt is available only for paid fees.');
+        return;
+      }
+
+      const memberName = isAdminOrMgr
+        ? fee.profiles?.full_name || fee.profiles?.username || 'Member'
+        : currentProfile?.full_name || currentProfile?.username || 'Member';
+      const paymentDate = fee.payment_date ? new Date(fee.payment_date) : null;
+      const dateLabel = paymentDate && !Number.isNaN(paymentDate.getTime())
+        ? paymentDate.toLocaleDateString('en-IN')
+        : '—';
+      const receiptWindow = window.open('', '_blank');
+      if (!receiptWindow) {
+        alert('Allow pop-ups to print or download the receipt.');
+        return;
+      }
+
+      receiptWindow.document.open();
+      receiptWindow.document.write(`<!doctype html>
+        <html lang="en"><head><meta charset="utf-8"><title>Fee Receipt</title>
+        <style>
+          body{font:16px Arial,sans-serif;color:#0f172a;max-width:680px;margin:40px auto;padding:24px}
+          header{text-align:center;border-bottom:2px solid #0f5132;padding-bottom:16px;margin-bottom:24px}
+          h1{font-size:22px;color:#0f5132;margin:0 0 6px}h2{font-size:17px;margin:0}
+          .row{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid #e2e8f0}
+          .label{font-weight:bold;color:#64748b;width:150px;flex-shrink:0}
+          .amount{font-size:20px;font-weight:bold;color:#0f5132}
+          footer{text-align:center;margin-top:32px;color:#64748b}
+          @media print{body{margin:0 auto;padding:12mm}}
+        </style></head><body>
+          <header><h1>ANSAR FAMILY COMMUNITY</h1><h2>PAYMENT RECEIPT</h2></header>
+          <div class="row"><span class="label">Receipt ID</span><span>${escapeHtml(fee.id)}</span></div>
+          <div class="row"><span class="label">Member</span><span>${escapeHtml(memberName)}</span></div>
+          <div class="row"><span class="label">Member ID</span><span>${escapeHtml(fee.user_id)}</span></div>
+          <div class="row"><span class="label">Payment for</span><span>${escapeHtml(fee.period || 'Membership fee')}</span></div>
+          <div class="row"><span class="label">Amount paid</span><span class="amount">${escapeHtml(fee.currency || 'INR')} ${Number(fee.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+          <div class="row"><span class="label">Payment date</span><span>${escapeHtml(dateLabel)}</span></div>
+          <div class="row"><span class="label">Status</span><span>PAID</span></div>
+          <footer>Thank you for your contribution.</footer>
+        </body></html>`);
+      receiptWindow.document.close();
+
+      let printStarted = false;
+      const startPrint = () => {
+        if (printStarted || receiptWindow.closed) return;
+        printStarted = true;
+        receiptWindow.focus();
+        receiptWindow.print();
+      };
+      receiptWindow.addEventListener('load', startPrint, { once: true });
+      setTimeout(startPrint, 500);
+    }
+
     async function loadFees() {
       const tbody = document.getElementById('feesTable');
-      const isAdminOrMgr = currentProfile.role === 'admin' || currentProfile.role === 'management';
-      const columnCount = isAdminOrMgr ? 6 : 4;
+      const isAdminOrMgr = ['admin', 'management'].includes(
+        (currentProfile?.role || '').toLowerCase()
+      );
+      const columnCount = isAdminOrMgr ? 6 : 5;
       tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading fee receipts...</td></tr>`;
 
       try {
@@ -2492,22 +2559,32 @@
         const { data: fees, error } = await query;
         if (error) throw error;
 
-        if (!fees || fees.length === 0) {
+        feeRecords = fees || [];
+        if (feeRecords.length === 0) {
           tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align: center; color: var(--text-muted); padding: 24px;">No fee transactions recorded.</td></tr>`;
           return;
         }
 
-        tbody.innerHTML = fees.map(f => `
+        tbody.innerHTML = feeRecords.map(f => {
+          const status = (f.status || 'pending').toLowerCase();
+          const action = status === 'paid'
+            ? `<button class="btn" type="button" style="padding: 5px 10px; font-size: 11px; background: #e0f2fe; color: #075985;" data-fee-id="${escapeHtml(f.id)}" onclick="printFeeReceipt(this.dataset.feeId)"><i class="fa-solid fa-${isAdminOrMgr ? 'print' : 'download'}"></i> ${isAdminOrMgr ? 'Print receipt' : 'Download receipt'}</button>`
+            : isAdminOrMgr && status === 'pending'
+              ? `<button class="btn btn-emerald" type="button" onclick="markMemberFeePaid('${escapeHtml(f.id)}')"><i class="fa-solid fa-check"></i> Mark paid</button>`
+              : '—';
+          return `
           <tr>
             ${isAdminOrMgr ? `<td>${escapeHtml(f.profiles?.full_name || f.profiles?.username || f.user_id || 'Member')}</td>` : ''}
             <td><strong>${escapeHtml(f.period || 'Monthly Subscription')}</strong></td>
             <td><strong>${formatINR(f.amount)}</strong></td>
-            <td><span class="badge badge-${(f.status || 'paid').toLowerCase()}">${(f.status || 'PAID').toUpperCase()}</span></td>
-            <td>${f.status === 'paid' ? 'Paid' : 'Recorded'}: ${f.payment_date ? new Date(f.payment_date).toLocaleDateString('en-IN') : '-'}</td>
-            ${isAdminOrMgr ? `<td>${f.status === 'pending' ? `<button class="btn btn-emerald" type="button" onclick="markMemberFeePaid('${escapeHtml(f.id)}')"><i class="fa-solid fa-check"></i> Mark paid</button>` : '—'}</td>` : ''}
+            <td><span class="badge badge-${status}">${status.toUpperCase()}</span></td>
+            <td>${status === 'paid' ? 'Paid' : 'Recorded'}: ${f.payment_date ? new Date(f.payment_date).toLocaleDateString('en-IN') : '-'}</td>
+            <td>${action}</td>
           </tr>
-        `).join('');
+          `;
+        }).join('');
       } catch (e) {
+        feeRecords = [];
         tbody.innerHTML = `<tr><td colspan="${columnCount}" style="text-align: center; color: red;">Error: ${escapeHtml(e.message)}</td></tr>`;
       }
     }

@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../config/app_theme.dart';
 import '../../models/fee_model.dart';
 import '../../models/profile_model.dart';
+import '../../services/pdf_service.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/status_badge.dart';
@@ -42,8 +43,9 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
 
   Future<void> _showAddManualFeeDialog() async {
     final amountController = TextEditingController();
-    ProfileModel? selectedMember =
-        _allProfiles.isNotEmpty ? _allProfiles.first : null;
+    ProfileModel? selectedMember = _allProfiles.isNotEmpty
+        ? _allProfiles.first
+        : null;
     String selectedPurpose = 'Monthly Members Fee';
     int selectedYear = 2026;
     int selectedMonth = DateTime.now().month;
@@ -68,12 +70,15 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                   DropdownButtonFormField<ProfileModel>(
                     initialValue: selectedMember,
                     decoration: const InputDecoration(
-                        labelText: 'Select Approved Member'),
+                      labelText: 'Select Approved Member',
+                    ),
                     items: _allProfiles
-                        .map((p) => DropdownMenuItem(
-                              value: p,
-                              child: Text(p.fullName ?? p.username ?? 'Member'),
-                            ))
+                        .map(
+                          (p) => DropdownMenuItem(
+                            value: p,
+                            child: Text(p.fullName ?? p.username ?? 'Member'),
+                          ),
+                        )
                         .toList(),
                     onChanged: (val) =>
                         setDialogState(() => selectedMember = val),
@@ -81,8 +86,9 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                 const SizedBox(height: 12),
                 TextField(
                   controller: amountController,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(labelText: 'Amount (INR)'),
                 ),
                 const SizedBox(height: 12),
@@ -167,8 +173,10 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                       if (amount == null || !amount.isFinite || amount <= 0) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text(
-                                  'Enter a valid amount greater than zero.')),
+                            content: Text(
+                              'Enter a valid amount greater than zero.',
+                            ),
+                          ),
                         );
                         return;
                       }
@@ -184,13 +192,15 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                         createdBy: SupabaseService.instance.currentUserId,
                         userName: selectedMember!.fullName,
                       );
-                      final saved =
-                          await SupabaseService.instance.recordFee(fee);
+                      final saved = await SupabaseService.instance.recordFee(
+                        fee,
+                      );
                       if (!saved) {
                         if (ctx.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('Unable to save the fee entry.')),
+                              content: Text('Unable to save the fee entry.'),
+                            ),
                           );
                         }
                         return;
@@ -221,6 +231,20 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
       ),
     );
     if (updated) await _loadData();
+  }
+
+  Future<void> _printReceipt(FeeModel fee) async {
+    if (fee.status.toLowerCase() != 'paid') return;
+
+    try {
+      final receipt = await PdfService.generateFeeReceipt(fee);
+      await PdfService.printPdf(receipt);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not print receipt: $error')),
+      );
+    }
   }
 
   @override
@@ -267,14 +291,17 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                             Text(
                               'Total Community Revenue Collected',
                               style: TextStyle(
-                                  color: Colors.white70, fontSize: 13),
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
                             ),
                             SizedBox(height: 4),
                             Text(
                               'Membership Fees & Charity',
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -282,9 +309,11 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                           totalsByCurrency.isEmpty
                               ? 'No payments yet'
                               : totalsByCurrency.entries
-                                  .map((entry) =>
-                                      '${entry.key} ${entry.value.toStringAsFixed(2)}')
-                                  .join('  •  '),
+                                    .map(
+                                      (entry) =>
+                                          '${entry.key} ${entry.value.toStringAsFixed(2)}',
+                                    )
+                                    .join('  •  '),
                           textAlign: TextAlign.end,
                           style: const TextStyle(
                             fontSize: 24,
@@ -301,10 +330,11 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                   const Text(
                     'ALL FINANCIAL ENTRIES',
                     style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                        color: AppTheme.textMuted),
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                      color: AppTheme.textMuted,
+                    ),
                   ),
                   const SizedBox(height: 12),
 
@@ -325,8 +355,10 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                                   CircleAvatar(
                                     backgroundColor: AppTheme.secondaryGold
                                         .withValues(alpha: 0.15),
-                                    child: const Icon(Icons.attach_money,
-                                        color: AppTheme.secondaryGold),
+                                    child: const Icon(
+                                      Icons.attach_money,
+                                      color: AppTheme.secondaryGold,
+                                    ),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
@@ -338,37 +370,54 @@ class _FeeManagementScreenState extends State<FeeManagementScreen> {
                                           item.userName ??
                                               item.userId.substring(0, 8),
                                           style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
                                         ),
                                         Text(
                                           'Period: ${item.period ?? "N/A"}  •  ${item.status == 'paid' ? 'Paid on' : 'Recorded'}: ${dateFormat.format(item.paymentDate)}',
                                           style: const TextStyle(
-                                              fontSize: 12,
-                                              color: AppTheme.textMuted),
+                                            fontSize: 12,
+                                            color: AppTheme.textMuted,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Text(
-                                    '${item.currency} ${item.amount.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: AppTheme.primaryEmerald,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  StatusBadge(status: item.status),
-                                  if (item.status == 'pending')
-                                    IconButton(
-                                      tooltip: 'Mark as paid',
-                                      icon: const Icon(
-                                        Icons.check_circle_outline,
-                                        color: AppTheme.primaryEmerald,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        '${item.currency} ${item.amount.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                          color: AppTheme.primaryEmerald,
+                                        ),
                                       ),
-                                      onPressed: () => _markFeePaid(item),
-                                    ),
+                                      const SizedBox(height: 6),
+                                      StatusBadge(status: item.status),
+                                      if (item.status.toLowerCase() ==
+                                          'pending')
+                                        IconButton(
+                                          tooltip: 'Mark as paid',
+                                          icon: const Icon(
+                                            Icons.check_circle_outline,
+                                            color: AppTheme.primaryEmerald,
+                                          ),
+                                          onPressed: () => _markFeePaid(item),
+                                        ),
+                                      if (item.status.toLowerCase() == 'paid')
+                                        IconButton(
+                                          tooltip: 'Print receipt',
+                                          icon: const Icon(
+                                            Icons.print_outlined,
+                                            color: AppTheme.primaryEmerald,
+                                          ),
+                                          onPressed: () => _printReceipt(item),
+                                        ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             );

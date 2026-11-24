@@ -98,11 +98,26 @@ CREATE TABLE IF NOT EXISTS public.membership_fee_admin_remarks (
   updated_at timestamptz NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS public.marriage_registrations (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  groom_name text NOT NULL,
+  groom_address text NOT NULL,
+  bride_name text NOT NULL,
+  bride_address text NOT NULL,
+  marriage_place text NOT NULL,
+  venue text NOT NULL,
+  marriage_date date NOT NULL,
+  registered_by uuid NOT NULL REFERENCES auth.users(id),
+  created_at timestamptz NOT NULL DEFAULT NOW()
+);
+
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.membership_fees ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.membership_fee_admin_remarks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.family_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.marriage_registrations ENABLE ROW LEVEL SECURITY;
+
 
 -- ----------------------------------------------------------------------------
 -- 3. PROFILES TABLE RLS POLICIES
@@ -126,6 +141,26 @@ $$;
 
 REVOKE ALL ON FUNCTION public.is_management_or_admin() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_management_or_admin() TO authenticated;
+
+DROP POLICY IF EXISTS "Management and Admin read marriage registrations"
+  ON public.marriage_registrations;
+DROP POLICY IF EXISTS "Management and Admin insert marriage registrations"
+  ON public.marriage_registrations;
+
+CREATE POLICY "Management and Admin read marriage registrations"
+  ON public.marriage_registrations
+  FOR SELECT
+  USING (public.is_management_or_admin());
+
+CREATE POLICY "Management and Admin insert marriage registrations"
+  ON public.marriage_registrations
+  FOR INSERT
+  WITH CHECK (
+    public.is_management_or_admin()
+    AND registered_by = (SELECT auth.uid())
+  );
+
+GRANT SELECT, INSERT ON public.marriage_registrations TO authenticated;
 
 DROP POLICY IF EXISTS "Management and Admin read fee remarks"
   ON public.membership_fee_admin_remarks;
@@ -328,3 +363,5 @@ CREATE POLICY "Delete family_members policy" ON public.family_members
 -- ============================================================================
 -- END OF RLS & TRIGGER SETUP
 -- ============================================================================
+
+NOTIFY pgrst, 'reload schema';

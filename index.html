@@ -715,6 +715,9 @@
       <div class="nav-item" id="navRoles" style="display: none;" onclick="showPortalTab('portal-roles')">
         <i class="fa-solid fa-user-shield"></i> Member Roles Assignment
       </div>
+      <div class="nav-item" id="nav-portal-marriage" style="display: none;" onclick="showPortalTab('portal-marriage')">
+        <i class="fa-solid fa-heart"></i> Marriage Registration
+      </div>
       <div class="nav-item" id="nav-portal-family" onclick="showPortalTab('portal-family')"><i class="fa-solid fa-people-roof"></i> Family Registry</div>
       <div class="nav-item" id="nav-portal-fees" onclick="showPortalTab('portal-fees')"><i class="fa-solid fa-receipt"></i> Member Fees & Status</div>
       <div class="nav-item" id="nav-portal-posts" onclick="showPortalTab('portal-posts')"><i class="fa-solid fa-comments"></i> Community Feed</div>
@@ -974,6 +977,77 @@
               </thead>
               <tbody id="approvedRolesTableBody">
                 <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;"><i class="fa-solid fa-spinner fa-spin"></i> Loading approved members...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARRIAGE REGISTRATION (ADMIN/MANAGEMENT) -->
+      <div id="portal-marriage" class="portal-tab-content" style="display: none;">
+        <h2 class="section-title">Marriage Registration</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Create and view community marriage registration records.</p>
+
+        <div id="marriageFeedback" role="status" style="display: none; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px;"></div>
+        <div class="feature-card" style="margin-bottom: 24px;">
+          <h3 style="font-size: 16px; margin-bottom: 16px;">Register a Marriage</h3>
+          <form onsubmit="handleMarriageRegistration(event)">
+            <div class="user-info-grid" style="margin-bottom: 16px;">
+              <div>
+                <label class="info-label" for="marriageGroomName">Groom name</label>
+                <input id="marriageGroomName" class="form-control" type="text" required maxlength="200">
+              </div>
+              <div>
+                <label class="info-label" for="marriageGroomAddress">Groom address</label>
+                <textarea id="marriageGroomAddress" class="form-control" rows="2" required maxlength="1000"></textarea>
+              </div>
+              <div>
+                <label class="info-label" for="marriageBrideName">Bride name</label>
+                <input id="marriageBrideName" class="form-control" type="text" required maxlength="200">
+              </div>
+              <div>
+                <label class="info-label" for="marriageBrideAddress">Bride address</label>
+                <textarea id="marriageBrideAddress" class="form-control" rows="2" required maxlength="1000"></textarea>
+              </div>
+              <div>
+                <label class="info-label" for="marriageDate">Marriage date</label>
+                <input id="marriageDate" class="form-control" type="date" required>
+              </div>
+              <div>
+                <label class="info-label" for="marriagePlace">Place</label>
+                <input id="marriagePlace" class="form-control" type="text" required maxlength="200">
+              </div>
+              <div>
+                <label class="info-label" for="marriageVenue">Venue</label>
+                <input id="marriageVenue" class="form-control" type="text" required maxlength="200">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-emerald" id="marriageSubmitBtn">
+              <i class="fa-solid fa-heart"></i> Register Marriage
+            </button>
+          </form>
+        </div>
+
+        <div class="feature-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 16px; margin: 0;">Registered Marriages</h3>
+            <button class="btn btn-emerald" type="button" onclick="loadMarriageRegistrations()">
+              <i class="fa-solid fa-arrows-rotate"></i> Refresh
+            </button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>Groom</th>
+                  <th>Bride</th>
+                  <th>Date</th>
+                  <th>Place</th>
+                  <th>Venue</th>
+                </tr>
+              </thead>
+              <tbody id="marriageRegistrationsTable">
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 20px;">Open this section to load marriage registrations.</td></tr>
               </tbody>
             </table>
           </div>
@@ -1617,6 +1691,7 @@
       document.getElementById('navApprovals').style.display = isAdminOrMgr ? 'flex' : 'none';
       document.getElementById('navMembers').style.display = isAdminOrMgr ? 'flex' : 'none';
       document.getElementById('navRoles').style.display = isAdmin ? 'flex' : 'none';
+      document.getElementById('nav-portal-marriage').style.display = isAdminOrMgr ? 'flex' : 'none';
 
       // Update user info cards
       document.getElementById('infoName').innerText = fullName;
@@ -2268,6 +2343,87 @@
       }
     }
 
+    async function loadMarriageRegistrations() {
+      const tbody = document.getElementById('marriageRegistrationsTable');
+      if (!tbody) return;
+
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading marriage registrations...</td></tr>';
+
+      try {
+        const { data: registrations, error } = await supabaseClient
+          .from('marriage_registrations')
+          .select('groom_name, bride_name, marriage_date, marriage_place, venue')
+          .order('marriage_date', { ascending: false });
+
+        if (error) throw error;
+        if (!registrations || registrations.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">No marriage registrations found.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = registrations.map(registration => `
+          <tr>
+            <td><strong>${escapeHtml(registration.groom_name)}</strong></td>
+            <td><strong>${escapeHtml(registration.bride_name)}</strong></td>
+            <td>${escapeHtml(registration.marriage_date)}</td>
+            <td>${escapeHtml(registration.marriage_place)}</td>
+            <td>${escapeHtml(registration.venue)}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #b91c1c; padding: 24px;">Could not load marriage registrations: ${escapeHtml(error.message)}</td></tr>`;
+      }
+    }
+
+    async function handleMarriageRegistration(event) {
+      event.preventDefault();
+      const feedback = document.getElementById('marriageFeedback');
+      const submitButton = document.getElementById('marriageSubmitBtn');
+      const role = (currentProfile?.role || '').toLowerCase();
+
+      if (!currentAuthUser || !['admin', 'management'].includes(role)) {
+        feedback.style.display = 'block';
+        feedback.style.background = '#fee2e2';
+        feedback.style.color = '#991b1b';
+        feedback.textContent = 'Only admins and management can register marriages.';
+        return;
+      }
+
+      submitButton.disabled = true;
+      feedback.style.display = 'none';
+
+      try {
+        const { error } = await supabaseClient
+          .from('marriage_registrations')
+          .insert({
+            groom_name: document.getElementById('marriageGroomName').value.trim(),
+            groom_address: document.getElementById('marriageGroomAddress').value.trim(),
+            bride_name: document.getElementById('marriageBrideName').value.trim(),
+            bride_address: document.getElementById('marriageBrideAddress').value.trim(),
+            marriage_date: document.getElementById('marriageDate').value,
+            marriage_place: document.getElementById('marriagePlace').value.trim(),
+            venue: document.getElementById('marriageVenue').value.trim(),
+            registered_by: currentAuthUser.id
+          });
+
+        if (error) throw error;
+
+        event.target.reset();
+        feedback.style.display = 'block';
+        feedback.style.background = '#dcfce7';
+        feedback.style.color = '#166534';
+        feedback.textContent = 'Marriage registered successfully.';
+        await loadMarriageRegistrations();
+      } catch (error) {
+        feedback.style.display = 'block';
+        feedback.style.background = '#fee2e2';
+        feedback.style.color = '#991b1b';
+        feedback.textContent = `Could not register marriage: ${error.message}`;
+      } finally {
+        submitButton.disabled = false;
+      }
+    }
+
     async function loadFamilyMembers() {
       const tbody = document.getElementById('familyTable');
       tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading family dependents...</td></tr>';
@@ -2696,6 +2852,9 @@
         const roleNav = document.getElementById('navRoles');
         if (roleNav) roleNav.classList.add('active');
         loadRoleAssignmentDirectory();
+      }
+      if (tabId === 'portal-marriage') {
+        loadMarriageRegistrations();
       }
     }
 

@@ -10,6 +10,7 @@ import 'member_approvals_screen.dart';
 import 'all_members_screen.dart';
 import 'fee_management_screen.dart';
 import 'reports_screen.dart';
+import 'marriage_registration_screen.dart';
 
 class ManagementDashboard extends StatefulWidget {
   const ManagementDashboard({super.key});
@@ -64,19 +65,22 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const FeeManagementScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const FeeManagementScreen()),
               ).then((_) => _loadMetrics());
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadMetrics,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadMetrics),
         ],
       ),
       drawer: const AppDrawer(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MarriageRegistrationScreen()),
+        ),
+        icon: const Icon(Icons.favorite),
+        label: const Text('Marriage Registration'),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -102,7 +106,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                           Text(
                             'Logged in as ${auth.currentProfile?.fullName ?? "Manager"} (${auth.currentProfile?.role.toUpperCase()})',
                             style: const TextStyle(
-                                color: AppTheme.textMuted, fontSize: 13),
+                              color: AppTheme.textMuted,
+                              fontSize: 13,
+                            ),
                           ),
                         ],
                       ),
@@ -140,7 +146,49 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                               Text(
                                 'Choose an approved member and record paid or pending fees.',
                                 style: TextStyle(
-                                    color: Colors.white70, fontSize: 12),
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  CustomCard(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MarriageRegistrationScreen(),
+                      ),
+                    ),
+                    color: AppTheme.secondaryGold,
+                    child: const Row(
+                      children: [
+                        Icon(Icons.favorite, color: Colors.white, size: 30),
+                        SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Marriage Registration',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Create and view marriage registration records.',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),
@@ -163,8 +211,11 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.notifications_active,
-                              color: Color(0xFFB45309), size: 28),
+                          const Icon(
+                            Icons.notifications_active,
+                            color: Color(0xFFB45309),
+                            size: 28,
+                          ),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Column(
@@ -180,7 +231,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 const Text(
                                   'Review and approve user requests with 1-click controls.',
                                   style: TextStyle(
-                                      fontSize: 12, color: Color(0xFF92400E)),
+                                    fontSize: 12,
+                                    color: Color(0xFF92400E),
+                                  ),
                                 ),
                               ],
                             ),
@@ -190,8 +243,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) =>
-                                        const MemberApprovalsScreen()),
+                                  builder: (_) => const MemberApprovalsScreen(),
+                                ),
                               ).then((_) => _loadMetrics());
                             },
                             style: ElevatedButton.styleFrom(
@@ -205,8 +258,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
 
                   // KPI Cards
                   GridView.count(
-                    crossAxisCount:
-                        MediaQuery.of(context).size.width > 700 ? 4 : 2,
+                    crossAxisCount: MediaQuery.of(context).size.width > 700
+                        ? 4
+                        : 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 14,
@@ -255,8 +309,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
 
                   // Modules Grid
                   GridView.count(
-                    crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 3 : 1,
+                    crossAxisCount: MediaQuery.of(context).size.width > 600
+                        ? 3
+                        : 1,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 16,
@@ -268,7 +323,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const AllMembersScreen()),
+                              builder: (_) => const AllMembersScreen(),
+                            ),
                           ).then((_) => _loadMetrics());
                         },
                         child: Column(
@@ -280,19 +336,23 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryTeal
-                                        .withValues(alpha: 0.1),
+                                    color: AppTheme.primaryTeal.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(Icons.people_alt,
-                                      color: AppTheme.primaryTeal),
+                                  child: const Icon(
+                                    Icons.people_alt,
+                                    color: AppTheme.primaryTeal,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
                                   'All Members Directory',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -300,7 +360,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                             const Text(
                               'View and search all approved, pending, and non-approved members.',
                               style: TextStyle(
-                                  fontSize: 12, color: AppTheme.textMuted),
+                                fontSize: 12,
+                                color: AppTheme.textMuted,
+                              ),
                             ),
                           ],
                         ),
@@ -310,7 +372,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const MemberApprovalsScreen()),
+                              builder: (_) => const MemberApprovalsScreen(),
+                            ),
                           ).then((_) => _loadMetrics());
                         },
                         child: Column(
@@ -322,19 +385,23 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryEmerald
-                                        .withValues(alpha: 0.1),
+                                    color: AppTheme.primaryEmerald.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(Icons.how_to_reg,
-                                      color: AppTheme.primaryEmerald),
+                                  child: const Icon(
+                                    Icons.how_to_reg,
+                                    color: AppTheme.primaryEmerald,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
                                   '1-Click Approvals',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -342,7 +409,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                             const Text(
                               'Approve or reject new member applications instantly.',
                               style: TextStyle(
-                                  fontSize: 12, color: AppTheme.textMuted),
+                                fontSize: 12,
+                                color: AppTheme.textMuted,
+                              ),
                             ),
                           ],
                         ),
@@ -352,7 +421,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const FeeManagementScreen()),
+                              builder: (_) => const FeeManagementScreen(),
+                            ),
                           ).then((_) => _loadMetrics());
                         },
                         child: Column(
@@ -364,19 +434,23 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.secondaryGold
-                                        .withValues(alpha: 0.1),
+                                    color: AppTheme.secondaryGold.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(Icons.receipt_long,
-                                      color: AppTheme.secondaryGold),
+                                  child: const Icon(
+                                    Icons.receipt_long,
+                                    color: AppTheme.secondaryGold,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
                                   'Member Fees & Status',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -384,7 +458,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                             const Text(
                               'Enter fees for approved members and track pending or paid status.',
                               style: TextStyle(
-                                  fontSize: 12, color: AppTheme.textMuted),
+                                fontSize: 12,
+                                color: AppTheme.textMuted,
+                              ),
                             ),
                           ],
                         ),
@@ -394,7 +470,8 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const ReportsScreen()),
+                              builder: (_) => const ReportsScreen(),
+                            ),
                           );
                         },
                         child: Column(
@@ -406,19 +483,23 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryTeal
-                                        .withValues(alpha: 0.1),
+                                    color: AppTheme.primaryTeal.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: const Icon(Icons.picture_as_pdf,
-                                      color: AppTheme.primaryTeal),
+                                  child: const Icon(
+                                    Icons.picture_as_pdf,
+                                    color: AppTheme.primaryTeal,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 const Text(
                                   'PDF Report Generator',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
@@ -426,7 +507,9 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
                             const Text(
                               'Export printable financial summaries & membership certificates.',
                               style: TextStyle(
-                                  fontSize: 12, color: AppTheme.textMuted),
+                                fontSize: 12,
+                                color: AppTheme.textMuted,
+                              ),
                             ),
                           ],
                         ),
@@ -456,9 +539,10 @@ class _ManagementDashboardState extends State<ManagementDashboard> {
               Text(
                 title,
                 style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textMuted,
-                    fontWeight: FontWeight.w600),
+                  fontSize: 12,
+                  color: AppTheme.textMuted,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Icon(icon, color: color, size: 20),
             ],

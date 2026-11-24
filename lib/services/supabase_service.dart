@@ -6,6 +6,7 @@ import '../models/profile_model.dart';
 import '../models/post_model.dart';
 import '../models/fee_model.dart';
 import '../models/family_member_model.dart';
+import '../models/marriage_registration_model.dart';
 
 class SupabaseService {
   static final SupabaseService instance = SupabaseService._internal();
@@ -403,5 +404,48 @@ class SupabaseService {
       }
     }
     return false;
+  }
+
+  // --- MARRIAGE REGISTRATIONS ---
+  Future<List<MarriageRegistrationModel>> fetchMarriageRegistrations() async {
+    final supabase = client;
+    if (supabase == null) {
+      throw StateError('Database client is not configured.');
+    }
+
+    try {
+      final rows = await supabase
+          .from('marriage_registrations')
+          .select()
+          .order('marriage_date', ascending: false);
+      return (rows as List)
+          .map((row) => MarriageRegistrationModel.fromJson(row))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching marriage registrations: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> createMarriageRegistration(
+    MarriageRegistrationModel registration,
+  ) async {
+    final supabase = client;
+    final userId = currentUserId;
+    if (supabase == null || userId.isEmpty) {
+      throw StateError(
+        'Sign in with a configured database to register a marriage.',
+      );
+    }
+
+    try {
+      await supabase.from('marriage_registrations').insert({
+        ...registration.toInsertJson(),
+        'registered_by': userId,
+      });
+    } catch (e) {
+      debugPrint('Error creating marriage registration: $e');
+      rethrow;
+    }
   }
 }

@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 
 import '../models/profile_model.dart';
 import '../models/fee_model.dart';
+import '../models/marriage_registration_model.dart';
 
 class PdfService {
   /// Generate a receipt PDF for a confirmed payment.
@@ -258,6 +259,181 @@ class PdfService {
     );
 
     return pdf.save();
+  }
+
+  static Future<Uint8List> generateMarriageCertificate(
+    MarriageRegistrationModel registration,
+  ) async {
+    final pdf = pw.Document();
+    final date = DateFormat('MMMM d, yyyy').format(registration.marriageDate);
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4.landscape,
+        margin: const pw.EdgeInsets.all(28),
+        build: (context) => pw.Container(
+          padding: const pw.EdgeInsets.all(24),
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(color: PdfColors.green900, width: 4),
+          ),
+          child: pw.Container(
+            padding: const pw.EdgeInsets.all(22),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.amber700, width: 1.5),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+              children: [
+                pw.Text(
+                  'ANSAR TRUST',
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(
+                    color: PdfColors.green900,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                ),
+                pw.SizedBox(height: 4),
+                pw.Text(
+                  'Alanallur, Pin : 678601',
+                  textAlign: pw.TextAlign.center,
+                  style: const pw.TextStyle(
+                    fontSize: 10,
+                    color: PdfColors.grey700,
+                  ),
+                ),
+                pw.SizedBox(height: 14),
+                pw.Text(
+                  'MARRIAGE CERTIFICATE',
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(
+                    color: PdfColors.amber800,
+                    fontSize: 22,
+                    fontWeight: pw.FontWeight.bold,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                pw.Divider(color: PdfColors.green800, thickness: 1.5),
+                pw.SizedBox(height: 10),
+                pw.Text(
+                  'This certifies that the marriage of the following parties '
+                  'was registered with Ansar Trust.',
+                  textAlign: pw.TextAlign.center,
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                    color: PdfColors.grey800,
+                  ),
+                ),
+                pw.SizedBox(height: 18),
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Expanded(
+                      child: _certificatePerson(
+                        'GROOM',
+                        registration.groomName,
+                        registration.groomAddress,
+                      ),
+                    ),
+                    pw.SizedBox(width: 24),
+                    pw.Expanded(
+                      child: _certificatePerson(
+                        'BRIDE',
+                        registration.brideName,
+                        registration.brideAddress,
+                      ),
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 16),
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(12),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.grey100,
+                    border: pw.Border.all(color: PdfColors.grey300),
+                  ),
+                  child: pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      _certificateDetail('Marriage date', date),
+                      _certificateDetail(
+                        'Place',
+                        registration.marriagePlace,
+                      ),
+                      _certificateDetail('Venue', registration.venue),
+                    ],
+                  ),
+                ),
+                pw.Spacer(),
+                pw.Align(
+                  alignment: pw.Alignment.centerRight,
+                  child: pw.Column(
+                    children: [
+                      pw.SizedBox(width: 180, child: pw.Divider()),
+                      pw.Text(
+                        'President, Ansar Trust',
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  static pw.Widget _certificatePerson(
+    String label,
+    String name,
+    String address,
+  ) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          label,
+          style: pw.TextStyle(
+            color: PdfColors.green900,
+            fontSize: 10,
+            fontWeight: pw.FontWeight.bold,
+            letterSpacing: 1,
+          ),
+        ),
+        pw.SizedBox(height: 5),
+        pw.Text(
+          name,
+          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+        ),
+        pw.SizedBox(height: 3),
+        pw.Text(
+          address,
+          style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+        ),
+      ],
+    );
+  }
+
+  static pw.Widget _certificateDetail(String label, String value) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          label.toUpperCase(),
+          style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey600),
+        ),
+        pw.SizedBox(height: 3),
+        pw.Text(value, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+      ],
+    );
   }
 
   /// Generate Financial Summary PDF Report

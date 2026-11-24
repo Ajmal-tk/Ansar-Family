@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../screens/public/public_portal.dart';
@@ -10,6 +11,7 @@ import '../screens/management/management_dashboard.dart';
 import '../screens/management/member_approvals_screen.dart';
 import '../screens/management/all_members_screen.dart';
 import '../screens/management/fee_management_screen.dart';
+import '../screens/management/marriage_registration_screen.dart';
 import '../screens/admin/admin_panel.dart';
 import 'status_badge.dart';
 
@@ -41,14 +43,18 @@ class AppDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(profile?.phone ??
-                    profile?.address ??
-                    'Local Muslim Community Platform'),
+                Text(
+                  profile?.phone ??
+                      profile?.address ??
+                      'Local Muslim Community Platform',
+                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     StatusBadge(
-                        status: profile?.role ?? 'member', isRole: true),
+                      status: profile?.role ?? 'member',
+                      isRole: true,
+                    ),
                     const SizedBox(width: 6),
                     StatusBadge(status: profile?.status ?? 'pending'),
                   ],
@@ -77,8 +83,10 @@ class AppDrawer extends StatelessWidget {
               children: [
                 // Public Portal Section
                 ListTile(
-                  leading:
-                      const Icon(Icons.home, color: AppTheme.primaryEmerald),
+                  leading: const Icon(
+                    Icons.home,
+                    color: AppTheme.primaryEmerald,
+                  ),
                   title: const Text('Public Portal'),
                   onTap: () {
                     Navigator.pop(context);
@@ -89,15 +97,18 @@ class AppDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading:
-                      const Icon(Icons.people, color: AppTheme.primaryTeal),
+                  leading: const Icon(
+                    Icons.people,
+                    color: AppTheme.primaryTeal,
+                  ),
                   title: const Text('Family Members'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const FamilyMembersScreen()),
+                        builder: (_) => const FamilyMembersScreen(),
+                      ),
                     );
                   },
                 ),
@@ -109,20 +120,24 @@ class AppDrawer extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const CommunityPostsScreen()),
+                        builder: (_) => const CommunityPostsScreen(),
+                      ),
                     );
                   },
                 ),
                 ListTile(
-                  leading:
-                      const Icon(Icons.payments, color: AppTheme.secondaryGold),
+                  leading: const Icon(
+                    Icons.payments,
+                    color: AppTheme.secondaryGold,
+                  ),
                   title: const Text('Membership Fees & Donations'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const FeePaymentScreen()),
+                        builder: (_) => const FeePaymentScreen(),
+                      ),
                     );
                   },
                 ),
@@ -143,54 +158,82 @@ class AppDrawer extends StatelessWidget {
                     ),
                   ),
                   ListTile(
-                    leading: const Icon(Icons.dashboard,
-                        color: AppTheme.primaryEmerald),
+                    leading: const Icon(
+                      Icons.favorite,
+                      color: AppTheme.secondaryGold,
+                    ),
+                    title: const Text('Marriage Registration'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MarriageRegistrationScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(
+                      Icons.dashboard,
+                      color: AppTheme.primaryEmerald,
+                    ),
                     title: const Text('Management Dashboard'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const ManagementDashboard()),
+                          builder: (_) => const ManagementDashboard(),
+                        ),
                       );
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.how_to_reg,
-                        color: AppTheme.primaryTeal),
+                    leading: const Icon(
+                      Icons.how_to_reg,
+                      color: AppTheme.primaryTeal,
+                    ),
                     title: const Text('Pending Approvals Panel'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const MemberApprovalsScreen()),
+                          builder: (_) => const MemberApprovalsScreen(),
+                        ),
                       );
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.people_alt,
-                        color: AppTheme.primaryEmerald),
+                    leading: const Icon(
+                      Icons.people_alt,
+                      color: AppTheme.primaryEmerald,
+                    ),
                     title: const Text('All Members Directory'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const AllMembersScreen()),
+                          builder: (_) => const AllMembersScreen(),
+                        ),
                       );
                     },
                   ),
                   ListTile(
-                    leading: const Icon(Icons.receipt_long,
-                        color: AppTheme.secondaryGold),
+                    leading: const Icon(
+                      Icons.receipt_long,
+                      color: AppTheme.secondaryGold,
+                    ),
                     title: const Text('Member Fees & Payment Status'),
                     onTap: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const FeeManagementScreen()),
+                          builder: (_) => const FeeManagementScreen(),
+                        ),
                       );
                     },
                   ),
@@ -198,8 +241,10 @@ class AppDrawer extends StatelessWidget {
 
                 if (auth.isAdmin) ...[
                   ListTile(
-                    leading: const Icon(Icons.admin_panel_settings,
-                        color: Colors.purple),
+                    leading: const Icon(
+                      Icons.admin_panel_settings,
+                      color: Colors.purple,
+                    ),
                     title: const Text('Admin System Panel'),
                     onTap: () {
                       Navigator.pop(context);

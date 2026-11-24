@@ -10,6 +10,7 @@ import '../management/all_members_screen.dart';
 import '../management/fee_management_screen.dart';
 import '../management/member_approvals_screen.dart';
 import '../management/reports_screen.dart';
+import '../management/marriage_registration_screen.dart';
 
 class AdminPanel extends StatefulWidget {
   const AdminPanel({super.key});
@@ -56,6 +57,14 @@ class _AdminPanelState extends State<AdminPanel> {
         ],
       ),
       drawer: const AppDrawer(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MarriageRegistrationScreen()),
+        ),
+        icon: const Icon(Icons.favorite),
+        label: const Text('Marriage Registration'),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -67,8 +76,11 @@ class _AdminPanelState extends State<AdminPanel> {
                     color: Colors.purple.shade700,
                     child: const Row(
                       children: [
-                        Icon(Icons.admin_panel_settings,
-                            color: Colors.white, size: 32),
+                        Icon(
+                          Icons.admin_panel_settings,
+                          color: Colors.white,
+                          size: 32,
+                        ),
                         SizedBox(width: 14),
                         Expanded(
                           child: Column(
@@ -85,7 +97,9 @@ class _AdminPanelState extends State<AdminPanel> {
                               Text(
                                 'Assign system roles (Admin, Management, Member) and update user approval states.',
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.white70),
+                                  fontSize: 12,
+                                  color: Colors.white70,
+                                ),
                               ),
                             ],
                           ),
@@ -105,8 +119,9 @@ class _AdminPanelState extends State<AdminPanel> {
                   ),
                   const SizedBox(height: 14),
                   GridView.count(
-                    crossAxisCount:
-                        MediaQuery.of(context).size.width > 600 ? 3 : 1,
+                    crossAxisCount: MediaQuery.of(context).size.width > 600
+                        ? 3
+                        : 1,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     mainAxisSpacing: 16,
@@ -128,8 +143,7 @@ class _AdminPanelState extends State<AdminPanel> {
                       ),
                       _buildAdminActionCard(
                         title: 'Member Fees & Status',
-                        description:
-                            'Enter fees for approved members and track pending or paid status.',
+                        description: 'Enter fees for approved members and track pending or paid status.',
                         icon: Icons.receipt_long,
                         color: AppTheme.secondaryGold,
                         onTap: () => Navigator.push(
@@ -141,8 +155,7 @@ class _AdminPanelState extends State<AdminPanel> {
                       ),
                       _buildAdminActionCard(
                         title: 'All Members Directory',
-                        description:
-                            'Browse approved, pending and rejected members directory.',
+                        description: 'Browse approved, pending and rejected members directory.',
                         icon: Icons.people_alt,
                         color: Colors.deepPurple,
                         onTap: () => Navigator.push(
@@ -154,8 +167,7 @@ class _AdminPanelState extends State<AdminPanel> {
                       ),
                       _buildAdminActionCard(
                         title: 'PDF Report Generator',
-                        description:
-                            'Generate financial summaries and membership certificates.',
+                        description: 'Generate financial summaries and membership certificates.',
                         icon: Icons.picture_as_pdf,
                         color: AppTheme.primaryTeal,
                         onTap: () => Navigator.push(
@@ -221,8 +233,9 @@ class _AdminPanelState extends State<AdminPanel> {
                                       Text(
                                         'ID: ${item.id.substring(0, 8)}...  •  Phone: ${item.phone ?? "N/A"}',
                                         style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppTheme.textMuted),
+                                          fontSize: 12,
+                                          color: AppTheme.textMuted,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -240,24 +253,30 @@ class _AdminPanelState extends State<AdminPanel> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text('Role: ',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold)),
+                                    const Text(
+                                      'Role: ',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     DropdownButton<String>(
                                       value: item.role,
                                       isDense: true,
                                       underline: const SizedBox(),
                                       items: const [
                                         DropdownMenuItem(
-                                            value: 'member',
-                                            child: Text('Member')),
+                                          value: 'member',
+                                          child: Text('Member'),
+                                        ),
                                         DropdownMenuItem(
-                                            value: 'management',
-                                            child: Text('Management')),
+                                          value: 'management',
+                                          child: Text('Management'),
+                                        ),
                                         DropdownMenuItem(
-                                            value: 'admin',
-                                            child: Text('Admin')),
+                                          value: 'admin',
+                                          child: Text('Admin'),
+                                        ),
                                       ],
                                       onChanged: (val) {
                                         if (val != null)
@@ -268,24 +287,30 @@ class _AdminPanelState extends State<AdminPanel> {
                                 ),
                                 Row(
                                   children: [
-                                    const Text('Status: ',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold)),
+                                    const Text(
+                                      'Status: ',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     DropdownButton<String>(
                                       value: item.status,
                                       isDense: true,
                                       underline: const SizedBox(),
                                       items: const [
                                         DropdownMenuItem(
-                                            value: 'pending',
-                                            child: Text('Pending')),
+                                          value: 'pending',
+                                          child: Text('Pending'),
+                                        ),
                                         DropdownMenuItem(
-                                            value: 'approved',
-                                            child: Text('Approved')),
+                                          value: 'approved',
+                                          child: Text('Approved'),
+                                        ),
                                         DropdownMenuItem(
-                                            value: 'rejected',
-                                            child: Text('Rejected')),
+                                          value: 'rejected',
+                                          child: Text('Rejected'),
+                                        ),
                                       ],
                                       onChanged: (val) {
                                         if (val != null)

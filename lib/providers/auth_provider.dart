@@ -68,6 +68,7 @@ class AuthProvider extends ChangeNotifier {
     required String password,
     required String fullName,
     required String phone,
+    String? place,
     required String address,
   }) async {
     _isLoading = true;
@@ -81,6 +82,7 @@ class AuthProvider extends ChangeNotifier {
         password: password,
         fullName: fullName,
         phone: phone,
+        place: place,
         address: address,
       );
       if (response?.session == null) {

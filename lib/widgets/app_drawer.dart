@@ -159,6 +159,22 @@ class AppDrawer extends StatelessWidget {
                   ),
                   ListTile(
                     leading: const Icon(
+                      Icons.people_alt,
+                      color: AppTheme.primaryEmerald,
+                    ),
+                    title: const Text('All Members Directory'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AllMembersScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(
                       Icons.favorite,
                       color: AppTheme.secondaryGold,
                     ),
@@ -201,22 +217,6 @@ class AppDrawer extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const MemberApprovalsScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.people_alt,
-                      color: AppTheme.primaryEmerald,
-                    ),
-                    title: const Text('All Members Directory'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AllMembersScreen(),
                         ),
                       );
                     },

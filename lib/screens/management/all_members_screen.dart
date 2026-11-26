@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_saver/file_saver.dart';
 
 import '../../config/app_theme.dart';
 import '../../models/profile_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/member_export_service.dart';
+import '../../services/pdf_service.dart';
 import '../../services/supabase_service.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/status_badge.dart';
@@ -19,6 +22,7 @@ class AllMembersScreen extends StatefulWidget {
 
 class _AllMembersScreenState extends State<AllMembersScreen> {
   List<ProfileModel> _allProfiles = [];
+  bool _isExporting = false;
   bool _isLoading = true;
   String _selectedFilter = 'all'; // 'all', 'approved', 'pending', 'rejected'
   String _searchQuery = '';
@@ -92,6 +96,61 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
     }
   }
 
+  Future<void> _exportMembers({required bool asPdf}) async {
+    setState(() => _isExporting = true);
+    try {
+      final profiles =
+          await SupabaseService.instance.fetchAllProfilesForExport();
+      if (profiles.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('There are no members to export.')),
+          );
+        }
+        return;
+      }
+
+      final familyMembers = await SupabaseService.instance
+          .fetchAllFamilyMembers();
+      final date = DateTime.now();
+      final dateSuffix =
+          '${date.year}${date.month.toString().padLeft(2, '0')}${date.day.toString().padLeft(2, '0')}';
+
+      if (asPdf) {
+        final bytes = await MemberExportService.generatePdf(
+          profiles,
+          familyMembers,
+        );
+        await PdfService.printOrDownloadPdf(
+          bytes,
+          'All_Members_$dateSuffix.pdf',
+        );
+      } else {
+        final bytes = MemberExportService.generateExcel(
+          profiles,
+          familyMembers,
+        );
+        await FileSaver.instance.saveFile(
+          name: 'All_Members_$dateSuffix',
+          bytes: bytes,
+          fileExtension: 'xlsx',
+          mimeType: MimeType.microsoftExcel,
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not export members: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
+
   void _showRoleChangeDialog(ProfileModel item) {
     String selected = item.role;
     showDialog(
@@ -156,10 +215,12 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
         final name = (p.fullName ?? '').toLowerCase();
         final username = (p.username ?? '').toLowerCase();
         final phone = (p.phone ?? '').toLowerCase();
+        final place = (p.place ?? '').toLowerCase();
         final address = (p.address ?? '').toLowerCase();
         return name.contains(q) ||
             username.contains(q) ||
             phone.contains(q) ||
+            place.contains(q) ||
             address.contains(q);
       }
       return true;
@@ -184,7 +245,7 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _loadProfiles,
+            onPressed: _isExporting ? null : _loadProfiles,
           ),
         ],
       ),
@@ -195,11 +256,94 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Export Actions
+                  if (auth.isManagement) ...[
+                    CustomCard(
+                      color: const Color(0xFFEAF7F2),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.download_for_offline_outlined,
+                                color: AppTheme.primaryEmerald,
+                                size: 26,
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Download All Members Data',
+                                  style: TextStyle(
+                                    color: AppTheme.primaryEmerald,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Export the complete member directory with contact details and household totals.',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 10,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: _isExporting
+                                    ? null
+                                    : () => _exportMembers(asPdf: false),
+                                icon: const Icon(Icons.table_view),
+                                label: const Text('Download Excel'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryEmerald,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: _isExporting
+                                    ? null
+                                    : () => _exportMembers(asPdf: true),
+                                icon: const Icon(Icons.picture_as_pdf),
+                                label: const Text('Download PDF'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryTeal,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                              if (_isExporting)
+                                const Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppTheme.primaryEmerald,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
                   // Search Box
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search members by name, phone, address...',
+                      hintText: 'Search name, phone, place, address...',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? IconButton(
@@ -325,6 +469,15 @@ class _AllMembersScreenState extends State<AllMembersScreen> {
                                             item.address!.isNotEmpty)
                                           Text(
                                             item.address!,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppTheme.textMuted,
+                                            ),
+                                          ),
+                                        if (item.place != null &&
+                                            item.place!.isNotEmpty)
+                                          Text(
+                                            'Place: ${item.place}',
                                             style: const TextStyle(
                                               fontSize: 11,
                                               color: AppTheme.textMuted,

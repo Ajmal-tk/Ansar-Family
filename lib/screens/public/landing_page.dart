@@ -30,6 +30,7 @@ class _LandingPageState extends State<LandingPage>
   final _passRegisterController = TextEditingController();
   final _nameRegisterController = TextEditingController();
   final _phoneRegisterController = TextEditingController();
+  final _placeRegisterController = TextEditingController();
   final _addressRegisterController = TextEditingController();
 
   @override
@@ -48,6 +49,7 @@ class _LandingPageState extends State<LandingPage>
     _passRegisterController.dispose();
     _nameRegisterController.dispose();
     _phoneRegisterController.dispose();
+    _placeRegisterController.dispose();
     _addressRegisterController.dispose();
     super.dispose();
   }
@@ -88,6 +90,7 @@ class _LandingPageState extends State<LandingPage>
         password: _passRegisterController.text.trim(),
         fullName: _nameRegisterController.text.trim(),
         phone: _phoneRegisterController.text.trim(),
+        place: _placeRegisterController.text.trim(),
         address: _addressRegisterController.text.trim(),
       );
       if (success && mounted) {
@@ -553,6 +556,15 @@ class _LandingPageState extends State<LandingPage>
                                           labelText: 'Phone Number',
                                           prefixIcon:
                                               Icon(Icons.phone_outlined),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      TextFormField(
+                                        controller: _placeRegisterController,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Place',
+                                          prefixIcon:
+                                              Icon(Icons.location_city_outlined),
                                         ),
                                       ),
                                       const SizedBox(height: 10),

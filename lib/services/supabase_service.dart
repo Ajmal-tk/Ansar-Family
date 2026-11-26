@@ -34,6 +34,7 @@ class SupabaseService {
     required String password,
     required String fullName,
     required String phone,
+    String? place,
     required String address,
   }) async {
     if (client == null) {
@@ -51,6 +52,7 @@ class SupabaseService {
         'username': username,
         'full_name': fullName,
         'phone': phone,
+        'place': place,
         'address': address,
         'role': 'member',
         'status': 'pending',
@@ -184,6 +186,23 @@ class SupabaseService {
     return [];
   }
 
+  Future<List<ProfileModel>> fetchAllProfilesForExport() async {
+    final supabase = client;
+    if (supabase == null) {
+      throw StateError('Database client is not configured.');
+    }
+
+    try {
+      final rows = await supabase.from('profiles').select();
+      return (rows as List)
+          .map((row) => ProfileModel.fromJson(row))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching profiles for export: $e');
+      rethrow;
+    }
+  }
+
   Future<bool> updateProfileStatus(String userId, String status) async {
     if (client != null) {
       try {
@@ -245,6 +264,23 @@ class SupabaseService {
       }
     }
     return [];
+  }
+
+  Future<List<FamilyMemberModel>> fetchAllFamilyMembers() async {
+    final supabase = client;
+    if (supabase == null) {
+      throw StateError('Database client is not configured.');
+    }
+
+    try {
+      final rows = await supabase.from('family_members').select();
+      return (rows as List)
+          .map((row) => FamilyMemberModel.fromJson(row))
+          .toList();
+    } catch (e) {
+      debugPrint('Error fetching all family members: $e');
+      rethrow;
+    }
   }
 
   Future<bool> addFamilyMember({

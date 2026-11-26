@@ -5,6 +5,7 @@
 
 -- Ensure email column exists on public.profiles
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS place text;
 
 -- Optional household details for family registry analysis
 ALTER TABLE public.family_members
@@ -19,13 +20,14 @@ ALTER TABLE public.family_members
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, username, email, full_name, phone, address, role, status, updated_at)
+  INSERT INTO public.profiles (id, username, email, full_name, phone, place, address, role, status, updated_at)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1)),
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
     NEW.raw_user_meta_data->>'phone',
+    NEW.raw_user_meta_data->>'place',
     NEW.raw_user_meta_data->>'address',
     COALESCE(NEW.raw_user_meta_data->>'role', 'member'),
     COALESCE(NEW.raw_user_meta_data->>'status', 'pending'),
@@ -35,6 +37,7 @@ BEGIN
     email = EXCLUDED.email,
     full_name = EXCLUDED.full_name,
     phone = EXCLUDED.phone,
+    place = EXCLUDED.place,
     address = EXCLUDED.address,
     updated_at = NOW();
   RETURN NEW;

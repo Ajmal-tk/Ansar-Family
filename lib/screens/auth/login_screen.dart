@@ -30,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _confirmPassRegisterController = TextEditingController();
   final _nameRegisterController = TextEditingController();
   final _phoneRegisterController = TextEditingController();
+  final _placeRegisterController = TextEditingController();
   final _addressRegisterController = TextEditingController();
   bool _obscureRegisterPass = true;
   bool _obscureRegisterConfirmPass = true;
@@ -50,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen>
     _confirmPassRegisterController.dispose();
     _nameRegisterController.dispose();
     _phoneRegisterController.dispose();
+    _placeRegisterController.dispose();
     _addressRegisterController.dispose();
     super.dispose();
   }
@@ -79,6 +81,7 @@ class _LoginScreenState extends State<LoginScreen>
         password: _passRegisterController.text.trim(),
         fullName: _nameRegisterController.text.trim(),
         phone: _phoneRegisterController.text.trim(),
+        place: _placeRegisterController.text.trim(),
         address: _addressRegisterController.text.trim(),
       );
       if (success && mounted) {
@@ -308,6 +311,16 @@ class _LoginScreenState extends State<LoginScreen>
                                     decoration: const InputDecoration(
                                       labelText: 'Phone Number',
                                       prefixIcon: Icon(Icons.phone_outlined),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _placeRegisterController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Place',
+                                      prefixIcon: Icon(
+                                        Icons.location_city_outlined,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 10),

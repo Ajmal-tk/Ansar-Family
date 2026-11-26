@@ -217,6 +217,11 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                               widget.member.phone,
                             ),
                             _detailRow(
+                              Icons.location_city_outlined,
+                              'Place',
+                              widget.member.place,
+                            ),
+                            _detailRow(
                               Icons.location_on_outlined,
                               'Address',
                               widget.member.address,

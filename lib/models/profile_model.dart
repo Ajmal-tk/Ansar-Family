@@ -8,6 +8,7 @@ class ProfileModel {
   final String role; // 'admin', 'management', 'member'
   final String status; // 'pending', 'approved', 'rejected'
   final String? phone;
+  final String? place;
   final String? address;
 
   ProfileModel({
@@ -20,6 +21,7 @@ class ProfileModel {
     this.role = 'member',
     this.status = 'pending',
     this.phone,
+    this.place,
     this.address,
   });
 
@@ -42,6 +44,7 @@ class ProfileModel {
       role: json['role'] as String? ?? 'member',
       status: json['status'] as String? ?? 'pending',
       phone: json['phone'] as String?,
+      place: json['place'] as String?,
       address: json['address'] as String?,
     );
   }
@@ -57,6 +60,7 @@ class ProfileModel {
       'role': role,
       'status': status,
       'phone': phone,
+      'place': place,
       'address': address,
     };
   }
@@ -70,6 +74,7 @@ class ProfileModel {
     String? role,
     String? status,
     String? phone,
+    String? place,
     String? address,
   }) {
     return ProfileModel(
@@ -82,6 +87,7 @@ class ProfileModel {
       role: role ?? this.role,
       status: status ?? this.status,
       phone: phone ?? this.phone,
+      place: place ?? this.place,
       address: address ?? this.address,
     );
   }

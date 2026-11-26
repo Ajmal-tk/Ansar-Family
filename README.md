@@ -72,6 +72,7 @@ Run the **Flutter Web (Codespaces)** profile from VS Code's Run and Debug panel,
 flutter run -d web-server --web-hostname=0.0.0.0 --web-port=8080
 ```
 Open port **8080** from the Codespaces **Ports** panel.
+This serves the Flutter app from `lib/main.dart`; use the forwarded port URL in any browser. No Android emulator or device is needed to test the web app. Do not use a static file server on the repository root, which serves the separate root `index.html` instead.
 
 ### Windows Desktop
 ```bash

@@ -289,15 +289,23 @@ class _MarriageRegistrationScreenState
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: const [
+                    DataColumn(label: Text('Certificate')),
                     DataColumn(label: Text('Groom')),
                     DataColumn(label: Text('Bride')),
                     DataColumn(label: Text('Date')),
                     DataColumn(label: Text('Place / Venue')),
-                    DataColumn(label: Text('Certificate')),
                   ],
                   rows: _registrations.map((registration) {
                     return DataRow(
                       cells: [
+                        DataCell(
+                          OutlinedButton.icon(
+                            icon: const Icon(Icons.download_outlined),
+                            label: const Text('Download Marriage Certificate'),
+                            onPressed: () =>
+                                _downloadCertificate(registration),
+                          ),
+                        ),
                         DataCell(Text(registration.groomName)),
                         DataCell(Text(registration.brideName)),
                         DataCell(Text(
@@ -307,17 +315,6 @@ class _MarriageRegistrationScreenState
                         DataCell(Text(
                           '${registration.marriagePlace} / ${registration.venue}',
                         )),
-                        DataCell(
-                          IconButton(
-                            tooltip: 'Download marriage certificate',
-                            icon: const Icon(
-                              Icons.picture_as_pdf,
-                              color: AppTheme.primaryEmerald,
-                            ),
-                            onPressed: () =>
-                                _downloadCertificate(registration),
-                          ),
-                        ),
                       ],
                     );
                   }).toList(),
